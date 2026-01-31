@@ -296,6 +296,7 @@ def render_analysis_form():
             'analysis_date': str(analysis_date),
             'analysts': [a[0] for a in selected_analysts],
             'research_depth': research_depth,
+            'analysis_level': research_depth,  # 添加分析级别字段
             'include_sentiment': include_sentiment,
             'include_risk_assessment': include_risk_assessment,
             'custom_prompt': custom_prompt

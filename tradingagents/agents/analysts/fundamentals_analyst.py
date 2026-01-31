@@ -16,6 +16,9 @@ logger = get_logger("default")
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+# 导入Agent配置管理器
+from tradingagents.agents.utils.agent_config_manager import get_agent_config_manager
+
 
 def _get_company_name_for_fundamentals(ticker: str, market_info: dict) -> str:
     """
@@ -175,8 +178,11 @@ def create_fundamentals_analyst(llm, toolkit):
         logger.info(f"📊 [基本面分析师] 绑定的工具: {tool_names_debug}")
         logger.info(f"📊 [基本面分析师] 目标市场: {market_info['market_name']}")
 
-        # 统一的系统提示，适用于所有股票类型
-        system_message = (
+        # 从MongoDB获取配置，如果不存在则使用默认配置
+        config_manager = get_agent_config_manager()
+        
+        # 默认系统提示，适用于所有股票类型
+        default_system_message = (
             f"你是一位专业的股票基本面分析师。"
             f"⚠️ 绝对强制要求：你必须调用工具获取真实数据！不允许任何假设或编造！"
             f"任务：分析{company_name}（股票代码：{ticker}，{market_info['market_name']}）"
@@ -209,9 +215,9 @@ def create_fundamentals_analyst(llm, toolkit):
             "- 使用中文投资建议（买入/持有/卖出）"
             "现在立即开始调用工具！不要说任何其他话！"
         )
-
-        # 系统提示模板
-        system_prompt = (
+        
+        # 默认提示模板
+        default_system_prompt = (
             "🔴 强制要求：你必须调用工具获取真实数据！"
             "🚫 绝对禁止：不允许假设、编造或直接回答任何问题！"
             "✅ 工作流程："
@@ -230,6 +236,32 @@ def create_fundamentals_analyst(llm, toolkit):
             "分析目标：{company_name}（股票代码：{ticker}）。"
             "请确保在分析中正确区分公司名称和股票代码。"
         )
+        
+        # 从配置管理器获取配置
+        system_message = default_system_message
+        system_prompt = default_system_prompt
+        
+        if config_manager:
+            # 尝试从MongoDB获取系统消息
+            db_system_message = config_manager.get_system_message("fundamentals")
+            if db_system_message:
+                # 替换模板变量
+                system_message = db_system_message.format(
+                    company_name=company_name,
+                    ticker=ticker,
+                    market_name=market_info['market_name'],
+                    currency_name=market_info['currency_name'],
+                    currency_symbol=market_info['currency_symbol'],
+                    start_date=start_date,
+                    current_date=current_date
+                )
+                logger.info("✅ 从MongoDB加载系统消息成功")
+            
+            # 尝试从MongoDB获取提示模板
+            db_prompt_template = config_manager.get_prompt_template("fundamentals")
+            if db_prompt_template:
+                system_prompt = db_prompt_template
+                logger.info("✅ 从MongoDB加载提示模板成功")
 
         # 创建提示模板
         prompt = ChatPromptTemplate.from_messages([

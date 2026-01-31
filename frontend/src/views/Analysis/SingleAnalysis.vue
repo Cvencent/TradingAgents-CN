@@ -949,7 +949,8 @@ const submitAnalysis = async () => {
         include_risk: analysisForm.includeRisk,
         language: analysisForm.language,
         quick_analysis_model: modelSettings.value.quickAnalysisModel,
-        deep_analysis_model: modelSettings.value.deepAnalysisModel
+        deep_analysis_model: modelSettings.value.deepAnalysisModel,
+        analysis_level: analysisForm.researchDepth  // 添加分析级别字段
       }
     }
 

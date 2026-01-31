@@ -31,6 +31,7 @@ class DataSourceCode(str, Enum):
     TUSHARE = "tushare"      # Tushare - 专业A股数据
     AKSHARE = "akshare"      # AKShare - 开源金融数据（A股+港股）
     BAOSTOCK = "baostock"    # BaoStock - 免费A股数据
+    EASTMONEY = "eastmoney"  # 东方财富股吧 - A股社交媒体数据
     
     # ==================== 美股数据源 ====================
     YFINANCE = "yfinance"         # yfinance - Yahoo Finance Python库
@@ -130,6 +131,21 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         official_website="http://baostock.com",
         documentation_url="http://baostock.com/baostock/index.php/Python_API%E6%96%87%E6%A1%A3",
         features=["历史行情", "财务数据", "完全免费", "数据稳定"],
+    ),
+    
+    # 东方财富股吧
+    DataSourceCode.EASTMONEY: DataSourceInfo(
+        code=DataSourceCode.EASTMONEY,
+        name="EastMoney",
+        display_name="东方财富股吧",
+        provider="东方财富",
+        description="A股社交媒体数据源，获取股吧热门帖子作为社交媒体情绪分析",
+        supported_markets=["a_shares"],
+        requires_api_key=False,
+        is_free=True,
+        official_website="https://guba.eastmoney.com",
+        documentation_url="https://guba.eastmoney.com",
+        features=["社交媒体", "股吧数据", "情绪分析", "完全免费"],
     ),
     
     # yfinance

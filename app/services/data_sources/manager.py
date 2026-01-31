@@ -10,6 +10,7 @@ from .base import DataSourceAdapter
 from .tushare_adapter import TushareAdapter
 from .akshare_adapter import AKShareAdapter
 from .baostock_adapter import BaoStockAdapter
+from .eastmoney_adapter import EastMoneyAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ class DataSourceManager:
 
     def __init__(self):
         self.adapters: List[DataSourceAdapter] = [
+            EastMoneyAdapter(),
             TushareAdapter(),
             AKShareAdapter(),
             BaoStockAdapter(),

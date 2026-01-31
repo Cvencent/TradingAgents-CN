@@ -17,6 +17,7 @@ from langchain_core.messages import HumanMessage
 # 导入统一日志系统和工具日志装饰器
 from tradingagents.utils.logging_init import get_logger
 from tradingagents.utils.tool_logging import log_tool_call, log_analysis_step
+from tradingagents.agents.utils.tool_registry import register_tool
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
@@ -57,7 +58,8 @@ class Toolkit:
             self.update_config(config)
 
     @staticmethod
-    @tool
+    @register_tool(category="news", description="获取Reddit全球新闻")
+    @log_tool_call(tool_name="get_reddit_news", log_args=True)
     def get_reddit_news(
         curr_date: Annotated[str, "Date you want to get news for in yyyy-mm-dd format"],
     ) -> str:
@@ -74,7 +76,8 @@ class Toolkit:
         return global_news_result
 
     @staticmethod
-    @tool
+    @register_tool(category="news", description="获取Finnhub新闻")
+    @log_tool_call(tool_name="get_finnhub_news", log_args=True)
     def get_finnhub_news(
         ticker: Annotated[
             str,
@@ -106,7 +109,8 @@ class Toolkit:
         return finnhub_news_result
 
     @staticmethod
-    @tool
+    @register_tool(category="news", description="获取Reddit股票信息")
+    @log_tool_call(tool_name="get_reddit_stock_info", log_args=True)
     def get_reddit_stock_info(
         ticker: Annotated[
             str,
@@ -237,9 +241,10 @@ class Toolkit:
             return f"中国市场概览获取失败: {str(e)}。正在从TDX迁移到Tushare数据源。"
 
     @staticmethod
-    @tool
+    @register_tool(category="market", description="获取Yahoo Finance数据")
+    @log_tool_call(tool_name="get_YFin_data", log_args=True)
     def get_YFin_data(
-        symbol: Annotated[str, "ticker symbol of the company"],
+        symbol: Annotated[str, "ticker symbol of a company"],
         start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
         end_date: Annotated[str, "End date in yyyy-mm-dd format"],
     ) -> str:
@@ -1039,7 +1044,7 @@ class Toolkit:
             return error_msg
 
     @staticmethod
-    @tool
+    @register_tool(category="market", description="统一的股票市场数据工具")
     @log_tool_call(tool_name="get_stock_market_data_unified", log_args=True)
     def get_stock_market_data_unified(
         ticker: Annotated[str, "股票代码（支持A股、港股、美股）"],
@@ -1151,7 +1156,7 @@ class Toolkit:
             return error_msg
 
     @staticmethod
-    @tool
+    @register_tool(category="news", description="统一的股票新闻工具")
     @log_tool_call(tool_name="get_stock_news_unified", log_args=True)
     def get_stock_news_unified(
         ticker: Annotated[str, "股票代码（支持A股、港股、美股）"],
@@ -1320,18 +1325,25 @@ class Toolkit:
             if is_china or is_hk:
                 # 中国A股和港股：使用社交媒体情绪分析
                 logger.info(f"🇨🇳🇭🇰 [统一情绪工具] 处理中文市场情绪...")
-
+                
                 try:
-                    # 可以集成微博、雪球、东方财富等中文社交媒体情绪
-                    # 目前使用基础的情绪分析
-                    sentiment_summary = f"""
+                    # 尝试使用东方财富股吧数据
+                    from tradingagents.dataflows.interface import get_chinese_social_sentiment
+                    eastmoney_sentiment = get_chinese_social_sentiment(ticker, curr_date)
+                    if eastmoney_sentiment:
+                        result_data.append(eastmoney_sentiment)
+                        logger.info(f"✅ [统一情绪工具] 成功获取东方财富股吧数据: {ticker}")
+                    else:
+                        logger.warning(f"⚠️ [统一情绪工具] 东方财富股吧数据获取失败，使用基础分析")
+                        # 降级：使用基础的情绪分析
+                        sentiment_summary = f"""
 ## 中文市场情绪分析
 
 **股票**: {ticker} ({market_info['market_name']})
 **分析日期**: {curr_date}
 
 ### 市场情绪概况
-- 由于中文社交媒体情绪数据源暂未完全集成，当前提供基础分析
+- 由于东方财富股吧数据获取失败，当前提供基础分析
 - 建议关注雪球、东方财富、同花顺等平台的讨论热度
 - 港股市场还需关注香港本地财经媒体情绪
 
@@ -1340,12 +1352,33 @@ class Toolkit:
 - 讨论热度: 待分析
 - 投资者信心: 待评估
 
-*注：完整的中文社交媒体情绪分析功能正在开发中*
+*注：东方财富股吧数据源已集成，正在开发完整的情绪分析功能*
+"""
+                        result_data.append(sentiment_summary)
+                except Exception as e:
+                    logger.warning(f"⚠️ [统一情绪工具] 东方财富股吧数据获取异常: {e}")
+                    # 降级：使用基础的情绪分析
+                    sentiment_summary = f"""
+## 中文市场情绪分析
+
+**股票**: {ticker} ({market_info['market_name']})
+**分析日期**: {curr_date}
+
+### 市场情绪概况
+- 由于东方财富股吧数据获取失败，当前提供基础分析
+- 建议关注雪球、东方财富、同花顺等平台的讨论热度
+- 港股市场还需关注香港本地财经媒体情绪
+
+### 情绪指标
+- 整体情绪: 中性
+- 讨论热度: 待分析
+- 投资者信心: 待评估
+
+*注：东方财富股吧数据源已集成，正在开发完整的情绪分析功能*
 """
                     result_data.append(sentiment_summary)
                 except Exception as e:
                     result_data.append(f"## 中文市场情绪\n获取失败: {e}")
-
             else:
                 # 美股：使用Reddit情绪分析
                 logger.info(f"🇺🇸 [统一情绪工具] 处理美股情绪...")

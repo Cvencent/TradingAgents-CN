@@ -76,6 +76,9 @@
       <el-sub-menu index="/settings-config">
         <template #title>系统配置</template>
         <el-menu-item index="/settings/config">配置管理</el-menu-item>
+        <el-menu-item index="/settings/agent-config">Agent配置</el-menu-item>
+        <el-menu-item index="/settings/tool-management">工具管理</el-menu-item>
+        <el-menu-item index="/settings/analysis-workflow">分析流程配置</el-menu-item>
         <el-menu-item index="/settings/cache">缓存管理</el-menu-item>
       </el-sub-menu>
 

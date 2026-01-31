@@ -169,7 +169,7 @@ def create_social_media_analyst(llm, toolkit):
                     "供您参考，当前日期是{current_date}。我们要分析的当前公司是{ticker}。请用中文撰写所有分析内容。",
                 ),
                 MessagesPlaceholder(variable_name="messages"),
-            ]
+            ]  
         )
 
         prompt = prompt.partial(system_message=system_message)

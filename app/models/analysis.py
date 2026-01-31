@@ -31,8 +31,7 @@ class BatchStatus(str, Enum):
 
 
 class AnalysisParameters(BaseModel):
-    """分析参数模型
-
+    """
     研究深度说明：
     - 快速: 1级 - 快速分析 (2-4分钟)
     - 基础: 2级 - 基础分析 (4-6分钟)
@@ -51,6 +50,9 @@ class AnalysisParameters(BaseModel):
     # 模型配置
     quick_analysis_model: Optional[str] = "qwen-turbo"
     deep_analysis_model: Optional[str] = "qwen-max"
+    # 流程配置
+    analysis_level: Optional[int] = Field(None, ge=1, le=5, description="分析级别（1-5），用于加载对应的流程配置")
+    custom_workflow: Optional[Dict[str, Any]] = Field(None, description="自定义流程参数")
 
 
 class AnalysisResult(BaseModel):

@@ -511,7 +511,8 @@ const submitBatchAnalysis = async () => {
         include_risk: batchForm.includeRisk,
         language: batchForm.language,
         quick_analysis_model: modelSettings.value.quickAnalysisModel,
-        deep_analysis_model: modelSettings.value.deepAnalysisModel
+        deep_analysis_model: modelSettings.value.deepAnalysisModel,
+        analysis_level: parseInt(batchForm.depth)  // 添加分析级别字段，转换为数字
       }
     }
 

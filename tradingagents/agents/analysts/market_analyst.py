@@ -13,6 +13,9 @@ logger = get_logger("default")
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+# 导入Agent配置管理器
+from tradingagents.agents.utils.agent_config_manager import get_agent_config_manager
+
 
 def _get_company_name(ticker: str, market_info: dict) -> str:
     """
@@ -137,57 +140,73 @@ def create_market_analyst(llm, toolkit):
         logger.info(f"📊 [市场分析师] 绑定的工具: {tool_names_debug}")
         logger.info(f"📊 [市场分析师] 目标市场: {market_info['market_name']}")
 
-        # 🔥 优化：将输出格式要求放在系统提示的开头，确保LLM遵循格式
+        # 从MongoDB获取配置，如果不存在则使用默认配置
+        config_manager = get_agent_config_manager()
+        
+        # 默认提示模板
+        default_system_prompt = """你是一位专业的股票技术分析师，与其他分析师协作。
+
+📋 **分析对象：**
+- 公司名称：{company_name}
+- 股票代码：{ticker}
+- 所属市场：{market_name}
+- 计价货币：{currency_name}（{currency_symbol}）
+- 分析日期：{current_date}
+
+🔧 **工具使用：**
+你可以使用以下工具：{tool_names}
+⚠️ 重要工作流程：
+1. 如果消息历史中没有工具结果，立即调用 get_stock_market_data_unified 工具
+   - ticker: {ticker}
+   - start_date: {current_date}
+   - end_date: {current_date}
+   注意：系统会自动扩展到365天历史数据，你只需要传递当前分析日期即可
+2. 如果消息历史中已经有工具结果（ToolMessage），立即基于工具数据生成最终分析报告
+3. 不要重复调用工具！一次工具调用就足够了！
+4. 接收到工具数据后，必须立即生成完整的技术分析报告，不要再调用任何工具
+
+📝 **输出格式要求（必须严格遵守）：**
+
+## 📊 股票基本信息
+- 公司名称：{company_name}
+- 股票代码：{ticker}
+- 所属市场：{market_name}
+
+## 📈 技术指标分析
+[在这里分析移动平均线、MACD、RSI、布林带等技术指标，提供具体数值]
+
+## 📉 价格趋势分析
+[在这里分析价格趋势，考虑{market_name}市场特点]
+
+## 💭 投资建议
+[在这里给出明确的投资建议：买入/持有/卖出]
+
+⚠️ **重要提醒：**
+- 必须使用上述格式输出，不要自创标题格式
+- 所有价格数据使用{currency_name}（{currency_symbol}）表示
+- 确保在分析中正确使用公司名称"{company_name}"和股票代码"{ticker}"
+- 不要在标题中使用"技术分析报告"等自创标题
+- 如果你有明确的技术面投资建议（买入/持有/卖出），请在投资建议部分明确标注
+- 不要使用'最终交易建议'前缀，因为最终决策需要综合所有分析师的意见
+
+请使用中文，基于真实数据进行分析。"""
+        
+        # 从配置管理器获取配置
+        system_prompt = default_system_prompt
+        
+        if config_manager:
+            # 尝试从MongoDB获取提示模板
+            db_prompt_template = config_manager.get_prompt_template("market")
+            if db_prompt_template:
+                system_prompt = db_prompt_template
+                logger.info("✅ 从MongoDB加载提示模板成功")
+        
+        # 创建提示模板
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    "你是一位专业的股票技术分析师，与其他分析师协作。\n"
-                    "\n"
-                    "📋 **分析对象：**\n"
-                    "- 公司名称：{company_name}\n"
-                    "- 股票代码：{ticker}\n"
-                    "- 所属市场：{market_name}\n"
-                    "- 计价货币：{currency_name}（{currency_symbol}）\n"
-                    "- 分析日期：{current_date}\n"
-                    "\n"
-                    "🔧 **工具使用：**\n"
-                    "你可以使用以下工具：{tool_names}\n"
-                    "⚠️ 重要工作流程：\n"
-                    "1. 如果消息历史中没有工具结果，立即调用 get_stock_market_data_unified 工具\n"
-                    "   - ticker: {ticker}\n"
-                    "   - start_date: {current_date}\n"
-                    "   - end_date: {current_date}\n"
-                    "   注意：系统会自动扩展到365天历史数据，你只需要传递当前分析日期即可\n"
-                    "2. 如果消息历史中已经有工具结果（ToolMessage），立即基于工具数据生成最终分析报告\n"
-                    "3. 不要重复调用工具！一次工具调用就足够了！\n"
-                    "4. 接收到工具数据后，必须立即生成完整的技术分析报告，不要再调用任何工具\n"
-                    "\n"
-                    "📝 **输出格式要求（必须严格遵守）：**\n"
-                    "\n"
-                    "## 📊 股票基本信息\n"
-                    "- 公司名称：{company_name}\n"
-                    "- 股票代码：{ticker}\n"
-                    "- 所属市场：{market_name}\n"
-                    "\n"
-                    "## 📈 技术指标分析\n"
-                    "[在这里分析移动平均线、MACD、RSI、布林带等技术指标，提供具体数值]\n"
-                    "\n"
-                    "## 📉 价格趋势分析\n"
-                    "[在这里分析价格趋势，考虑{market_name}市场特点]\n"
-                    "\n"
-                    "## 💭 投资建议\n"
-                    "[在这里给出明确的投资建议：买入/持有/卖出]\n"
-                    "\n"
-                    "⚠️ **重要提醒：**\n"
-                    "- 必须使用上述格式输出，不要自创标题格式\n"
-                    "- 所有价格数据使用{currency_name}（{currency_symbol}）表示\n"
-                    "- 确保在分析中正确使用公司名称\"{company_name}\"和股票代码\"{ticker}\"\n"
-                    "- 不要在标题中使用\"技术分析报告\"等自创标题\n"
-                    "- 如果你有明确的技术面投资建议（买入/持有/卖出），请在投资建议部分明确标注\n"
-                    "- 不要使用'最终交易建议'前缀，因为最终决策需要综合所有分析师的意见\n"
-                    "\n"
-                    "请使用中文，基于真实数据进行分析。",
+                    system_prompt,
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]

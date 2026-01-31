@@ -110,17 +110,65 @@ class ChineseFinanceDataAggregator:
             return {'error': str(e), 'sentiment_score': 0, 'confidence': 0}
     
     def _get_stock_forum_sentiment(self, ticker: str, days: int) -> Dict:
-        """获取股票论坛讨论情绪 (模拟数据，实际需要爬虫)"""
-        # 由于东方财富股吧等平台的反爬虫机制，这里返回模拟数据
-        # 实际实现需要更复杂的爬虫技术
-        
-        return {
-            'sentiment_score': 0,
-            'discussion_count': 0,
-            'hot_topics': [],
-            'note': '股票论坛数据获取受限，建议关注官方财经新闻',
-            'confidence': 0
-        }
+        """获取股票论坛讨论情绪 (使用东方财富股吧数据源)"""
+        try:
+            from app.services.data_sources.manager import DataSourceManager
+            manager = DataSourceManager()
+            
+            # 尝试使用东方财富股吧数据源
+            eastmoney_posts = manager.get_news_with_fallback(ticker, days=days, limit=20, preferred_sources=["eastmoney"])
+            
+            if eastmoney_posts and len(eastmoney_posts) > 0:
+                # 分析股吧帖子的情绪
+                positive_count = 0
+                negative_count = 0
+                neutral_count = 0
+                hot_topics = []
+                
+                for post in eastmoney_posts:
+                    sentiment = post.get('sentiment', '中性')
+                    if sentiment == '积极':
+                        positive_count += 1
+                    elif sentiment == '消极':
+                        negative_count += 1
+                    else:
+                        neutral_count += 1
+                    
+                    # 提取热门话题
+                    title = post.get('title', '')
+                    if title and len(hot_topics) < 5:
+                        hot_topics.append(title)
+                
+                total = len(eastmoney_posts)
+                if total == 0:
+                    return {'sentiment_score': 0, 'discussion_count': 0, 'hot_topics': [], 'confidence': 0}
+                
+                sentiment_score = (positive_count - negative_count) / total
+                confidence = min(total / 10, 1.0)
+                
+                return {
+                    'sentiment_score': sentiment_score,
+                    'discussion_count': total,
+                    'hot_topics': hot_topics,
+                    'confidence': confidence,
+                    'source': '东方财富股吧'
+                }
+            else:
+                return {
+                    'sentiment_score': 0,
+                    'discussion_count': 0,
+                    'hot_topics': [],
+                    'note': '东方财富股吧数据获取失败，建议关注官方财经新闻',
+                    'confidence': 0
+                }
+        except Exception as e:
+            return {
+                'sentiment_score': 0,
+                'discussion_count': 0,
+                'hot_topics': [],
+                'error': str(e),
+                'confidence': 0
+            }
     
     def _get_media_coverage_sentiment(self, ticker: str, days: int) -> Dict:
         """获取媒体报道情绪"""

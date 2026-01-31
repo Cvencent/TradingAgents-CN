@@ -33,6 +33,7 @@ class ChinaDataSource(Enum):
     值使用统一的数据源编码
     """
     MONGODB = DataSourceCode.MONGODB  # MongoDB数据库缓存（最高优先级）
+    EASTMONEY = DataSourceCode.EASTMONEY  # 东方财富股吧（社交媒体数据）
     TUSHARE = DataSourceCode.TUSHARE
     AKSHARE = DataSourceCode.AKSHARE
     BAOSTOCK = DataSourceCode.BAOSTOCK

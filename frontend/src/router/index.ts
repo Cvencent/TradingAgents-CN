@@ -299,6 +299,33 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'agent-config',
+        name: 'AgentConfig',
+        component: () => import('@/views/Settings/AgentConfig.vue'),
+        meta: {
+          title: 'Agent配置管理',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'tool-management',
+        name: 'ToolManagement',
+        component: () => import('@/views/Settings/ToolManagement.vue'),
+        meta: {
+          title: '工具管理',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'analysis-workflow',
+        name: 'AnalysisWorkflowConfig',
+        component: () => import('@/views/Settings/AnalysisWorkflowConfig.vue'),
+        meta: {
+          title: '分析流程配置',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'sync',
         name: 'MultiSourceSync',
         component: () => import('@/views/System/MultiSourceSync.vue'),

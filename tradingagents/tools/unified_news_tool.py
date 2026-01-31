@@ -332,7 +332,7 @@ class UnifiedNewsAnalyzer:
                 if result and len(result.strip()) > 100:
                     logger.info(f"[统一新闻工具] ✅ 东方财富新闻获取成功: {len(result)} 字符")
                     return self._format_news_result(result, "东方财富实时新闻", model_info)
-                else:
+                else:  
                     logger.warning(f"[统一新闻工具] ⚠️ 东方财富新闻内容过短或为空")
         except Exception as e:
             logger.warning(f"[统一新闻工具] 东方财富新闻获取失败: {e}")

@@ -32,6 +32,7 @@ from app.services.config_service import ConfigService
 from app.services.memory_state_manager import get_memory_state_manager, TaskStatus
 from app.services.redis_progress_tracker import RedisProgressTracker, get_progress_by_id
 from app.services.progress_log_handler import register_analysis_tracker, unregister_analysis_tracker
+from app.services.analysis_workflow_service import MongoAnalysisWorkflowConfig
 
 # 股票基础信息获取（用于补充显示名称）
 try:
@@ -705,16 +706,47 @@ class SimpleAnalysisService:
             return PyObjectId(new_object_id)
 
     def _get_trading_graph(self, config: Dict[str, Any]) -> TradingAgentsGraph:
-        """获取或创建TradingAgents实例
-
-        ⚠️ 注意：为了避免并发执行时的数据混淆，每次都创建新实例
-        虽然这会增加一些初始化开销，但可以确保线程安全
-
-        TradingAgentsGraph 实例包含可变状态（self.ticker, self.curr_state等），
-        如果多个线程共享同一个实例，会导致数据混淆。
         """
-        # 🔧 [并发安全] 每次都创建新实例，避免多线程共享状态
-        # 不再使用缓存，因为 TradingAgentsGraph 有可变的实例变量
+        获取或创建TradingAgents实例
+        
+        Args:
+            config: 配置字典
+            
+        Returns:
+            TradingAgentsGraph 实例
+        """
+        # 🔧 [流程配置] 根据分析级别加载流程配置
+        analysis_level = config.get("analysis_level")
+        user_id = config.get("user_id", "system")
+        
+        if analysis_level:
+            logger.info(f"📋 检测到分析级别: {analysis_level}")
+            
+            try:
+                db = get_mongo_db()
+                workflow_service = MongoAnalysisWorkflowConfig(db)
+                workflow_config = workflow_service.get_config_by_level(user_id, analysis_level)
+                
+                if workflow_config:
+                    logger.info(f"✅ 成功加载级别 {analysis_level} 的流程配置: {workflow_config.get('name', '未命名配置')}")
+                    
+                    # 应用流程配置参数
+                    final_config = config.copy()
+                    final_config["max_debate_rounds"] = workflow_config.get("debate_rounds", final_config.get("max_debate_rounds", 1))
+                    final_config["max_risk_discuss_rounds"] = workflow_config.get("risk_discussion_rounds", final_config.get("max_risk_discuss_rounds", 1))
+                    final_config["debate_timeout"] = workflow_config.get("debate_timeout", final_config.get("debate_timeout", 300))
+                    final_config["risk_timeout"] = workflow_config.get("risk_timeout", final_config.get("risk_timeout", 120))
+                    final_config["enable_sentiment"] = workflow_config.get("enable_sentiment", final_config.get("enable_sentiment", True))
+                    final_config["enable_risk_assessment"] = workflow_config.get("enable_risk_assessment", final_config.get("enable_risk_assessment", True))
+                    
+                    config = final_config
+                    logger.info(f"🔧 应用流程配置: 辩论轮次={config['max_debate_rounds']}, 风险轮次={config['max_risk_discuss_rounds']}")
+                else:
+                    logger.info(f"ℹ️ 未找到级别 {analysis_level} 的流程配置，使用默认配置")
+            
+            except Exception as e:
+                logger.error(f"❌ 加载流程配置失败: {e}")
+        
         logger.info(f"🔧 创建新的TradingAgents实例（并发安全模式）...")
 
         trading_graph = TradingAgentsGraph(
@@ -1232,6 +1264,12 @@ class SimpleAnalysisService:
             market_type = request.parameters.market_type if request.parameters else "A股"
             logger.info(f"📊 [市场类型] 使用市场类型: {market_type}")
 
+            # 🔧 [流程配置] 获取分析级别
+            analysis_level = None
+            if request.parameters and hasattr(request.parameters, 'analysis_level'):
+                analysis_level = request.parameters.analysis_level
+                logger.info(f"📋 [流程配置] 分析级别: {analysis_level}")
+
             # 创建分析配置（支持混合模式）
             config = create_analysis_config(
                 research_depth=research_depth,
@@ -1241,6 +1279,11 @@ class SimpleAnalysisService:
                 llm_provider=quick_provider,  # 主要使用快速模型的供应商
                 market_type=market_type  # 使用前端传递的市场类型
             )
+
+            # 🔧 [流程配置] 添加分析级别到配置
+            if analysis_level:
+                config["analysis_level"] = analysis_level
+                config["user_id"] = str(user_id)
 
             # 🔧 添加混合模式配置
             config["quick_provider"] = quick_provider

@@ -342,21 +342,33 @@ class AKShareAdapter(DataSourceAdapter):
             logger.error(f"AKShare get_kline failed: {e}")
             return None
 
-    def get_news(self, code: str, days: int = 2, limit: int = 50, include_announcements: bool = True):
-        """AKShare-based news/announcements fallback"""
+    def get_news(self, code: str, days: int = 2, limit: int = 50, include_announcements: bool = True, source: str = None):
+        """AKShare-based news/announcements fallback，支持东方财富股吧数据源"""
         if not self.is_available():
             return None
         try:
             import akshare as ak
+            
             code6 = str(code).zfill(6)
             items = []
+            
+            if source == "eastmoney":
+                logger.info(f"使用东方财富股吧获取社交媒体数据: {code}")
+                try:
+                    from .eastmoney_adapter import EastMoneyAdapter
+                    eastmoney = EastMoneyAdapter()
+                    eastmoney_posts = eastmoney.get_news(code, days=days, limit=limit)
+                    if eastmoney_posts:
+                        items.extend(eastmoney_posts)
+                except Exception as e:
+                    logger.warning(f"东方财富股吧获取失败: {e}")
+            
             # news
             try:
                 dfn = ak.stock_news_em(symbol=code6)
                 if dfn is not None and not dfn.empty:
                     for _, row in dfn.head(limit).iterrows():
                         items.append({
-                            # AkShare 将字段标准化为中文列名：新闻标题 / 文章来源 / 发布时间 / 新闻链接
                             "title": str(row.get('新闻标题') or row.get('标题') or row.get('title') or ''),
                             "source": str(row.get('文章来源') or row.get('来源') or row.get('source') or 'akshare'),
                             "time": str(row.get('发布时间') or row.get('time') or ''),
@@ -365,6 +377,7 @@ class AKShareAdapter(DataSourceAdapter):
                         })
             except Exception:
                 pass
+            
             # announcements
             try:
                 if include_announcements:
@@ -380,6 +393,7 @@ class AKShareAdapter(DataSourceAdapter):
                             })
             except Exception:
                 pass
+            
             return items if items else None
         except Exception as e:
             logger.error(f"AKShare get_news failed: {e}")
