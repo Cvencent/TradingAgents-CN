@@ -223,23 +223,46 @@
           </div>
         </template>
         
-        <el-tabs v-model="activeModule" type="border-card">
-          <el-tab-pane
-            v-for="(content, moduleName) in report.reports"
-            :key="moduleName"
-            :label="getModuleDisplayName(moduleName)"
-            :name="moduleName"
+        <!-- 报告模块列表 -->
+        <div class="modules-list">
+          <div
+            v-for="module in extendedModuleList"
+            :key="module.name"
+            class="module-item"
+            :class="{ active: activeModule === module.name }"
+            @click="activeModule = module.name"
           >
-            <div class="module-content">
-              <div v-if="typeof content === 'string'" class="markdown-content">
-                <div v-html="renderMarkdown(content)"></div>
-              </div>
-              <div v-else class="json-content">
-                <pre>{{ JSON.stringify(content, null, 2) }}</pre>
-              </div>
+            <div class="module-icon">{{ module.icon }}</div>
+            <div class="module-name">{{ module.displayName }}</div>
+          </div>
+        </div>
+
+        <!-- 模块内容 -->
+        <div class="module-content-container">
+          <!-- 辩论模块的横向Tab -->
+          <div v-if="isDebateModule(activeModule)" class="debate-tabs">
+            <el-tabs v-model="activeDebateRound" type="border-card">
+              <el-tab-pane
+                v-for="(round, index) in getDebateRounds(activeModule)"
+                :key="index"
+                :label="`第${round.round}轮`"
+                :name="index"
+              >
+                <div class="round-content markdown-content" v-html="renderMarkdown(round.content)"></div>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+          
+          <!-- 普通模块内容 -->
+          <div v-else class="module-content">
+            <div v-if="typeof currentModuleContent === 'string'" class="markdown-content">
+              <div v-html="renderMarkdown(currentModuleContent)"></div>
             </div>
-          </el-tab-pane>
-        </el-tabs>
+            <div v-else class="json-content">
+              <pre>{{ JSON.stringify(currentModuleContent, null, 2) }}</pre>
+            </div>
+          </div>
+        </div>
       </el-card>
     </div>
 
@@ -283,7 +306,8 @@ import {
   Check,
   Cpu,
   QuestionFilled,
-  ArrowDown
+  ArrowDown,
+  ChatDotRound
 } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { marked } from 'marked'
@@ -302,7 +326,48 @@ marked.setOptions({ breaks: true, gfm: true })
 const loading = ref(true)
 const report = ref(null)
 const activeModule = ref('')
+const activeDebateRound = ref(0)
 const llmConfigs = ref<LLMConfig[]>([]) // 存储所有模型配置
+
+// 扩展的模块列表（左侧列表显示所有模块，辩论模块在右侧用横向Tab展示多轮）
+const extendedModuleList = computed(() => {
+  if (!report.value?.reports) return []
+  
+  const modules: Array<{name: string, displayName: string, icon: string}> = []
+  
+  for (const [moduleName, content] of Object.entries(report.value.reports)) {
+    // 跳过轮次数据（以_rounds结尾的键）
+    if (moduleName.endsWith('_rounds')) continue
+    
+    // 跳过reasoning字段（这是final_trade_decision的一部分，不是独立模块）
+    if (moduleName === 'reasoning') continue
+    
+    // 跳过detailed_analysis字段（这是调试用的，不需要展示）
+    if (moduleName === 'detailed_analysis') continue
+    
+    // 所有模块都显示为列表项（辩论模块的多轮在右侧用横向Tab展示）
+    modules.push({
+      name: moduleName,
+      displayName: getModuleDisplayName(moduleName),
+      icon: getModuleIcon(moduleName)
+    })
+  }
+  
+  return modules
+})
+
+// 获取当前选中的模块内容（辩论模块返回空，因为内容在横向Tab中展示）
+const currentModuleContent = computed(() => {
+  if (!report.value?.reports || !activeModule.value) return ''
+  
+  // 辩论模块的内容在右侧横向Tab中展示，这里返回空
+  if (isDebateModule(activeModule.value)) {
+    return ''
+  }
+  
+  // 普通模块
+  return report.value.reports[activeModule.value] || ''
+})
 
 // 获取模型配置列表
 const fetchLLMConfigs = async () => {
@@ -338,12 +403,14 @@ const fetchReportDetail = async () => {
     if (result.success) {
       report.value = result.data
 
-      // 设置默认激活的模块
-      const reports = result.data.reports || {}
-      const moduleNames = Object.keys(reports)
-      if (moduleNames.length > 0) {
-        activeModule.value = moduleNames[0]
-      }
+      // 设置默认激活的模块（使用扩展后的列表）
+      // 等待 computed 更新后再设置
+      setTimeout(() => {
+        const modules = extendedModuleList.value
+        if (modules.length > 0) {
+          activeModule.value = modules[0].name
+        }
+      }, 0)
     } else {
       throw new Error(result.message || '获取报告详情失败')
     }
@@ -907,6 +974,86 @@ const getRiskDescription = (riskLevel: string) => {
   return descMap[riskLevel] || '请根据自身风险承受能力决策'
 }
 
+// 判断是否为辩论模块（支持轮次模块格式如 bull_researcher_round_1）
+const isDebateModule = (moduleName: string): boolean => {
+  const debateModules = [
+    'bull_researcher',
+    'bear_researcher',
+    'risky_analyst',
+    'safe_analyst',
+    'neutral_analyst'
+  ]
+  // 检查是否是辩论模块本身
+  if (debateModules.includes(moduleName)) return true
+  // 检查是否是轮次模块（格式：moduleName_round_X）
+  const baseName = moduleName.replace(/_round_\d+$/, '')
+  return debateModules.includes(baseName)
+}
+
+// 获取辩论轮次数据
+const getDebateRounds = (moduleName: string): Array<{round: number, content: string}> => {
+  if (!report.value) return []
+
+  const roundsKey = `${moduleName}_rounds` as keyof typeof report.value.reports
+  if (report.value.reports && report.value.reports[roundsKey]) {
+    const rounds = report.value.reports[roundsKey]
+    if (Array.isArray(rounds)) {
+      return rounds
+    }
+  }
+  
+  // 旧格式：从字符串中解析轮次
+  const contentKey = moduleName as keyof typeof report.value.reports
+  const content = report.value.reports?.[contentKey] as string
+  if (content) {
+    const parts = content.split('=== 第')
+    const rounds = parts
+      .filter(part => part.includes('轮 ==='))
+      .map((part, index) => {
+        const match = part.match(/第(\d+)轮 ===/)
+        const roundNumber = match ? parseInt(match[1]) : index + 1
+        const contentStart = part.indexOf('===') + 4
+        const roundContent = part.substring(contentStart).trim()
+        return { round: roundNumber, content: roundContent }
+      })
+    return rounds
+  }
+  
+  return []
+}
+
+// 获取轮次标签
+const getRoundLabel = (moduleName: string, round: {round: number, content: string}): string => {
+  const labels: Record<string, string> = {
+    'bull_researcher': '多头研究员',
+    'bear_researcher': '空头研究员',
+    'risky_analyst': '激进分析师',
+    'safe_analyst': '保守分析师',
+    'neutral_analyst': '中性分析师'
+  }
+  return labels[moduleName] || '分析师'
+}
+
+// 获取模块图标
+const getModuleIcon = (moduleName: string): string => {
+  const iconMap: Record<string, string> = {
+    'market_report': '📈',
+    'sentiment_report': '💭',
+    'news_report': '📰',
+    'fundamentals_report': '💰',
+    'bull_researcher': '🐂',
+    'bear_researcher': '🐻',
+    'research_team_decision': '🔬',
+    'risky_analyst': '⚡',
+    'safe_analyst': '🛡️',
+    'neutral_analyst': '⚖️',
+    'risk_management_decision': '👔',
+    'trader_investment_plan': '💼',
+    'final_trade_decision': '🎯'
+  }
+  return iconMap[moduleName] || '📄'
+}
+
 // 生命周期
 onMounted(() => {
   fetchLLMConfigs() // 先加载模型配置
@@ -1253,6 +1400,180 @@ onMounted(() => {
           line-height: 1.4;
         }
       }
+    }
+
+    // 模块列表样式
+    .modules-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+
+      .module-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: var(--el-fill-color-light);
+        border: 2px solid var(--el-border-color-lighter);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 140px;
+
+        &:hover {
+          border-color: var(--el-color-primary);
+          background: var(--el-color-primary-light-9);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        &.active {
+          border-color: var(--el-color-primary);
+          background: var(--el-color-primary-light-9);
+        }
+
+        .module-icon {
+          font-size: 20px;
+          flex-shrink: 0;
+        }
+
+        .module-name {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--el-text-color-primary);
+        }
+      }
+    }
+
+    // 模块内容容器
+    .module-content-container {
+      display: flex;
+      gap: 20px;
+
+      .module-content {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    // 辩论轮次样式
+    .debate-rounds {
+      flex: 1;
+      min-width: 300px;
+      max-width: 400px;
+
+      .debate-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--el-border-color-light);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--el-text-color-primary);
+
+        .el-icon {
+          color: var(--el-color-primary);
+        }
+      }
+
+      :deep(.el-collapse) {
+        border: none;
+
+        .el-collapse-item {
+          border-bottom: 1px solid var(--el-border-color-lighter);
+          margin-bottom: 8px;
+          border-radius: 8px;
+          overflow: hidden;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: var(--el-fill-color-light);
+          }
+
+          &.is-active {
+            background: var(--el-color-primary-light-9);
+            border-color: var(--el-color-primary);
+          }
+        }
+
+        .el-collapse-item__header {
+          padding: 12px 16px;
+          background: var(--el-fill-color-blank);
+          border-radius: 8px 8px 8px 0 0;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: var(--el-fill-color-light);
+          }
+        }
+
+        .el-collapse-item__wrap {
+          padding: 0 16px;
+        }
+      }
+
+      .round-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--el-text-color-primary);
+
+        .round-number {
+          background: var(--el-color-primary);
+          color: white;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 700;
+        }
+
+        .round-label {
+          color: var(--el-text-color-regular);
+          font-weight: 500;
+        }
+      }
+
+      .round-content {
+        padding: 12px;
+        background: var(--el-fill-color-blank);
+        border-radius: 0 0 8px 8px;
+        margin-top: 8px;
+        line-height: 1.6;
+      }
+    }
+  }
+
+  // 辩论模块横向Tab样式
+  .debate-tabs {
+    :deep(.el-tabs) {
+      .el-tabs__header {
+        margin-bottom: 16px;
+      }
+      
+      .el-tabs__item {
+        font-size: 14px;
+        font-weight: 500;
+        
+        &.is-active {
+          font-weight: 600;
+        }
+      }
+      
+      .el-tab-pane {
+        padding: 0;
+      }
+    }
+    
+    .round-content {
+      padding: 16px;
+      background: var(--el-fill-color-blank);
+      border-radius: 8px;
+      line-height: 1.8;
     }
   }
 

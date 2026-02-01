@@ -1322,63 +1322,55 @@ class Toolkit:
 
             result_data = []
 
-            if is_china or is_hk:
-                # 中国A股和港股：使用社交媒体情绪分析
-                logger.info(f"🇨🇳🇭🇰 [统一情绪工具] 处理中文市场情绪...")
+            if is_china:
+                # 中国A股：使用东方财富股吧爬虫获取论坛讨论数据
+                logger.info(f"🇨🇳 [统一情绪工具] 处理A股市场情绪，使用股吧爬虫...")
                 
                 try:
-                    # 尝试使用东方财富股吧数据
+                    # 使用新的股吧爬虫获取情绪分析报告
+                    from tradingagents.dataflows.interface import get_guba_sentiment_report
+                    guba_report = get_guba_sentiment_report(ticker, max_posts=20)
+                    if guba_report and "未获取到" not in guba_report and "失败" not in guba_report:
+                        result_data.append(guba_report)
+                        logger.info(f"✅ [统一情绪工具] 成功获取股吧情绪报告: {ticker}")
+                    else:
+                        logger.warning(f"⚠️ [统一情绪工具] 股吧爬虫数据获取失败，尝试备用方法")
+                        # 降级：使用原来的社交媒体情绪分析
+                        from tradingagents.dataflows.interface import get_chinese_social_sentiment
+                        eastmoney_sentiment = get_chinese_social_sentiment(ticker, curr_date)
+                        if eastmoney_sentiment:
+                            result_data.append(eastmoney_sentiment)
+                            logger.info(f"✅ [统一情绪工具] 成功获取备用情绪数据: {ticker}")
+                        else:
+                            result_data.append(f"## {ticker} 中文市场情绪\n\n⚠️ 无法获取情绪数据")
+                except Exception as e:
+                    logger.warning(f"⚠️ [统一情绪工具] 股吧爬虫异常: {e}，尝试备用方法")
+                    try:
+                        # 降级：使用原来的社交媒体情绪分析
+                        from tradingagents.dataflows.interface import get_chinese_social_sentiment
+                        eastmoney_sentiment = get_chinese_social_sentiment(ticker, curr_date)
+                        if eastmoney_sentiment:
+                            result_data.append(eastmoney_sentiment)
+                            logger.info(f"✅ [统一情绪工具] 成功获取备用情绪数据: {ticker}")
+                        else:
+                            result_data.append(f"## {ticker} 中文市场情绪\n\n⚠️ 无法获取情绪数据")
+                    except Exception as e2:
+                        result_data.append(f"## {ticker} 中文市场情绪\n\n❌ 获取失败: {e2}")
+                        
+            elif is_hk:
+                # 港股：使用原来的社交媒体情绪分析
+                logger.info(f"🇭🇰 [统一情绪工具] 处理港股市场情绪...")
+                
+                try:
                     from tradingagents.dataflows.interface import get_chinese_social_sentiment
                     eastmoney_sentiment = get_chinese_social_sentiment(ticker, curr_date)
                     if eastmoney_sentiment:
                         result_data.append(eastmoney_sentiment)
-                        logger.info(f"✅ [统一情绪工具] 成功获取东方财富股吧数据: {ticker}")
+                        logger.info(f"✅ [统一情绪工具] 成功获取港股情绪数据: {ticker}")
                     else:
-                        logger.warning(f"⚠️ [统一情绪工具] 东方财富股吧数据获取失败，使用基础分析")
-                        # 降级：使用基础的情绪分析
-                        sentiment_summary = f"""
-## 中文市场情绪分析
-
-**股票**: {ticker} ({market_info['market_name']})
-**分析日期**: {curr_date}
-
-### 市场情绪概况
-- 由于东方财富股吧数据获取失败，当前提供基础分析
-- 建议关注雪球、东方财富、同花顺等平台的讨论热度
-- 港股市场还需关注香港本地财经媒体情绪
-
-### 情绪指标
-- 整体情绪: 中性
-- 讨论热度: 待分析
-- 投资者信心: 待评估
-
-*注：东方财富股吧数据源已集成，正在开发完整的情绪分析功能*
-"""
-                        result_data.append(sentiment_summary)
+                        result_data.append(f"## {ticker} 港股市场情绪\n\n⚠️ 无法获取情绪数据")
                 except Exception as e:
-                    logger.warning(f"⚠️ [统一情绪工具] 东方财富股吧数据获取异常: {e}")
-                    # 降级：使用基础的情绪分析
-                    sentiment_summary = f"""
-## 中文市场情绪分析
-
-**股票**: {ticker} ({market_info['market_name']})
-**分析日期**: {curr_date}
-
-### 市场情绪概况
-- 由于东方财富股吧数据获取失败，当前提供基础分析
-- 建议关注雪球、东方财富、同花顺等平台的讨论热度
-- 港股市场还需关注香港本地财经媒体情绪
-
-### 情绪指标
-- 整体情绪: 中性
-- 讨论热度: 待分析
-- 投资者信心: 待评估
-
-*注：东方财富股吧数据源已集成，正在开发完整的情绪分析功能*
-"""
-                    result_data.append(sentiment_summary)
-                except Exception as e:
-                    result_data.append(f"## 中文市场情绪\n获取失败: {e}")
+                    result_data.append(f"## {ticker} 港股市场情绪\n\n❌ 获取失败: {e}")
             else:
                 # 美股：使用Reddit情绪分析
                 logger.info(f"🇺🇸 [统一情绪工具] 处理美股情绪...")

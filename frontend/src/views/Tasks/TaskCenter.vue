@@ -109,6 +109,7 @@
             <el-button v-if="row.status==='completed'" type="text" size="small" @click="openReport(row)">报告详情</el-button>
             <el-button v-if="row.status==='failed'" type="text" size="small" @click="showErrorDetail(row)">查看错误</el-button>
             <el-button v-if="row.status==='failed'" type="text" size="small" @click="retryTask(row)">重试</el-button>
+            <el-button v-if="row.status==='processing' || row.status==='running' || row.status==='pending'" type="text" size="small" @click="openRunningDetail(row)">详情</el-button>
             <el-button v-if="row.status==='processing' || row.status==='running' || row.status==='pending'" type="text" size="small" @click="markAsFailed(row)">标记失败</el-button>
             <el-button type="text" size="small" @click="deleteTask(row)" style="color: #f56c6c;">删除</el-button>
           </template>
@@ -140,6 +141,54 @@
     <!-- 报告详情弹窗组件化（预留） -->
     <TaskReportDialog v-model="reportVisible" :sections="reportSections" @close="reportVisible=false" />
 
+    <!-- 进行中任务详情弹窗 -->
+    <el-dialog v-model="runningDetailVisible" title="任务详情" width="70%" :close-on-click-modal="false">
+      <div v-if="runningTaskDetail">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="任务ID">{{ runningTaskDetail.task_id }}</el-descriptions-item>
+          <el-descriptions-item label="股票代码">{{ runningTaskDetail.stock_code || runningTaskDetail.stock_symbol }}</el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag :type="getStatusType(runningTaskDetail.status)">{{ getStatusText(runningTaskDetail.status) }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="进度">
+            <el-progress :percentage="runningTaskDetail.progress || 0" :status="runningTaskDetail.status==='failed'?'exception':undefined"/>
+          </el-descriptions-item>
+          <el-descriptions-item label="当前步骤">{{ runningTaskDetail.current_step_name || runningTaskDetail.current_step || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="开始时间">{{ formatTime(runningTaskDetail.start_time || runningTaskDetail.created_at) }}</el-descriptions-item>
+        </el-descriptions>
+
+        <el-divider content-position="left">步骤列表</el-divider>
+        <el-timeline v-if="runningTaskDetail.steps && runningTaskDetail.steps.length > 0">
+          <el-timeline-item
+            v-for="(step, index) in runningTaskDetail.steps"
+            :key="index"
+            :type="getStepType(step.status)"
+            :timestamp="step.started_at ? formatTime(step.started_at) : ''"
+            placement="top"
+          >
+            <div class="step-item">
+              <div class="step-name">{{ step.name || step.title }}</div>
+              <div class="step-description">{{ step.description || '' }}</div>
+              <el-tag v-if="step.status" :type="getStepType(step.status)" size="small">{{ getStepStatusText(step.status) }}</el-tag>
+            </div>
+          </el-timeline-item>
+        </el-timeline>
+
+        <el-divider content-position="left">消息</el-divider>
+        <div class="message-box">
+          {{ runningTaskDetail.message || '-' }}
+        </div>
+      </div>
+      <div v-else class="loading-text">
+        <el-icon class="is-loading"><Loading /></el-icon>
+        加载中...
+      </div>
+      <template #footer>
+        <el-button @click="runningDetailVisible = false">关闭</el-button>
+        <el-button type="primary" @click="refreshRunningDetail">刷新</el-button>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -147,11 +196,33 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { List, Refresh, Download } from '@element-plus/icons-vue'
+import { List, Refresh, Download, Loading } from '@element-plus/icons-vue'
 import { analysisApi } from '@/api/analysis'
 import { marked } from 'marked'
 import TaskResultDialog from '@/components/Global/TaskResultDialog.vue'
 import TaskReportDialog from '@/components/Global/TaskReportDialog.vue'
+
+interface TaskStep {
+  name?: string
+  title?: string
+  description?: string
+  status?: 'pending' | 'active' | 'success' | 'error'
+  started_at?: string
+}
+
+interface TaskDetail {
+  task_id?: string
+  stock_code?: string
+  stock_symbol?: string
+  status?: string
+  progress?: number
+  current_step?: string | number
+  current_step_name?: string
+  message?: string
+  start_time?: string
+  created_at?: string
+  steps?: TaskStep[]
+}
 
 
 marked.setOptions({ breaks: true, gfm: true })
@@ -351,6 +422,46 @@ const resultVisible = ref(false)
 const currentResult = ref<any>(null)
 const currentRow = ref<any>(null)
 
+// 运行中任务详情
+const runningDetailVisible = ref(false)
+const runningTaskDetail = ref<TaskDetail | null>(null)
+let runningDetailTimer: any = null
+
+const openRunningDetail = async (row:any) => {
+  currentRow.value = row
+  runningTaskDetail.value = null
+  runningDetailVisible.value = true
+  await refreshRunningDetail()
+  // 每3秒自动刷新
+  runningDetailTimer = setInterval(async () => {
+    if (runningDetailVisible.value && currentRow.value) {
+      await refreshRunningDetail()
+    }
+  }, 3000)
+}
+
+const refreshRunningDetail = async () => {
+  if (!currentRow.value) return
+  try {
+    const res = await analysisApi.getTaskStatus(currentRow.value.task_id)
+    runningTaskDetail.value = ((res as any)?.data || (res as any) || {}) as TaskDetail
+  } catch (e:any) {
+    ElMessage.error('获取任务详情失败')
+  }
+}
+
+// 关闭详情弹窗时清除定时器
+watch(runningDetailVisible, (val) => {
+  if (!val) {
+    if (runningDetailTimer) {
+      clearInterval(runningDetailTimer)
+      runningDetailTimer = null
+    }
+    runningTaskDetail.value = null
+    currentRow.value = null
+  }
+})
+
 const openResult = async (row:any) => {
   currentRow.value = row
   try {
@@ -523,10 +634,21 @@ const getStatusType = (status:string): 'success' | 'info' | 'warning' | 'danger'
   }
   return map[status] || 'info'
 }
+
+const getStepType = (status:string): 'success' | 'info' | 'warning' | 'primary' => {
+  const map: Record<string,'success'|'info'|'warning'|'primary'> = {
+    pending: 'info', active: 'primary', success: 'success', error: 'danger'
+  }
+  return map[status] || 'info'
+}
+
+const getStepStatusText = (status:string) => ({
+  pending:'等待中', active:'进行中', success:'已完成', error:'失败' } as any)[status] || status
 import { formatDateTime } from '@/utils/datetime'
 
 const getStatusText = (status:string) => ({ pending:'等待中', processing:'处理中', completed:'已完成', failed:'失败', cancelled:'已取消' } as any)[status] || status
 const formatTime = (t:string) => t ? formatDateTime(t) : '-'
+
 </script>
 
 <style scoped lang="scss">
@@ -537,6 +659,28 @@ const formatTime = (t:string) => t ? formatDateTime(t) : '-'
   .tabs-card { margin-bottom: 16px; }
   .list-header { display:flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap:8px; }
   .pagination-wrapper { display:flex; justify-content:center; margin-top: 16px; }
+}
+
+.step-item {
+  .step-name { font-weight: 600; margin-bottom: 4px; }
+  .step-description { font-size: 12px; color: var(--el-text-color-secondary); margin-bottom: 4px; }
+}
+
+.message-box {
+  padding: 12px;
+  background: var(--el-fill-color-light);
+  border-radius: 4px;
+  min-height: 60px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.loading-text {
+  text-align: center;
+  padding: 40px;
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  .el-icon { font-size: 24px; margin-right: 8px; vertical-align: middle; }
 }
 </style>
 

@@ -132,9 +132,21 @@ def create_bull_researcher(llm, memory):
         new_count = investment_debate_state["count"] + 1
         logger.info(f"🐂 [多头研究员] 发言完成，计数: {investment_debate_state['count']} -> {new_count}")
 
+        # 兼容旧格式（字符串）和新格式（列表）
+        current_bull_history = investment_debate_state.get("bull_history", "")
+        if isinstance(current_bull_history, list):
+            # 新格式：列表，追加当前轮次
+            new_bull_history = current_bull_history + [argument]
+        else:
+            # 旧格式：字符串，转换为列表并追加
+            if current_bull_history:
+                new_bull_history = [current_bull_history, argument]
+            else:
+                new_bull_history = [argument]
+
         new_investment_debate_state = {
             "history": history + "\n" + argument,
-            "bull_history": bull_history + "\n" + argument,
+            "bull_history": new_bull_history,
             "bear_history": investment_debate_state.get("bear_history", ""),
             "current_response": argument,
             "count": new_count,

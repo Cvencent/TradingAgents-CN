@@ -9,6 +9,13 @@ logger = get_logger("default")
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+# 导入LLM链创建工具
+from tradingagents.agents.utils.llm_chain_utils import (
+    create_llm_chain,
+    should_use_tool_call_handler,
+    log_model_usage
+)
+
 
 def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:
     """
@@ -167,12 +174,20 @@ def create_china_market_analyst(llm, toolkit):
         prompt = prompt.partial(tool_names=", ".join(tool_names))
         prompt = prompt.partial(current_date=current_date)
         prompt = prompt.partial(ticker=ticker)
-        
-        chain = prompt | llm.bind_tools(tools)
+
+        # 使用统一的LLM链创建工具（支持DeepSeek/302AI等模型）
+        log_model_usage(llm, "中国市场分析师")
+        chain = create_llm_chain(
+            prompt=prompt,
+            llm=llm,
+            tools=tools,
+            bind_tools=True,
+            analyst_name="中国市场分析师"
+        )
         result = chain.invoke(state["messages"])
-        
+
         # 使用统一的Google工具调用处理器
-        if GoogleToolCallHandler.is_google_model(llm):
+        if should_use_tool_call_handler(llm):
             logger.info(f"📊 [中国市场分析师] 检测到Google模型，使用统一工具调用处理器")
             
             # 创建分析提示词
@@ -278,10 +293,18 @@ def create_china_stock_screener(llm, toolkit):
 
         prompt = prompt.partial(tool_names=", ".join(tool_names))
         prompt = prompt.partial(current_date=current_date)
-        
-        chain = prompt | llm.bind_tools(tools)
+
+        # 使用统一的LLM链创建工具（支持DeepSeek/302AI等模型）
+        log_model_usage(llm, "中国股票筛选器")
+        chain = create_llm_chain(
+            prompt=prompt,
+            llm=llm,
+            tools=tools,
+            bind_tools=True,
+            analyst_name="中国股票筛选器"
+        )
         result = chain.invoke(state["messages"])
-        
+
         return {
             "messages": [result],
             "stock_screening_report": result.content,

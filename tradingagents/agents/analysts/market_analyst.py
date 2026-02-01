@@ -13,6 +13,13 @@ logger = get_logger("default")
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+# 导入LLM链创建工具
+from tradingagents.agents.utils.llm_chain_utils import (
+    create_llm_chain,
+    should_use_tool_call_handler,
+    log_model_usage
+)
+
 # 导入Agent配置管理器
 from tradingagents.agents.utils.agent_config_manager import get_agent_config_manager
 
@@ -258,7 +265,15 @@ def create_market_analyst(llm, toolkit):
             logger.info(f"📊 [市场分析师] 消息[{i}] 类型={msg_type}, 内容={msg_content}")
         logger.info(f"📊 [市场分析师] ========== 消息列表结束 ==========")
 
-        chain = prompt | llm.bind_tools(tools)
+        # 使用统一的LLM链创建工具（支持DeepSeek/302AI等模型）
+        log_model_usage(llm, "市场分析师")
+        chain = create_llm_chain(
+            prompt=prompt,
+            llm=llm,
+            tools=tools,
+            bind_tools=True,
+            analyst_name="市场分析师"
+        )
 
         logger.info(f"📊 [市场分析师] 开始调用LLM...")
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
@@ -274,7 +289,7 @@ def create_market_analyst(llm, toolkit):
         logger.info(f"📊 [市场分析师] ========== LLM响应结束 ==========")
 
         # 使用统一的Google工具调用处理器
-        if GoogleToolCallHandler.is_google_model(llm):
+        if should_use_tool_call_handler(llm):
             logger.info(f"📊 [市场分析师] 检测到Google模型，使用统一工具调用处理器")
             
             # 创建分析提示词
@@ -313,7 +328,23 @@ def create_market_analyst(llm, toolkit):
                         logger.info(f"📊 [市场分析师] - tool_call[{i}]: {tc.get('name', 'unknown')}")
 
             # 处理市场分析报告
-            if len(result.tool_calls) == 0:
+            # 检查是否有真正的tool_calls对象
+            has_real_tool_calls = hasattr(result, 'tool_calls') and len(result.tool_calls) > 0
+            
+            # 对于DeepSeek等模型，检查内容中是否包含工具调用格式的文本
+            content_str = str(result.content) if hasattr(result, 'content') else ""
+            has_tool_call_in_content = ('"ticker"' in content_str or '"stock_code"' in content_str) and \
+                                       ('get_china_stock_data' in content_str or 'get_stock_sentiment' in content_str or 
+                                        ('{' in content_str and '}' in content_str and ('start_date' in content_str or 'end_date' in content_str)))
+            
+            if not has_real_tool_calls and has_tool_call_in_content:
+                logger.info(f"📊 [市场分析师] 🔍 检测到内容中包含工具调用格式，尝试解析...")
+                logger.info(f"📊 [市场分析师] 内容预览: {content_str[:500]}...")
+                # 对于DeepSeek模型，内容中可能包含工具调用格式的JSON
+                # 这种情况下直接使用内容作为报告（因为模型已经尝试生成工具调用）
+                report = content_str
+                logger.info(f"📊 [市场分析师] ⚠️ 返回原始内容（包含工具调用格式），长度: {len(report)}")
+            elif not has_real_tool_calls:
                 # 没有工具调用，直接使用LLM的回复
                 report = result.content
                 logger.info(f"📊 [市场分析师] ✅ 直接回复（无工具调用），长度: {len(report)}")

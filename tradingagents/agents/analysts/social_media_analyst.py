@@ -10,6 +10,13 @@ logger = get_logger("analysts.social_media")
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+# 导入LLM链创建工具
+from tradingagents.agents.utils.llm_chain_utils import (
+    create_llm_chain,
+    should_use_tool_call_handler,
+    log_model_usage
+)
+
 
 def _get_company_name_for_social_media(ticker: str, market_info: dict) -> str:
     """
@@ -187,13 +194,21 @@ def create_social_media_analyst(llm, toolkit):
         prompt = prompt.partial(current_date=current_date)
         prompt = prompt.partial(ticker=ticker)
 
-        chain = prompt | llm.bind_tools(tools)
+        # 使用统一的LLM链创建工具（支持DeepSeek/302AI等模型）
+        log_model_usage(llm, "社交媒体分析师")
+        chain = create_llm_chain(
+            prompt=prompt,
+            llm=llm,
+            tools=tools,
+            bind_tools=True,
+            analyst_name="社交媒体分析师"
+        )
 
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
         result = chain.invoke({"messages": state["messages"]})
 
         # 使用统一的Google工具调用处理器
-        if GoogleToolCallHandler.is_google_model(llm):
+        if should_use_tool_call_handler(llm):
             logger.info(f"📊 [社交媒体分析师] 检测到Google模型，使用统一工具调用处理器")
             
             # 创建分析提示词
@@ -215,11 +230,126 @@ def create_social_media_analyst(llm, toolkit):
             )
         else:
             # 非Google模型的处理逻辑
-            logger.debug(f"📊 [DEBUG] 非Google模型 ({llm.__class__.__name__})，使用标准处理逻辑")
+            logger.info(f"📊 [社交媒体分析师] 非Google模型 ({llm.__class__.__name__})，使用标准处理逻辑")
             
             report = ""
-            if len(result.tool_calls) == 0:
+            # 检查是否有真正的tool_calls对象
+            has_real_tool_calls = hasattr(result, 'tool_calls') and len(result.tool_calls) > 0
+            
+            # 对于DeepSeek等模型，检查内容中是否包含工具调用格式的文本
+            content_str = str(result.content) if hasattr(result, 'content') else ""
+            has_tool_call_in_content = ('"ticker"' in content_str or 'stock_sentiment' in content_str or 
+                                        'get_stock_sentiment_unified' in content_str) and \
+                                       ('{' in content_str and '}' in content_str)
+            
+            if not has_real_tool_calls and has_tool_call_in_content:
+                logger.info(f"📊 [社交媒体分析师] 🔍 检测到内容中包含工具调用格式")
+                logger.info(f"📊 [社交媒体分析师] 内容预览: {content_str[:500]}...")
+                # 对于DeepSeek模型，内容中可能包含工具调用格式的文本
+                # 这种情况下直接使用内容作为报告
+                report = content_str
+                logger.info(f"📊 [社交媒体分析师] ⚠️ 返回原始内容（包含工具调用格式），长度: {len(report)}")
+            elif not has_real_tool_calls:
+                # 没有工具调用，直接使用LLM的回复
                 report = result.content
+                logger.info(f"📊 [社交媒体分析师] ✅ 直接回复（无工具调用），长度: {len(report)}")
+            else:
+                # 有工具调用，执行工具并生成完整分析报告
+                logger.info(f"📊 [社交媒体分析师] 🔧 检测到工具调用: {[call.get('name', 'unknown') for call in result.tool_calls]}")
+                
+                try:
+                    # 执行工具调用
+                    from langchain_core.messages import ToolMessage, HumanMessage
+                    
+                    tool_messages = []
+                    for tool_call in result.tool_calls:
+                        tool_name = tool_call.get('name')
+                        tool_args = tool_call.get('args', {})
+                        tool_id = tool_call.get('id')
+                        
+                        logger.debug(f"📊 [DEBUG] 执行工具: {tool_name}, 参数: {tool_args}")
+                        
+                        # 找到对应的工具并执行
+                        tool_result = None
+                        for tool in tools:
+                            current_tool_name = None
+                            if hasattr(tool, 'name'):
+                                current_tool_name = tool.name
+                            elif hasattr(tool, '__name__'):
+                                current_tool_name = tool.__name__
+                            
+                            if current_tool_name == tool_name:
+                                try:
+                                    tool_result = tool.invoke(tool_args)
+                                    logger.debug(f"📊 [DEBUG] 工具执行成功，结果长度: {len(str(tool_result))}")
+                                    break
+                                except Exception as tool_error:
+                                    logger.error(f"❌ [DEBUG] 工具执行失败: {tool_error}")
+                                    tool_result = f"工具执行失败: {str(tool_error)}"
+                        
+                        if tool_result is None:
+                            tool_result = f"未找到工具: {tool_name}"
+                        
+                        # 创建工具消息
+                        tool_message = ToolMessage(
+                            content=str(tool_result),
+                            tool_call_id=tool_id
+                        )
+                        tool_messages.append(tool_message)
+                    
+                    # 基于工具结果生成完整分析报告
+                    analysis_prompt = f"""基于上述工具获取的社交媒体情绪数据，生成详细的情绪分析报告。
+
+**分析对象：**
+- 公司名称：{company_name}
+- 股票代码：{ticker}
+
+**输出格式要求：**
+
+# **{company_name}（{ticker}）市场情绪分析报告**
+
+## 一、市场情绪概况
+
+[总结整体市场情绪，包括投资者信心、讨论热度等]
+
+## 二、社交媒体情绪分析
+
+### 1. 投资者情绪指标
+- 情绪指数评分（1-10分）
+- 乐观/悲观程度
+- 情绪变化趋势
+
+### 2. 讨论热度分析
+- 社交媒体讨论量
+- 关键话题和热点
+- 意见领袖观点
+
+## 三、情绪影响评估
+
+### 1. 对股价的潜在影响
+- 短期影响（1-5天）
+- 中期影响（1-4周）
+
+### 2. 投资建议
+- 基于情绪的交易时机建议
+- 风险提示
+
+请用中文撰写详细的分析报告。"""
+                    
+                    # 构建消息列表进行最终分析
+                    final_messages = state["messages"] + [result] + tool_messages + [HumanMessage(content=analysis_prompt)]
+                    
+                    logger.info(f"📊 [社交媒体分析师] 🔄 基于工具结果生成最终报告...")
+                    final_result = llm.invoke(final_messages)
+                    report = final_result.content
+                    logger.info(f"📊 [社交媒体分析师] ✅ 报告生成完成，长度: {len(report)}")
+                    
+                except Exception as e:
+                    logger.error(f"❌ [社交媒体分析师] 工具调用处理失败: {e}")
+                    import traceback
+                    logger.error(f"📋 异常堆栈: {traceback.format_exc()}")
+                    # 降级：返回原始内容
+                    report = result.content
 
         # 🔧 更新工具调用计数器
         return {

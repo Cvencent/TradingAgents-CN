@@ -132,6 +132,11 @@ export const analysisApi = {
     return request.get(`/api/analysis/tasks/${taskId}/status`)
   },
 
+  // 获取任务详情（包含步骤信息）
+  getTaskDetails(taskId: string): Promise<ApiResponse<any>> {
+    return request.get(`/api/analysis/tasks/${taskId}/details`)
+  },
+
   // 获取分析进度
   getProgress(analysisId: string): Promise<AnalysisProgress> {
     return request.get(`/api/analysis/${analysisId}/progress`)

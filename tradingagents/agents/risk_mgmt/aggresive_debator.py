@@ -64,9 +64,21 @@ def create_risky_debator(llm):
         new_count = risk_debate_state["count"] + 1
         logger.info(f"🔥 [激进风险分析师] 发言完成，计数: {risk_debate_state['count']} -> {new_count}")
 
+        # 兼容旧格式（字符串）和新格式（列表）
+        current_risky_history = risk_debate_state.get("risky_history", "")
+        if isinstance(current_risky_history, list):
+            # 新格式：列表，追加当前轮次
+            new_risky_history = current_risky_history + [argument]
+        else:
+            # 旧格式：字符串，转换为列表并追加
+            if current_risky_history:
+                new_risky_history = [current_risky_history, argument]
+            else:
+                new_risky_history = [argument]
+
         new_risk_debate_state = {
             "history": history + "\n" + argument,
-            "risky_history": risky_history + "\n" + argument,
+            "risky_history": new_risky_history,
             "safe_history": risk_debate_state.get("safe_history", ""),
             "neutral_history": risk_debate_state.get("neutral_history", ""),
             "latest_speaker": "Risky",

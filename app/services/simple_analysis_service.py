@@ -799,6 +799,11 @@ class SimpleAnalysisService:
             code = stock_code
             name = self._resolve_stock_name(code) if hasattr(self, '_resolve_stock_name') else f"股票{code}"
 
+            # 提取parameters中的关键字段，保存到顶层
+            parameters = request.parameters.model_dump() if request.parameters else {}
+            research_depth = parameters.get('research_depth')
+            selected_analysts = parameters.get('selected_analysts')
+
             try:
                 db = get_mongo_db()
                 result = await db.analysis_tasks.update_one(
@@ -812,6 +817,9 @@ class SimpleAnalysisService:
                         "status": "pending",
                         "progress": 0,
                         "created_at": datetime.utcnow(),
+                        # 🔥 保存research_depth和selected_analysts到顶层字段
+                        "research_depth": research_depth,
+                        "selected_analysts": selected_analysts,
                     }},
                     upsert=True
                 )
@@ -1165,15 +1173,14 @@ class SimpleAnalysisService:
                     finally:
                         loop.close()
 
-                    # 2. 更新 MongoDB（使用同步客户端，避免事件循环冲突）
-                    from pymongo import MongoClient
-                    from app.core.config import settings
+                    # 🔥 修复：使用同步MongoDB客户端，避免阻塞线程池
+                    # 2. 更新 MongoDB（使用同步客户端）
+                    from app.core.database import get_mongo_db_sync
                     from datetime import datetime
-
-                    sync_client = MongoClient(settings.MONGO_URI)
-                    sync_db = sync_client[settings.MONGO_DB]
-
-                    sync_db.analysis_tasks.update_one(
+                    
+                    mongo_db = get_mongo_db_sync()
+                    
+                    mongo_db.analysis_tasks.update_one(
                         {"task_id": task_id},
                         {
                             "$set": {
@@ -1184,7 +1191,7 @@ class SimpleAnalysisService:
                             }
                         }
                     )
-                    sync_client.close()
+                    logger.debug(f"💾 同步更新MongoDB进度: {task_id}")
 
                 except Exception as e:
                     logger.warning(f"⚠️ 进度更新失败: {e}")
@@ -1569,6 +1576,9 @@ class SimpleAnalysisService:
             # 从state中提取reports字段
             reports = {}
             try:
+                logger.info(f"🔍 [DEBUG] State类型: {type(state)}")
+                logger.info(f"🔍 [DEBUG] State键: {list(state.keys()) if isinstance(state, dict) else 'not a dict'}")
+                
                 # 定义所有可能的报告字段
                 report_fields = [
                     'market_report',
@@ -1596,22 +1606,40 @@ class SimpleAnalysisService:
                         logger.debug(f"⚠️ [REPORTS] 跳过报告: {field} - 内容为空或太短")
 
                 # 处理研究团队辩论状态报告
+                logger.info(f"🔍 [DEBUG] 检查investment_debate_state...")
+                logger.info(f"🔍 [DEBUG] hasattr(state, 'investment_debate_state'): {hasattr(state, 'investment_debate_state')}")
+                logger.info(f"🔍 [DEBUG] isinstance(state, dict): {isinstance(state, dict)}")
+                logger.info(f"🔍 [DEBUG] 'investment_debate_state' in state: {isinstance(state, dict) and 'investment_debate_state' in state}")
+                
                 if hasattr(state, 'investment_debate_state') or (isinstance(state, dict) and 'investment_debate_state' in state):
                     debate_state = getattr(state, 'investment_debate_state', None) if hasattr(state, 'investment_debate_state') else state.get('investment_debate_state')
+                    logger.info(f"🔍 [DEBUG] debate_state类型: {type(debate_state)}")
                     if debate_state:
-                        # 提取多头研究员历史
+                        logger.info(f"🔍 [DEBUG] debate_state键: {list(debate_state.keys()) if isinstance(debate_state, dict) else 'not a dict'}")
+                        
+                        # 提取多头研究员历史（支持列表和字符串格式）
                         if hasattr(debate_state, 'bull_history'):
                             bull_content = getattr(debate_state, 'bull_history', "")
                         elif isinstance(debate_state, dict) and 'bull_history' in debate_state:
                             bull_content = debate_state['bull_history']
                         else:
                             bull_content = ""
+                            logger.warning(f"⚠️ [DEBUG] bull_history不存在")
 
-                        if bull_content and len(bull_content.strip()) > 10:
-                            reports['bull_researcher'] = bull_content.strip()
-                            logger.info(f"📊 [REPORTS] 提取报告: bull_researcher - 长度: {len(bull_content.strip())}")
+                        # 处理多头历史：如果是列表，生成轮次结构
+                        if bull_content and ((isinstance(bull_content, list) and len(bull_content) > 0) or (isinstance(bull_content, str) and len(bull_content.strip()) > 10)):
+                            if isinstance(bull_content, list):
+                                # 新格式：列表，生成轮次数据
+                                bull_rounds = [{"round": i+1, "content": item} for i, item in enumerate(bull_content)]
+                                reports['bull_researcher_rounds'] = bull_rounds
+                                reports['bull_researcher'] = "\n\n".join([f"=== 第{i+1}轮 ===\n{item}" for i, item in enumerate(bull_content)])
+                                logger.info(f"📊 [REPORTS] 提取报告: bull_researcher - {len(bull_content)}轮")
+                            else:
+                                # 旧格式：字符串，直接保存
+                                reports['bull_researcher'] = bull_content.strip()
+                                logger.info(f"📊 [REPORTS] 提取报告: bull_researcher - 长度: {len(bull_content.strip())}")
 
-                        # 提取空头研究员历史
+                        # 提取空头研究员历史（支持列表和字符串格式）
                         if hasattr(debate_state, 'bear_history'):
                             bear_content = getattr(debate_state, 'bear_history', "")
                         elif isinstance(debate_state, dict) and 'bear_history' in debate_state:
@@ -1619,9 +1647,18 @@ class SimpleAnalysisService:
                         else:
                             bear_content = ""
 
-                        if bear_content and len(bear_content.strip()) > 10:
-                            reports['bear_researcher'] = bear_content.strip()
-                            logger.info(f"📊 [REPORTS] 提取报告: bear_researcher - 长度: {len(bear_content.strip())}")
+                        # 处理空头历史：如果是列表，生成轮次结构
+                        if bear_content and ((isinstance(bear_content, list) and len(bear_content) > 0) or (isinstance(bear_content, str) and len(bear_content.strip()) > 10)):
+                            if isinstance(bear_content, list):
+                                # 新格式：列表，生成轮次数据
+                                bear_rounds = [{"round": i+1, "content": item} for i, item in enumerate(bear_content)]
+                                reports['bear_researcher_rounds'] = bear_rounds
+                                reports['bear_researcher'] = "\n\n".join([f"=== 第{i+1}轮 ===\n{item}" for i, item in enumerate(bear_content)])
+                                logger.info(f"📊 [REPORTS] 提取报告: bear_researcher - {len(bear_content)}轮")
+                            else:
+                                # 旧格式：字符串，直接保存
+                                reports['bear_researcher'] = bear_content.strip()
+                                logger.info(f"📊 [REPORTS] 提取报告: bear_researcher - 长度: {len(bear_content.strip())}")
 
                         # 提取研究经理决策
                         if hasattr(debate_state, 'judge_decision'):
@@ -1639,7 +1676,7 @@ class SimpleAnalysisService:
                 if hasattr(state, 'risk_debate_state') or (isinstance(state, dict) and 'risk_debate_state' in state):
                     risk_state = getattr(state, 'risk_debate_state', None) if hasattr(state, 'risk_debate_state') else state.get('risk_debate_state')
                     if risk_state:
-                        # 提取激进分析师历史
+                        # 提取激进分析师历史（支持列表和字符串格式）
                         if hasattr(risk_state, 'risky_history'):
                             risky_content = getattr(risk_state, 'risky_history', "")
                         elif isinstance(risk_state, dict) and 'risky_history' in risk_state:
@@ -1647,11 +1684,20 @@ class SimpleAnalysisService:
                         else:
                             risky_content = ""
 
-                        if risky_content and len(risky_content.strip()) > 10:
-                            reports['risky_analyst'] = risky_content.strip()
-                            logger.info(f"📊 [REPORTS] 提取报告: risky_analyst - 长度: {len(risky_content.strip())}")
+                        # 处理激进历史：如果是列表，生成轮次结构
+                        if risky_content and ((isinstance(risky_content, list) and len(risky_content) > 0) or (isinstance(risky_content, str) and len(risky_content.strip()) > 10)):
+                            if isinstance(risky_content, list):
+                                # 新格式：列表，生成轮次数据
+                                risky_rounds = [{"round": i+1, "content": item} for i, item in enumerate(risky_content)]
+                                reports['risky_analyst_rounds'] = risky_rounds
+                                reports['risky_analyst'] = "\n\n".join([f"=== 第{i+1}轮 ===\n{item}" for i, item in enumerate(risky_content)])
+                                logger.info(f"📊 [REPORTS] 提取报告: risky_analyst - {len(risky_content)}轮")
+                            else:
+                                # 旧格式：字符串，直接保存
+                                reports['risky_analyst'] = risky_content.strip()
+                                logger.info(f"📊 [REPORTS] 提取报告: risky_analyst - 长度: {len(risky_content.strip())}")
 
-                        # 提取保守分析师历史
+                        # 提取保守分析师历史（支持列表和字符串格式）
                         if hasattr(risk_state, 'safe_history'):
                             safe_content = getattr(risk_state, 'safe_history', "")
                         elif isinstance(risk_state, dict) and 'safe_history' in risk_state:
@@ -1659,11 +1705,20 @@ class SimpleAnalysisService:
                         else:
                             safe_content = ""
 
-                        if safe_content and len(safe_content.strip()) > 10:
-                            reports['safe_analyst'] = safe_content.strip()
-                            logger.info(f"📊 [REPORTS] 提取报告: safe_analyst - 长度: {len(safe_content.strip())}")
+                        # 处理保守历史：如果是列表，生成轮次结构
+                        if safe_content and ((isinstance(safe_content, list) and len(safe_content) > 0) or (isinstance(safe_content, str) and len(safe_content.strip()) > 10)):
+                            if isinstance(safe_content, list):
+                                # 新格式：列表，生成轮次数据
+                                safe_rounds = [{"round": i+1, "content": item} for i, item in enumerate(safe_content)]
+                                reports['safe_analyst_rounds'] = safe_rounds
+                                reports['safe_analyst'] = "\n\n".join([f"=== 第{i+1}轮 ===\n{item}" for i, item in enumerate(safe_content)])
+                                logger.info(f"📊 [REPORTS] 提取报告: safe_analyst - {len(safe_content)}轮")
+                            else:
+                                # 旧格式：字符串，直接保存
+                                reports['safe_analyst'] = safe_content.strip()
+                                logger.info(f"📊 [REPORTS] 提取报告: safe_analyst - 长度: {len(safe_content.strip())}")
 
-                        # 提取中性分析师历史
+                        # 提取中性分析师历史（支持列表和字符串格式）
                         if hasattr(risk_state, 'neutral_history'):
                             neutral_content = getattr(risk_state, 'neutral_history', "")
                         elif isinstance(risk_state, dict) and 'neutral_history' in risk_state:
@@ -1671,9 +1726,18 @@ class SimpleAnalysisService:
                         else:
                             neutral_content = ""
 
-                        if neutral_content and len(neutral_content.strip()) > 10:
-                            reports['neutral_analyst'] = neutral_content.strip()
-                            logger.info(f"📊 [REPORTS] 提取报告: neutral_analyst - 长度: {len(neutral_content.strip())}")
+                        # 处理中性历史：如果是列表，生成轮次结构
+                        if neutral_content and ((isinstance(neutral_content, list) and len(neutral_content) > 0) or (isinstance(neutral_content, str) and len(neutral_content.strip()) > 10)):
+                            if isinstance(neutral_content, list):
+                                # 新格式：列表，生成轮次数据
+                                neutral_rounds = [{"round": i+1, "content": item} for i, item in enumerate(neutral_content)]
+                                reports['neutral_analyst_rounds'] = neutral_rounds
+                                reports['neutral_analyst'] = "\n\n".join([f"=== 第{i+1}轮 ===\n{item}" for i, item in enumerate(neutral_content)])
+                                logger.info(f"📊 [REPORTS] 提取报告: neutral_analyst - {len(neutral_content)}轮")
+                            else:
+                                # 旧格式：字符串，直接保存
+                                reports['neutral_analyst'] = neutral_content.strip()
+                                logger.info(f"📊 [REPORTS] 提取报告: neutral_analyst - 长度: {len(neutral_content.strip())}")
 
                         # 提取投资组合经理决策
                         if hasattr(risk_state, 'judge_decision'):
@@ -1898,81 +1962,79 @@ class SimpleAnalysisService:
         # 强制使用全局内存管理器实例（临时解决方案）
         global_memory_manager = get_memory_state_manager()
         logger.info(f"🔍 全局内存管理器实例ID: {id(global_memory_manager)}")
-
+        
         # 获取统计信息
         stats = await global_memory_manager.get_statistics()
         logger.info(f"📊 内存中任务统计: {stats}")
+        
+        # 🔥 关键修复：不要重新赋值result，保留_execute_analysis_sync返回的完整result
+        # result = await global_memory_manager.get_task_dict(task_id)
+        # if result:
+        #     logger.info(f"✅ 找到任务: {task_id} - 状态: {result.get('status')}")
+        #     # 🔍 调试：检查从内存获取的result_data
+        #     result_data = result.get('result_data')
+        #     logger.debug(f"🔍 [GET_STATUS] result_data存在: {bool(result_data)}")
+        #     if result_data:
+        #         logger.debug(f"🔍 [GET_STATUS] result_data键: {list(result_data.keys())}")
+        #         logger.debug(f"🔍 [GET_STATUS] result_data中有decision: {bool(result_data.get('decision'))}")
+        #     if result_data.get('decision'):
+        #         logger.debug(f"🔍 [GET_STATUS] decision内容: {result_data['decision']}")
+        # else:
+        #     logger.debug(f"🔍 [GET_STATUS] result_data为空或不存在（任务运行中，这是正常的）")
+        
+        # 优先从Redis获取详细进度信息
+        redis_progress = get_progress_by_id(task_id)
+        if redis_progress:
+            logger.info(f"📊 [Redis进度] 获取到详细进度: {task_id}")
 
-        result = await global_memory_manager.get_task_dict(task_id)
-        if result:
-            logger.info(f"✅ 找到任务: {task_id} - 状态: {result.get('status')}")
+            # 从 steps 数组中提取当前步骤的名称和描述
+            current_step_index = redis_progress.get('current_step', 0)
+            steps = redis_progress.get('steps', [])
+            current_step_name = redis_progress.get('current_step_name', '')
+            current_step_description = redis_progress.get('current_step_description', '')
 
-            # 🔍 调试：检查从内存获取的result_data
-            result_data = result.get('result_data')
-            logger.debug(f"🔍 [GET_STATUS] result_data存在: {bool(result_data)}")
-            if result_data:
-                logger.debug(f"🔍 [GET_STATUS] result_data键: {list(result_data.keys())}")
-                logger.debug(f"🔍 [GET_STATUS] result_data中有decision: {bool(result_data.get('decision'))}")
-                if result_data.get('decision'):
-                    logger.debug(f"🔍 [GET_STATUS] decision内容: {result_data['decision']}")
-            else:
-                logger.debug(f"🔍 [GET_STATUS] result_data为空或不存在（任务运行中，这是正常的）")
+            # 如果 Redis 中的名称/描述为空，从 steps 数组中提取
+            if not current_step_name and steps and 0 <= current_step_index < len(steps):
+                current_step_info = steps[current_step_index]
+                current_step_name = current_step_info.get('name', '')
+                current_step_description = current_step_info.get('description', '')
+                logger.info(f"📋 从steps数组提取当前步骤信息: index={current_step_index}, name={current_step_name}")
 
-            # 优先从Redis获取详细进度信息
-            redis_progress = get_progress_by_id(task_id)
-            if redis_progress:
-                logger.info(f"📊 [Redis进度] 获取到详细进度: {task_id}")
-
-                # 从 steps 数组中提取当前步骤的名称和描述
-                current_step_index = redis_progress.get('current_step', 0)
-                steps = redis_progress.get('steps', [])
-                current_step_name = redis_progress.get('current_step_name', '')
-                current_step_description = redis_progress.get('current_step_description', '')
-
-                # 如果 Redis 中的名称/描述为空，从 steps 数组中提取
-                if not current_step_name and steps and 0 <= current_step_index < len(steps):
-                    current_step_info = steps[current_step_index]
-                    current_step_name = current_step_info.get('name', '')
-                    current_step_description = current_step_info.get('description', '')
-                    logger.info(f"📋 从steps数组提取当前步骤信息: index={current_step_index}, name={current_step_name}")
-
-                # 合并Redis进度数据
-                result.update({
-                    'progress': redis_progress.get('progress_percentage', result.get('progress', 0)),
-                    'current_step': current_step_index,  # 使用索引而不是名称
-                    'current_step_name': current_step_name,  # 步骤名称
-                    'current_step_description': current_step_description,  # 步骤描述
-                    'message': redis_progress.get('last_message', result.get('message', '')),
-                    'elapsed_time': redis_progress.get('elapsed_time', 0),
-                    'remaining_time': redis_progress.get('remaining_time', 0),
-                    'estimated_total_time': redis_progress.get('estimated_total_time', result.get('estimated_duration', 300)),  # 🔧 修复：使用Redis中的预估总时长
-                    'steps': steps,
-                    'start_time': result.get('start_time'),  # 保持原有格式
-                    'last_update': redis_progress.get('last_update', result.get('start_time'))
-                })
-            else:
-                # 如果Redis中没有，尝试从内存中的进度跟踪器获取
-                if task_id in self._progress_trackers:
-                    progress_tracker = self._progress_trackers[task_id]
-                    progress_data = progress_tracker.to_dict()
-
-                    # 合并进度跟踪器的详细信息
-                    result.update({
-                        'progress': progress_data['progress'],
-                        'current_step': progress_data['current_step'],
-                        'message': progress_data['message'],
-                        'elapsed_time': progress_data['elapsed_time'],
-                        'remaining_time': progress_data['remaining_time'],
-                        'estimated_total_time': progress_data.get('estimated_total_time', 0),
-                        'steps': progress_data['steps'],
-                        'start_time': progress_data['start_time'],
-                        'last_update': progress_data['last_update']
-                    })
-                    logger.info(f"📊 合并内存进度跟踪器数据: {task_id}")
-                else:
-                    logger.info(f"⚠️ 未找到进度信息: {task_id}")
+            # 合并Redis进度数据
+            result.update({
+                'progress': redis_progress.get('progress_percentage', result.get('progress', 0)),
+                'current_step': current_step_index,  # 使用索引而不是名称
+                'current_step_name': current_step_name,  # 步骤名称
+                'current_step_description': current_step_description,  # 步骤描述
+                'message': redis_progress.get('last_message', result.get('message', '')),
+                'elapsed_time': redis_progress.get('elapsed_time', 0),
+                'remaining_time': redis_progress.get('remaining_time', 0),
+                'estimated_total_time': redis_progress.get('estimated_total_time', result.get('estimated_duration', 300)),  # 🔧 修复：使用Redis中的预估总时长
+                'steps': steps,
+                'start_time': result.get('start_time'),  # 保持原有格式
+                'last_update': redis_progress.get('last_update', result.get('start_time'))
+            })
         else:
-            logger.warning(f"❌ 未找到任务: {task_id}")
+            # 如果Redis中没有，尝试从内存中的进度跟踪器获取
+            if task_id in self._progress_trackers:
+                progress_tracker = self._progress_trackers[task_id]
+                progress_data = progress_tracker.to_dict()
+
+                # 合并进度跟踪器的详细信息
+                result.update({
+                    'progress': progress_data['progress'],
+                    'current_step': progress_data['current_step'],
+                    'message': progress_data['message'],
+                    'elapsed_time': progress_data['elapsed_time'],
+                    'remaining_time': progress_data['remaining_time'],
+                    'estimated_total_time': progress_data.get('estimated_total_time', 0),
+                    'steps': progress_data['steps'],
+                    'start_time': progress_data['start_time'],
+                    'last_update': progress_data['last_update']
+                })
+                logger.info(f"📊 合并内存进度跟踪器数据: {task_id}")
+            else:
+                logger.info(f"⚠️ 未找到进度信息: {task_id}")
 
         return result
 
@@ -2646,6 +2708,9 @@ class SimpleAnalysisService:
 
                 # 🔥 关键修复：添加格式化后的decision字段！
                 "decision": result.get("decision", {}),
+
+                # 🔥 关键修复：添加state字段，保存完整的分析状态
+                "state": result.get("state", {}),
 
                 # 元数据
                 "created_at": timestamp,

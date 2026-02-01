@@ -64,10 +64,22 @@ def create_safe_debator(llm):
         new_count = risk_debate_state["count"] + 1
         logger.info(f"🛡️ [保守风险分析师] 发言完成，计数: {risk_debate_state['count']} -> {new_count}")
 
+        # 兼容旧格式（字符串）和新格式（列表）
+        current_safe_history = risk_debate_state.get("safe_history", "")
+        if isinstance(current_safe_history, list):
+            # 新格式：列表，追加当前轮次
+            new_safe_history = current_safe_history + [argument]
+        else:
+            # 旧格式：字符串，转换为列表并追加
+            if current_safe_history:
+                new_safe_history = [current_safe_history, argument]
+            else:
+                new_safe_history = [argument]
+
         new_risk_debate_state = {
             "history": history + "\n" + argument,
             "risky_history": risk_debate_state.get("risky_history", ""),
-            "safe_history": safe_history + "\n" + argument,
+            "safe_history": new_safe_history,
             "neutral_history": risk_debate_state.get("neutral_history", ""),
             "latest_speaker": "Safe",
             "current_risky_response": risk_debate_state.get(

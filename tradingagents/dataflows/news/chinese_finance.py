@@ -110,21 +110,55 @@ class ChineseFinanceDataAggregator:
             return {'error': str(e), 'sentiment_score': 0, 'confidence': 0}
     
     def _get_stock_forum_sentiment(self, ticker: str, days: int) -> Dict:
-        """获取股票论坛讨论情绪 (使用东方财富股吧数据源)"""
+        """获取股票论坛讨论情绪 (使用东方财富股吧爬虫)"""
+        try:
+            # 使用新的股吧爬虫获取详细数据
+            from tradingagents.dataflows.news.guba_crawler import GubaHotCrawler
+
+            crawler = GubaHotCrawler(ticker)
+            posts = crawler.crawl_hot_list(max_posts=20)
+
+            if posts and len(posts) > 0:
+                # 使用爬虫生成的情绪汇总
+                sentiment_summary = crawler.generate_sentiment_summary()
+
+                return {
+                    'sentiment_score': sentiment_summary['sentiment_score'],
+                    'positive_count': sentiment_summary['positive_count'],
+                    'negative_count': sentiment_summary['negative_count'],
+                    'neutral_count': sentiment_summary['neutral_count'],
+                    'discussion_count': sentiment_summary['discussion_count'],
+                    'hot_topics': sentiment_summary['hot_topics'],
+                    'confidence': sentiment_summary['confidence'],
+                    'summary': sentiment_summary['summary'],
+                    'source': '东方财富股吧',
+                    'posts': posts  # 包含详细帖子数据
+                }
+            else:
+                # 降级：使用旧的数据源管理器
+                logger.warning(f"⚠️ [财经数据] 股吧爬虫获取失败，尝试使用数据源管理器")
+                return self._get_stock_forum_sentiment_fallback(ticker, days)
+        except Exception as e:
+            logger.error(f"❌ [财经数据] 股吧爬虫异常: {e}")
+            # 降级：使用旧的数据源管理器
+            return self._get_stock_forum_sentiment_fallback(ticker, days)
+
+    def _get_stock_forum_sentiment_fallback(self, ticker: str, days: int) -> Dict:
+        """获取股票论坛讨论情绪 (降级方案 - 使用数据源管理器)"""
         try:
             from app.services.data_sources.manager import DataSourceManager
             manager = DataSourceManager()
-            
+
             # 尝试使用东方财富股吧数据源
             eastmoney_posts = manager.get_news_with_fallback(ticker, days=days, limit=20, preferred_sources=["eastmoney"])
-            
+
             if eastmoney_posts and len(eastmoney_posts) > 0:
                 # 分析股吧帖子的情绪
                 positive_count = 0
                 negative_count = 0
                 neutral_count = 0
                 hot_topics = []
-                
+
                 for post in eastmoney_posts:
                     sentiment = post.get('sentiment', '中性')
                     if sentiment == '积极':
@@ -133,25 +167,28 @@ class ChineseFinanceDataAggregator:
                         negative_count += 1
                     else:
                         neutral_count += 1
-                    
+
                     # 提取热门话题
                     title = post.get('title', '')
                     if title and len(hot_topics) < 5:
                         hot_topics.append(title)
-                
+
                 total = len(eastmoney_posts)
                 if total == 0:
                     return {'sentiment_score': 0, 'discussion_count': 0, 'hot_topics': [], 'confidence': 0}
-                
+
                 sentiment_score = (positive_count - negative_count) / total
                 confidence = min(total / 10, 1.0)
-                
+
                 return {
                     'sentiment_score': sentiment_score,
+                    'positive_count': positive_count,
+                    'negative_count': negative_count,
+                    'neutral_count': neutral_count,
                     'discussion_count': total,
                     'hot_topics': hot_topics,
                     'confidence': confidence,
-                    'source': '东方财富股吧'
+                    'source': '东方财富股吧(降级)'
                 }
             else:
                 return {

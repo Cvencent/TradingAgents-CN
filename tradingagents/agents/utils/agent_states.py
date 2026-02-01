@@ -1,4 +1,4 @@
-from typing import Annotated, Sequence
+from typing import Annotated, Sequence, List
 from datetime import date, timedelta, datetime
 from typing_extensions import TypedDict, Optional
 from langchain_openai import ChatOpenAI
@@ -14,38 +14,37 @@ logger = get_logger("default")
 # Researcher team state
 class InvestDebateState(TypedDict):
     bull_history: Annotated[
-        str, "Bullish Conversation history"
-    ]  # Bullish Conversation history
+        List[str], "Bullish Conversation history (list of rounds)"
+    ]  # Bullish Conversation history as list of rounds
     bear_history: Annotated[
-        str, "Bearish Conversation history"
-    ]  # Bullish Conversation history
+        List[str], "Bearish Conversation history (list of rounds)"
+    ]  # Bearish Conversation history as list of rounds
     history: Annotated[str, "Conversation history"]  # Conversation history
     current_response: Annotated[str, "Latest response"]  # Last response
     judge_decision: Annotated[str, "Final judge decision"]  # Last response
-    count: Annotated[int, "Length of the current conversation"]  # Conversation length
-
+    count: Annotated[int, "Length of current conversation"]  # Conversation length
 
 # Risk management team state
 class RiskDebateState(TypedDict):
     risky_history: Annotated[
-        str, "Risky Agent's Conversation history"
-    ]  # Conversation history
+        List[str], "Risky Agent's Conversation history (list of rounds)"
+    ]  # Conversation history as list of rounds
     safe_history: Annotated[
-        str, "Safe Agent's Conversation history"
-    ]  # Conversation history
+        List[str], "Safe Agent's Conversation history (list of rounds)"
+    ]  # Conversation history as list of rounds
     neutral_history: Annotated[
-        str, "Neutral Agent's Conversation history"
-    ]  # Conversation history
+        List[str], "Neutral Agent's Conversation history (list of rounds)"
+    ]  # Conversation history as list of rounds
     history: Annotated[str, "Conversation history"]  # Conversation history
     latest_speaker: Annotated[str, "Analyst that spoke last"]
     current_risky_response: Annotated[
-        str, "Latest response by the risky analyst"
+        str, "Latest response by risky analyst"
     ]  # Last response
     current_safe_response: Annotated[
-        str, "Latest response by the safe analyst"
+        str, "Latest response by safe analyst"
     ]  # Last response
     current_neutral_response: Annotated[
-        str, "Latest response by the neutral analyst"
+        str, "Latest response by neutral analyst"
     ]  # Last response
     judge_decision: Annotated[str, "Judge's decision"]
     count: Annotated[int, "Length of the current conversation"]  # Conversation length

@@ -66,13 +66,26 @@ def create_neutral_debator(llm):
         argument = f"Neutral Analyst: {response.content}"
 
         new_count = risk_debate_state["count"] + 1
+        logger.info(f"📝 [Neutral Analyst] 响应长度: {len(response.content):,} 字符")
         logger.info(f"⚖️ [中性风险分析师] 发言完成，计数: {risk_debate_state['count']} -> {new_count}")
+
+        # 兼容旧格式（字符串）和新格式（列表）
+        current_neutral_history = risk_debate_state.get("neutral_history", "")
+        if isinstance(current_neutral_history, list):
+            # 新格式：列表，追加当前轮次
+            new_neutral_history = current_neutral_history + [argument]
+        else:
+            # 旧格式：字符串，转换为列表并追加
+            if current_neutral_history:
+                new_neutral_history = [current_neutral_history, argument]
+            else:
+                new_neutral_history = [argument]
 
         new_risk_debate_state = {
             "history": history + "\n" + argument,
             "risky_history": risk_debate_state.get("risky_history", ""),
             "safe_history": risk_debate_state.get("safe_history", ""),
-            "neutral_history": neutral_history + "\n" + argument,
+            "neutral_history": new_neutral_history,
             "latest_speaker": "Neutral",
             "current_risky_response": risk_debate_state.get(
                 "current_risky_response", ""

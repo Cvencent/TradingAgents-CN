@@ -1943,3 +1943,97 @@ def get_stock_data_by_market(symbol: str, start_date: str = None, end_date: str 
     except Exception as e:
         logger.error(f"❌ 获取股票数据失败: {e}")
         return f"❌ 获取股票{symbol}数据失败: {e}"
+
+
+# ==================== 东方财富股吧数据接口 ====================
+
+def get_guba_posts(
+    ticker: Annotated[str, "股票代码，如：000001、600036等"],
+    max_posts: Annotated[int, "获取帖子数量，默认20"] = 20
+) -> Dict:
+    """
+    获取东方财富股吧热门帖子数据
+    
+    Args:
+        ticker: 股票代码
+        max_posts: 获取帖子数量
+        
+    Returns:
+        Dict: 包含帖子列表和元数据的字典
+    """
+    try:
+        from tradingagents.dataflows.news.guba_crawler import GubaHotCrawler
+        
+        logger.info(f"📊 [股吧数据] 开始获取{ticker}的股吧帖子，数量: {max_posts}")
+        
+        crawler = GubaHotCrawler(ticker)
+        posts = crawler.crawl_hot_list(max_posts=max_posts)
+        
+        if posts:
+            logger.info(f"✅ [股吧数据] 成功获取{len(posts)}条帖子: {ticker}")
+            return {
+                'success': True,
+                'ticker': ticker,
+                'post_count': len(posts),
+                'posts': posts
+            }
+        else:
+            logger.warning(f"⚠️ [股吧数据] 未获取到帖子: {ticker}")
+            return {
+                'success': False,
+                'ticker': ticker,
+                'post_count': 0,
+                'posts': [],
+                'error': '未获取到帖子数据'
+            }
+            
+    except Exception as e:
+        logger.error(f"❌ [股吧数据] 获取失败: {e}")
+        return {
+            'success': False,
+            'ticker': ticker,
+            'post_count': 0,
+            'posts': [],
+            'error': str(e)
+        }
+
+
+def get_guba_sentiment_report(
+    ticker: Annotated[str, "股票代码，如：000001、600036等"],
+    max_posts: Annotated[int, "分析帖子数量，默认20"] = 20
+) -> str:
+    """
+    获取东方财富股吧情绪分析报告
+    
+    Args:
+        ticker: 股票代码
+        max_posts: 分析帖子数量
+        
+    Returns:
+        str: 格式化的情绪分析报告
+    """
+    try:
+        from tradingagents.dataflows.news.guba_crawler import GubaHotCrawler
+        
+        logger.info(f"📊 [股吧情绪] 开始生成{ticker}的情绪分析报告")
+        
+        crawler = GubaHotCrawler(ticker)
+        posts = crawler.crawl_hot_list(max_posts=max_posts)
+        
+        if not posts:
+            logger.warning(f"⚠️ [股吧情绪] 未获取到帖子，无法生成报告: {ticker}")
+            return f"## {ticker} 股吧情绪分析报告\n\n⚠️ 未获取到股吧帖子数据，无法生成情绪分析报告。"
+        
+        # 生成情绪摘要
+        sentiment_summary = crawler.generate_sentiment_summary()
+        
+        # 生成Markdown报告
+        report = crawler.generate_markdown_report()
+        
+        logger.info(f"✅ [股吧情绪] 成功生成情绪报告: {ticker}, 情绪分数: {sentiment_summary.get('sentiment_score', 0):.2f}")
+        
+        return report
+        
+    except Exception as e:
+        logger.error(f"❌ [股吧情绪] 生成报告失败: {e}")
+        return f"## {ticker} 股吧情绪分析报告\n\n❌ 生成报告失败: {str(e)}"

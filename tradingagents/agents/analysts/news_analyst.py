@@ -13,6 +13,13 @@ from tradingagents.utils.stock_utils import StockUtils
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+# 导入LLM链创建工具
+from tradingagents.agents.utils.llm_chain_utils import (
+    create_llm_chain,
+    should_use_tool_call_handler,
+    log_model_usage
+)
+
 # 导入Agent配置管理器
 from tradingagents.agents.utils.agent_config_manager import get_agent_config_manager
 
@@ -319,19 +326,26 @@ def create_news_analyst(llm, toolkit):
                 import traceback
                 logger.error(f"[新闻分析师] 📋 异常堆栈: {traceback.format_exc()}")
         
-        # 使用统一的Google工具调用处理器
+        # 使用统一的LLM链创建工具（支持DeepSeek/302AI等模型）
         llm_start_time = datetime.now()
-        chain = prompt | llm.bind_tools(tools)
+        log_model_usage(llm, "新闻分析师")
+        chain = create_llm_chain(
+            prompt=prompt,
+            llm=llm,
+            tools=tools,
+            bind_tools=True,
+            analyst_name="新闻分析师"
+        )
         logger.info(f"[新闻分析师] 开始LLM调用，分析 {ticker} 的新闻")
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
         result = chain.invoke({"messages": state["messages"]})
-        
+
         llm_end_time = datetime.now()
         llm_time_taken = (llm_end_time - llm_start_time).total_seconds()
         logger.info(f"[新闻分析师] LLM调用完成，耗时: {llm_time_taken:.2f}秒")
 
         # 使用统一的Google工具调用处理器
-        if GoogleToolCallHandler.is_google_model(llm):
+        if should_use_tool_call_handler(llm):
             logger.info(f"📊 [新闻分析师] 检测到Google模型，使用统一工具调用处理器")
             
             # 创建分析提示词

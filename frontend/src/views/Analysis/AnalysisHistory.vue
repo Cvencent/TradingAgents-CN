@@ -241,6 +241,14 @@
               下载报告
             </el-button>
             <el-button
+              v-if="row.status === 'running'"
+              type="text"
+              size="small"
+              @click="viewResult(row)"
+            >
+              查看详情
+            </el-button>
+            <el-button
               v-if="row.status === 'failed'"
               type="text"
               size="small"
@@ -294,6 +302,7 @@ const pageSize = ref(20)
 const totalRecords = ref(0)
 const historyList = ref<any[]>([])
 const statusFilter = ref('')
+const expandedRows = ref<Set<string>>(new Set()) // 展开的行
 
 // 筛选表单
 const filterForm = ref({
@@ -315,6 +324,39 @@ const handleSelectAll = (val: string | number | boolean) => {
   const isChecked = Boolean(val)
   if (isChecked) selectedAnalyses.value = [...historyList.value]
   else selectedAnalyses.value = []
+}
+
+// 切换展开状态
+const toggleExpand = (taskId: string) => {
+  if (expandedRows.value.has(taskId)) {
+    expandedRows.value.delete(taskId)
+    delete expandedReportContent.value[taskId]
+  } else {
+    expandedRows.value.add(taskId)
+    // 获取报告内容
+    loadReportContent(taskId)
+  }
+}
+
+// 加载报告内容
+const loadReportContent = async (taskId: string) => {
+  try {
+    const response = await fetch(`/api/analysis/tasks/${taskId}/result`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (response.ok) {
+      const result = await response.json()
+      if (result.success && result.data) {
+        expandedReportContent.value[taskId] = result.data
+      }
+    }
+  } catch (e) {
+    console.error('加载报告内容失败:', e)
+  }
 }
 
 const handleSelectionChange = (selection: any[]) => {

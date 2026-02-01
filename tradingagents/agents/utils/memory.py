@@ -307,15 +307,33 @@ class FinancialSituationMemory:
         else:
             if not self.embedding:
                 self.embedding = "text-embedding-3-small"
-            openai_key = os.getenv('OPENAI_API_KEY')
-            if openai_key:
-                self.client = OpenAI(
-                    api_key=openai_key,
-                    base_url=config["backend_url"]
-                )
+            
+            # 🔧 根据 backend_url 自动选择正确的 API Key
+            backend_url = config.get("backend_url", "")
+            
+            # 检查是否使用 302AI
+            if "302.ai" in backend_url or "302ai" in backend_url:
+                openai_key = os.getenv('AI302_API_KEY') or os.getenv('OPENAI_API_KEY')
+                if openai_key:
+                    self.client = OpenAI(
+                        api_key=openai_key,
+                        base_url=backend_url
+                    )
+                    logger.info(f"💡 使用302AI嵌入服务（API Key来源: AI302_API_KEY）")
+                else:
+                    self.client = "DISABLED"
+                    logger.warning(f"⚠️ 未找到AI302_API_KEY，记忆功能已禁用")
             else:
-                self.client = "DISABLED"
-                logger.warning(f"⚠️ 未找到OPENAI_API_KEY，记忆功能已禁用")
+                # 默认使用 OPENAI_API_KEY
+                openai_key = os.getenv('OPENAI_API_KEY')
+                if openai_key:
+                    self.client = OpenAI(
+                        api_key=openai_key,
+                        base_url=backend_url
+                    )
+                else:
+                    self.client = "DISABLED"
+                    logger.warning(f"⚠️ 未找到OPENAI_API_KEY，记忆功能已禁用")
 
         # 使用单例ChromaDB管理器
         self.chroma_manager = ChromaDBManager()

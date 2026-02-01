@@ -123,9 +123,21 @@ def create_bear_researcher(llm, memory):
         new_count = investment_debate_state["count"] + 1
         logger.info(f"🐻 [空头研究员] 发言完成，计数: {investment_debate_state['count']} -> {new_count}")
 
+        # 兼容旧格式（字符串）和新格式（列表）
+        current_bear_history = investment_debate_state.get("bear_history", "")
+        if isinstance(current_bear_history, list):
+            # 新格式：列表，追加当前轮次
+            new_bear_history = current_bear_history + [argument]
+        else:
+            # 旧格式：字符串，转换为列表并追加
+            if current_bear_history:
+                new_bear_history = [current_bear_history, argument]
+            else:
+                new_bear_history = [argument]
+
         new_investment_debate_state = {
             "history": history + "\n" + argument,
-            "bear_history": bear_history + "\n" + argument,
+            "bear_history": new_bear_history,
             "bull_history": investment_debate_state.get("bull_history", ""),
             "current_response": argument,
             "count": new_count,

@@ -16,6 +16,13 @@ logger = get_logger("default")
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+# 导入LLM链创建工具
+from tradingagents.agents.utils.llm_chain_utils import (
+    create_llm_chain,
+    should_use_tool_call_handler,
+    log_model_usage
+)
+
 # 导入Agent配置管理器
 from tradingagents.agents.utils.agent_config_manager import get_agent_config_manager
 
@@ -328,17 +335,15 @@ def create_fundamentals_analyst(llm, toolkit):
         logger.info(f"📊 [基本面分析师] 消息历史数量: {len(state['messages'])}")
 
         try:
-            # 检查是否为DeepSeek模型
-            is_deepseek_model = hasattr(fresh_llm, '__class__') and 'DeepSeek' in fresh_llm.__class__.__name__
-            
-            if is_deepseek_model:
-                logger.info(f"📊 [基本面分析师] DeepSeek模型，使用简化的工具调用方式")
-                # 对于DeepSeek模型，使用不绑定工具的方式，通过强制工具调用获取数据
-                chain = prompt | fresh_llm
-                logger.info(f"📊 [基本面分析师] ✅ DeepSeek模型配置成功")
-            else:
-                chain = prompt | fresh_llm.bind_tools(tools)
-                logger.info(f"📊 [基本面分析师] ✅ 工具绑定成功，绑定了 {len(tools)} 个工具")
+            # 使用统一的LLM链创建工具（支持DeepSeek/302AI等模型）
+            log_model_usage(fresh_llm, "基本面分析师")
+            chain = create_llm_chain(
+                prompt=prompt,
+                llm=fresh_llm,
+                tools=tools,
+                bind_tools=True,
+                analyst_name="基本面分析师"
+            )
         except Exception as e:
             logger.error(f"📊 [基本面分析师] ❌ 工具绑定失败: {e}")
             raise e
