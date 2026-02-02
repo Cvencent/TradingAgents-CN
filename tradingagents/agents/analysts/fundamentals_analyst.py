@@ -426,7 +426,10 @@ def create_fundamentals_analyst(llm, toolkit):
         for idx, msg in enumerate(state['messages']):
             logger.debug(f"[基本面分析师] 消息[{idx}] 类型:{type(msg).__name__} 内容:{str(msg.content)[:200]}...")
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
-        result = chain.invoke({"messages": state["messages"]})
+        result = chain.invoke({
+            "messages": state["messages"],
+            "start_date": start_date
+        })
         logger.info(f"📊 [基本面分析师] LLM调用完成")
         
         # 🔍 [调试日志] 打印AIMessage的详细内容
