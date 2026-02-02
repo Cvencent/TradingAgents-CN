@@ -219,8 +219,24 @@ class QuotesIngestionService:
             from app.services.data_sources.tushare_adapter import TushareAdapter
             adapter = TushareAdapter()
 
-            if not adapter.is_available():
-                logger.info("Tushare 不可用，跳过权限检测")
+            # 🔧 先检查适配器是否初始化成功
+            if not adapter._provider:
+                logger.info("Tushare Provider 未初始化，跳过权限检测")
+                self._tushare_has_premium = False
+                self._tushare_permission_checked = True
+                return False
+
+            # 🔧 检查是否已经连接，避免重复调用 is_available() 触发 connect_sync
+            if not getattr(adapter._provider, 'connected', False):
+                # 如果未连接，可能是频率限制导致的，直接标记为不可用
+                logger.info("Tushare 未连接（可能是频率限制），跳过权限检测")
+                self._tushare_has_premium = False
+                self._tushare_permission_checked = True
+                return False
+
+            # 🔧 检测频率限制：如果已经有调用记录且达到限制，直接跳过
+            if not self._can_call_tushare():
+                logger.info("Tushare 已达到每小时调用限制，跳过权限检测")
                 self._tushare_has_premium = False
                 self._tushare_permission_checked = True
                 return False
@@ -236,7 +252,12 @@ class QuotesIngestionService:
                     self._tushare_has_premium = False
             except Exception as e:
                 error_msg = str(e).lower()
-                if "权限" in error_msg or "permission" in error_msg or "没有访问" in error_msg:
+                # 🔧 检测频率限制关键词
+                if "每小时最多访问" in error_msg or "频次" in error_msg or "rate limit" in error_msg:
+                    logger.warning(f"⚠️ Tushare 频率限制 detected: {e}")
+                    logger.info("ℹ️ 标记为免费用户，使用 AKShare 备用接口")
+                    self._tushare_has_premium = False
+                elif "权限" in error_msg or "permission" in error_msg or "没有访问" in error_msg:
                     logger.info("⚠️ Tushare rt_k 接口无权限（免费用户）")
                     self._tushare_has_premium = False
                 else:

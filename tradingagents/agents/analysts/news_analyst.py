@@ -374,6 +374,139 @@ def create_news_analyst(llm, toolkit):
             logger.info(f"[新闻分析师] LLM调用了 {current_tool_calls} 个工具")
             logger.debug(f"📊 [DEBUG] 累计工具调用次数: {tool_call_count}/{max_tool_calls}")
 
+            # 🔥 修复：检测DeepSeek/302AI模型输出的JSON工具调用格式
+            content_str = str(result.content) if hasattr(result, 'content') else ""
+            has_tool_call_in_content = ('"stock_code"' in content_str or '"ticker"' in content_str) and \
+                                       ('{' in content_str and '}' in content_str)
+            
+            if not current_tool_calls and has_tool_call_in_content:
+                logger.info(f"📊 [新闻分析师] 🔍 检测到内容中包含工具调用格式（DeepSeek/302AI模型），尝试解析并执行工具...")
+                logger.info(f"📊 [新闻分析师] 内容预览: {content_str[:500]}...")
+                
+                # 解析内容中的工具调用并执行，然后基于结果生成报告
+                try:
+                    import re
+                    from langchain_core.messages import ToolMessage, HumanMessage
+                    
+                    # 尝试从内容中提取JSON格式的工具调用
+                    json_pattern = r'\{[^{}]*"(stock_code|ticker)"[^{}]*\}'
+                    json_matches = re.findall(json_pattern, content_str)
+                    
+                    if json_matches:
+                        # 重新提取完整JSON
+                        json_pattern = r'\{[^{}]*"(?:stock_code|ticker)"[^{}]*"[^"]*"[^{}]*\}'
+                        json_matches = re.findall(json_pattern, content_str)
+                    
+                    if json_matches:
+                        logger.info(f"📊 [新闻分析师] 从内容中提取到 {len(json_matches)} 个JSON工具调用")
+                        tool_messages = []
+                        
+                        for json_str in json_matches:
+                            try:
+                                tool_args = json.loads(json_str)
+                                logger.info(f"📊 [新闻分析师] 解析工具参数: {tool_args}")
+                                
+                                # 执行工具
+                                tool_result = unified_news_tool(stock_code=ticker, max_news=10, model_info=model_info)
+                                
+                                if tool_result:
+                                    logger.info(f"📊 [新闻分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
+                                    tool_message = ToolMessage(
+                                        content=str(tool_result),
+                                        tool_call_id=f"parsed_{len(tool_messages)}"
+                                    )
+                                    tool_messages.append(tool_message)
+                                else:
+                                    logger.warning(f"📊 [新闻分析师] ⚠️ 工具返回空结果")
+                                    
+                            except json.JSONDecodeError as e:
+                                logger.warning(f"📊 [新闻分析师] JSON解析失败: {e}")
+                                continue
+                            except Exception as tool_error:
+                                logger.error(f"❌ [新闻分析师] 工具执行失败: {tool_error}")
+                                continue
+                        
+                        if tool_messages:
+                            # 基于工具结果生成分析报告
+                            analysis_prompt = f"""基于上述工具获取的新闻数据，生成详细的新闻分析报告。
+
+**分析对象：**
+- 公司名称：{company_name}
+- 股票代码：{ticker}
+- 所属市场：{market_info['market_name']}
+
+**新闻数据摘要：**
+{tool_messages[0].content[:2000] if tool_messages else "新闻数据获取成功"}
+
+**输出格式要求：**
+
+# **{company_name}（{ticker}）新闻分析报告**
+
+## 一、新闻事件概况
+
+[总结最新的新闻事件和市场动态]
+
+## 二、重要新闻分析
+
+### 1. 财报与业绩
+- 最新财报发布情况
+- 业绩超预期/不及预期分析
+
+### 2. 重大事件
+- 合作、并购、政策变化等
+- 对公司的影响评估
+
+### 3. 行业动态
+- 行业趋势和竞争格局
+- 技术突破和市场机会
+
+## 三、市场影响评估
+
+### 1. 短期影响（1-3天）
+- 股价波动预期
+- 投资者情绪变化
+
+### 2. 中期影响（1-4周）
+- 基本面变化预期
+- 估值调整可能性
+
+## 四、投资建议
+
+- 基于新闻的投资建议
+- 风险提示
+
+请用中文撰写详细的新闻分析报告。"""
+                            
+                            messages = state["messages"] + [result] + tool_messages + [HumanMessage(content=analysis_prompt)]
+                            final_result = llm.invoke(messages)
+                            report = final_result.content
+                            
+                            logger.info(f"📊 [新闻分析师] ✅ 基于工具结果生成完整分析报告，长度: {len(report)}")
+                            
+                            # 直接返回结果，跳过后续处理
+                            from langchain_core.messages import AIMessage
+                            clean_message = AIMessage(content=report)
+                            
+                            end_time = datetime.now()
+                            time_taken = (end_time - start_time).total_seconds()
+                            logger.info(f"[新闻分析师] 新闻分析完成（DeepSeek工具解析模式），总耗时: {time_taken:.2f}秒")
+                            
+                            return {
+                                "messages": [clean_message],
+                                "news_report": report,
+                                "news_tool_call_count": tool_call_count + 1
+                            }
+                        else:
+                            logger.warning(f"📊 [新闻分析师] ⚠️ 未能成功执行任何工具，回退到补救机制")
+                    else:
+                        logger.warning(f"📊 [新闻分析师] ⚠️ 未能在内容中提取到JSON工具调用，回退到补救机制")
+                        
+                except Exception as e:
+                    logger.error(f"❌ [新闻分析师] 解析工具调用时发生错误: {e}")
+                    import traceback
+                    logger.error(f"异常堆栈: {traceback.format_exc()}")
+                    logger.warning(f"📊 [新闻分析师] ⚠️ 降级处理，回退到补救机制")
+            
             if current_tool_calls == 0:
                 logger.warning(f"[新闻分析师] ⚠️ {llm.__class__.__name__} 没有调用任何工具，启动补救机制...")
                 logger.warning(f"[新闻分析师] 📄 LLM原始响应内容 (前500字符): {result.content[:500] if hasattr(result, 'content') else 'No content'}")

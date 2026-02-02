@@ -1189,7 +1189,7 @@ def main():
 
                 # 生成分析ID
                 import uuid
-                analysis_id = f"analysis_{uuid.uuid4().hex[:8]}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                analysis_id = f"analysis_{uuid.uuid4().hex[:8]}_{datetime.datetime.now(timezone(timedelta(hours=8))).strftime('%Y%m%d_%H%M%S')}"
 
                 # 保存分析ID和表单配置到session state和cookie
                 form_config = st.session_state.get('form_config', {})
@@ -1260,7 +1260,8 @@ def main():
                             llm_provider=config['llm_provider'],
                             market_type=form_data.get('market_type', '美股'),
                             llm_model=config['llm_model'],
-                            progress_callback=progress_callback
+                            progress_callback=progress_callback,
+                            task_id=analysis_id
                         )
 
                         # 标记分析完成并保存结果（不访问session state）

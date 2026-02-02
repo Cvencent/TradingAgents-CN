@@ -257,3 +257,17 @@ class BaoStockAdapter(DataSourceAdapter):
         logger.info(f"BaoStock: Using yesterday as trade date: {yesterday}")
         return yesterday
 
+    # ========== 异步方法（不阻塞事件循环） ==========
+
+    async def get_stock_list_async(self) -> Optional[pd.DataFrame]:
+        """异步方法：获取股票列表（使用线程池执行，不阻塞事件循环）"""
+        import asyncio
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self.get_stock_list)
+
+    async def get_daily_basic_async(self, trade_date: str, max_stocks: int = None) -> Optional[pd.DataFrame]:
+        """异步方法：获取每日基础数据（使用线程池执行，不阻塞事件循环）"""
+        import asyncio
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, lambda: self.get_daily_basic(trade_date, max_stocks))
+

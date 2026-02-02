@@ -8,7 +8,7 @@ import streamlit as st
 import json
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
 import tempfile
@@ -172,7 +172,7 @@ class ReportExporter:
         is_demo = results.get('is_demo', False)
         
         # 生成时间戳
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
         
         # 清理关键数据
         action = self._clean_text_for_markdown(decision.get('action', 'N/A')).upper()
@@ -659,7 +659,7 @@ def save_modular_reports_to_results_dir(results: Dict[str, Any], stock_symbol: s
             results_dir = project_root / "results"
 
         # 创建股票专用目录
-        analysis_date = datetime.now().strftime('%Y-%m-%d')
+        analysis_date = datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d')
         stock_dir = results_dir / stock_symbol / analysis_date
         reports_dir = stock_dir / "reports"
         reports_dir.mkdir(parents=True, exist_ok=True)
@@ -778,7 +778,7 @@ def save_modular_reports_to_results_dir(results: Dict[str, Any], stock_symbol: s
         metadata = {
             'stock_symbol': stock_symbol,
             'analysis_date': analysis_date,
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now(timezone(timedelta(hours=8))).isoformat(),
             'research_depth': results.get('research_depth', 1),
             'analysts': results.get('analysts', []),
             'status': 'completed',
@@ -874,7 +874,7 @@ def save_report_to_results_dir(content: bytes, filename: str, stock_symbol: str)
             results_dir = project_root / "results"
 
         # 创建股票专用目录
-        analysis_date = datetime.now().strftime('%Y-%m-%d')
+        analysis_date = datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d')
         stock_dir = results_dir / stock_symbol / analysis_date / "reports"
         stock_dir.mkdir(parents=True, exist_ok=True)
 
@@ -952,7 +952,7 @@ def render_export_buttons(results: Dict[str, Any]):
     
     # 生成文件名
     stock_symbol = results.get('stock_symbol', 'analysis')
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    timestamp = datetime.now(timezone(timedelta(hours=8))).strftime('%Y%m%d_%H%M%S')
     
     col1, col2, col3 = st.columns(3)
     
@@ -1163,7 +1163,7 @@ def render_export_buttons(results: Dict[str, Any]):
 
 
 def save_analysis_report(stock_symbol: str, analysis_results: Dict[str, Any], 
-                        report_content: str = None) -> bool:
+                        report_content: str = None, task_id: str = None) -> bool:
     """
     保存分析报告到MongoDB
     
@@ -1171,6 +1171,7 @@ def save_analysis_report(stock_symbol: str, analysis_results: Dict[str, Any],
         stock_symbol: 股票代码
         analysis_results: 分析结果字典
         report_content: 报告内容（可选，如果不提供则自动生成）
+        task_id: 任务ID（可选，用于关联analysis_tasks集合）
     
     Returns:
         bool: 保存是否成功
@@ -1184,17 +1185,52 @@ def save_analysis_report(stock_symbol: str, analysis_results: Dict[str, Any],
         if report_content is None:
             report_content = report_exporter.generate_markdown_report(analysis_results)
         
-        # 调用MongoDB报告管理器保存报告
-        # 将报告内容包装成字典格式
+        # 🔥 修复：从 analysis_results['state'] 中提取各模块详细内容
+        state = analysis_results.get('state', {})
+        
+        # 构建完整的 reports 字典，包含所有模块的详细内容
         reports_dict = {
             "markdown": report_content,
-            "generated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            "generated_at": datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S'),
+            
+            # 各分析师模块报告
+            "market_report": state.get('market_report', ''),
+            "fundamentals_report": state.get('fundamentals_report', ''),
+            "sentiment_report": state.get('sentiment_report', ''),
+            "news_report": state.get('news_report', ''),
+            
+            # 投资决策相关
+            "investment_plan": state.get('investment_plan', ''),
+            "investment_debate_state": state.get('investment_debate_state', {}),
+            "trader_investment_plan": state.get('trader_investment_plan', ''),
+            
+            # 风险管理相关
+            "risk_assessment": state.get('risk_assessment', ''),
+            "risk_debate_state": state.get('risk_debate_state', {}),
+            
+            # 最终决策
+            "final_trade_decision": state.get('final_trade_decision', {})
         }
+        
+        # 记录各模块内容的日志
+        logger.info(f"📊 [报告保存] 准备保存各模块内容:")
+        for key, value in reports_dict.items():
+            if key not in ['markdown', 'generated_at']:
+                if isinstance(value, str):
+                    logger.info(f"  - {key}: {len(value)} 字符")
+                elif isinstance(value, dict):
+                    logger.info(f"  - {key}: 字典类型，键: {list(value.keys())}")
+                else:
+                    logger.info(f"  - {key}: {type(value)}")
+        
+        # 过滤掉空值，减少存储空间
+        reports_dict = {k: v for k, v in reports_dict.items() if v and (not isinstance(v, str) or v.strip())}
         
         success = mongodb_report_manager.save_analysis_report(
             stock_symbol=stock_symbol,
             analysis_results=analysis_results,
-            reports=reports_dict
+            reports=reports_dict,
+            task_id=task_id
         )
         
         if success:
@@ -1206,6 +1242,8 @@ def save_analysis_report(stock_symbol: str, analysis_results: Dict[str, Any],
         
     except Exception as e:
         logger.error(f"❌ 保存分析报告到MongoDB时发生异常 - 股票: {stock_symbol}, 错误: {str(e)}")
+        import traceback
+        logger.error(f"异常堆栈: {traceback.format_exc()}")
         return False
     
  

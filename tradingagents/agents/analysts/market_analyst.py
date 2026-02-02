@@ -338,12 +338,99 @@ def create_market_analyst(llm, toolkit):
                                         ('{' in content_str and '}' in content_str and ('start_date' in content_str or 'end_date' in content_str)))
             
             if not has_real_tool_calls and has_tool_call_in_content:
-                logger.info(f"📊 [市场分析师] 🔍 检测到内容中包含工具调用格式，尝试解析...")
+                logger.info(f"📊 [市场分析师] 🔍 检测到内容中包含工具调用格式（DeepSeek/302AI模型），尝试解析并执行工具...")
                 logger.info(f"📊 [市场分析师] 内容预览: {content_str[:500]}...")
-                # 对于DeepSeek模型，内容中可能包含工具调用格式的JSON
-                # 这种情况下直接使用内容作为报告（因为模型已经尝试生成工具调用）
-                report = content_str
-                logger.info(f"📊 [市场分析师] ⚠️ 返回原始内容（包含工具调用格式），长度: {len(report)}")
+                
+                # 🔥 修复：对于DeepSeek/302AI等模型，它们可能以文本形式输出工具调用
+                # 需要解析内容中的工具调用并执行，然后基于结果生成报告
+                try:
+                    import re
+                    from langchain_core.messages import ToolMessage, HumanMessage
+                    
+                    # 尝试从内容中提取JSON格式的工具调用
+                    # 查找类似 {"ticker": "...", "start_date": "...", "end_date": "..."} 的JSON
+                    json_pattern = r'\{[^{}]*"ticker"[^{}]*\}'
+                    json_matches = re.findall(json_pattern, content_str)
+                    
+                    if json_matches:
+                        logger.info(f"📊 [市场分析师] 从内容中提取到 {len(json_matches)} 个JSON工具调用")
+                        tool_messages = []
+                        
+                        for json_str in json_matches:
+                            try:
+                                tool_args = json.loads(json_str)
+                                logger.info(f"📊 [市场分析师] 解析工具参数: {tool_args}")
+                                
+                                # 执行工具
+                                tool_result = None
+                                for tool in tools:
+                                    tool_name = getattr(tool, 'name', getattr(tool, '__name__', str(tool)))
+                                    if 'get_stock_market_data_unified' in tool_name:
+                                        try:
+                                            # 🔧 修复：直接调用函数，因为工具是普通函数而非LangChain Tool对象
+                                            tool_result = tool(**tool_args)
+                                            logger.info(f"📊 [市场分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
+                                            break
+                                        except Exception as tool_error:
+                                            logger.error(f"❌ [市场分析师] 工具执行失败: {tool_error}")
+                                            tool_result = f"工具执行失败: {str(tool_error)}"
+                                
+                                if tool_result:
+                                    tool_message = ToolMessage(
+                                        content=str(tool_result),
+                                        tool_call_id=f"parsed_{len(tool_messages)}"
+                                    )
+                                    tool_messages.append(tool_message)
+                                    
+                            except json.JSONDecodeError as e:
+                                logger.warning(f"📊 [市场分析师] JSON解析失败: {e}")
+                                continue
+                        
+                        if tool_messages:
+                            # 基于工具结果生成分析报告（复用已有的分析提示词）
+                            analysis_prompt = f"""现在请基于上述工具获取的数据，生成详细的技术分析报告。
+
+**分析对象：**
+- 公司名称：{company_name}
+- 股票代码：{ticker}
+- 所属市场：{market_info['market_name']}
+- 计价货币：{market_info['currency_name']}（{market_info['currency_symbol']}）
+
+请按照专业格式输出完整的技术分析报告，包括：
+1. 股票基本信息
+2. 技术指标分析（MA、MACD、RSI、布林带等）
+3. 价格趋势分析（短期、中期）
+4. 成交量分析
+5. 投资建议（买入/持有/卖出，目标价位，止损位等）
+
+报告必须基于工具返回的真实数据进行分析，包含具体的技术指标数值，长度不少于800字，使用中文撰写。"""
+                            
+                            messages = state["messages"] + [result] + tool_messages + [HumanMessage(content=analysis_prompt)]
+                            final_result = llm.invoke(messages)
+                            report = final_result.content
+                            
+                            logger.info(f"📊 [市场分析师] ✅ 基于工具结果生成完整分析报告，长度: {len(report)}")
+                            
+                            # 返回包含工具调用和最终分析的完整消息序列
+                            return {
+                                "messages": [result] + tool_messages + [final_result],
+                                "market_report": report,
+                                "market_tool_call_count": tool_call_count + 1
+                            }
+                        else:
+                            logger.warning(f"📊 [市场分析师] ⚠️ 未能成功执行任何工具，返回原始内容")
+                            report = content_str
+                    else:
+                        logger.warning(f"📊 [市场分析师] ⚠️ 未能在内容中提取到JSON工具调用，返回原始内容")
+                        report = content_str
+                        
+                except Exception as e:
+                    logger.error(f"❌ [市场分析师] 解析工具调用时发生错误: {e}")
+                    import traceback
+                    logger.error(f"异常堆栈: {traceback.format_exc()}")
+                    # 降级处理：返回原始内容
+                    report = content_str
+                    logger.info(f"📊 [市场分析师] ⚠️ 降级处理，返回原始内容，长度: {len(report)}")
             elif not has_real_tool_calls:
                 # 没有工具调用，直接使用LLM的回复
                 report = result.content
@@ -377,12 +464,8 @@ def create_market_analyst(llm, toolkit):
 
                             if current_tool_name == tool_name:
                                 try:
-                                    if tool_name == "get_china_stock_data":
-                                        # 中国股票数据工具
-                                        tool_result = tool.invoke(tool_args)
-                                    else:
-                                        # 其他工具
-                                        tool_result = tool.invoke(tool_args)
+                                    # 🔧 修复：直接调用函数，因为工具是普通函数而非LangChain Tool对象
+                                    tool_result = tool(**tool_args)
                                     logger.debug(f"📊 [DEBUG] 工具执行成功，结果长度: {len(str(tool_result))}")
                                     break
                                 except Exception as tool_error:

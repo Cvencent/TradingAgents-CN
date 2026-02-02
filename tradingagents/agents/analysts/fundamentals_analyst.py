@@ -108,6 +108,9 @@ def _get_company_name_for_fundamentals(ticker: str, market_info: dict) -> str:
 def create_fundamentals_analyst(llm, toolkit):
     @log_analyst_module("fundamentals")
     def fundamentals_analyst_node(state):
+        # 🔧 在嵌套函数内部导入 ToolMessage，避免装饰器导致的作用域问题
+        from langchain_core.messages import ToolMessage
+        
         logger.debug(f"📊 [DEBUG] ===== 基本面分析师节点开始 =====")
 
         # 🔧 工具调用计数器 - 防止无限循环
@@ -227,6 +230,17 @@ def create_fundamentals_analyst(llm, toolkit):
         default_system_prompt = (
             "🔴 强制要求：你必须调用工具获取真实数据！"
             "🚫 绝对禁止：不允许假设、编造或直接回答任何问题！"
+            "⚠️ **重要：如何调用工具（JSON格式）**\n"
+            "如果需要获取数据，请输出以下格式的JSON（不要添加任何其他文字，只输出纯JSON）：\n"
+            "```json\n"
+            "{{\n"
+            '  "ticker": "{ticker}",\n'
+            '  "start_date": "{start_date}",\n'
+            '  "end_date": "{current_date}",\n'
+            '  "curr_date": "{current_date}"\n'
+            "}}\n"
+            "```\n"
+            "系统会自动识别这个JSON并执行工具调用。\n\n"
             "✅ 工作流程："
             "1. 【第一次调用】如果消息历史中没有工具结果（ToolMessage），立即调用 get_stock_fundamentals_unified 工具"
             "2. 【收到数据后】如果消息历史中已经有工具结果（ToolMessage），🚨 绝对禁止再次调用工具！🚨"
@@ -482,6 +496,184 @@ def create_fundamentals_analyst(llm, toolkit):
             logger.debug(f"📊 [DEBUG] 当前消息的工具调用数量: {current_tool_calls}")
             logger.debug(f"📊 [DEBUG] 累计工具调用次数: {tool_call_count}/{max_tool_calls}")
 
+            # 🔥 修复：检测DeepSeek/302AI模型输出的JSON工具调用格式
+            content_str = str(result.content) if hasattr(result, 'content') else ""
+            has_tool_call_in_content = ('"ticker"' in content_str or '"stock_code"' in content_str) and \
+                                       ('{' in content_str and '}' in content_str) and \
+                                       ('get_stock_fundamentals_unified' in content_str or 
+                                        'start_date' in content_str or 'end_date' in content_str)
+            
+            if not current_tool_calls and has_tool_call_in_content:
+                logger.info(f"📊 [基本面分析师] 🔍 检测到内容中包含工具调用格式（DeepSeek/302AI模型），尝试解析并执行工具...")
+                logger.info(f"📊 [基本面分析师] 内容预览: {content_str[:500]}...")
+                
+                # 解析内容中的工具调用并执行，然后基于结果生成报告
+                try:
+                    import re
+                    from langchain_core.messages import ToolMessage, HumanMessage
+                    
+                    # 尝试从内容中提取JSON格式的工具调用
+                    json_pattern = r'\{[^{}]*"ticker"[^{}]*\}'
+                    json_matches = re.findall(json_pattern, content_str)
+                    
+                    if json_matches:
+                        logger.info(f"📊 [基本面分析师] 从内容中提取到 {len(json_matches)} 个JSON工具调用")
+                        tool_messages = []
+                        
+                        for json_str in json_matches:
+                            try:
+                                tool_args = json.loads(json_str)
+                                logger.info(f"📊 [基本面分析师] 解析工具参数: {tool_args}")
+                                
+                                # 执行工具
+                                tool_result = None
+                                for tool in tools:
+                                    tool_name = getattr(tool, 'name', getattr(tool, '__name__', str(tool)))
+                                    if 'get_stock_fundamentals_unified' in tool_name:
+                                        try:
+                                            # 构建完整的参数
+                                            full_args = {
+                                                'ticker': tool_args.get('ticker', ticker),
+                                                'start_date': tool_args.get('start_date', start_date),
+                                                'end_date': tool_args.get('end_date', current_date),
+                                                'curr_date': tool_args.get('curr_date', current_date)
+                                            }
+                                            # 🔧 修复：直接调用函数，因为工具是普通函数而非LangChain Tool对象
+                                            tool_result = tool(**full_args)
+                                            logger.info(f"📊 [基本面分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
+                                            break
+                                        except Exception as tool_error:
+                                            logger.error(f"❌ [基本面分析师] 工具执行失败: {tool_error}")
+                                            tool_result = f"工具执行失败: {str(tool_error)}"
+                                
+                                if tool_result:
+                                    tool_message = ToolMessage(
+                                        content=str(tool_result),
+                                        tool_call_id=f"parsed_{len(tool_messages)}"
+                                    )
+                                    tool_messages.append(tool_message)
+                                    
+                            except json.JSONDecodeError as e:
+                                logger.warning(f"📊 [基本面分析师] JSON解析失败: {e}")
+                                continue
+                        
+                        if tool_messages:
+                            # 基于工具结果生成分析报告
+                            analysis_prompt = f"""现在请基于上述工具获取的数据，生成详细的基本面分析报告。
+
+**分析对象：**
+- 公司名称：{company_name}
+- 股票代码：{ticker}
+- 所属市场：{market_info['market_name']}
+- 计价货币：{market_info['currency_name']}（{market_info['currency_symbol']}）
+
+**输出格式要求（必须严格遵守）：**
+
+请按照以下专业格式输出报告，不要使用emoji符号，使用纯文本标题：
+
+# **{company_name}（{ticker}）基本面分析报告**
+**分析日期：[当前日期]**
+
+---
+
+## 一、股票基本信息
+
+- **公司名称**：{company_name}
+- **股票代码**：{ticker}
+- **所属市场**：{market_info['market_name']}
+- **当前价格**：[从工具数据中获取] {market_info['currency_symbol']}
+
+---
+
+## 二、估值指标分析
+
+### 1. 市盈率（PE）分析
+
+[分析PE指标，包括当前PE、行业对比、历史分位等]
+
+### 2. 市净率（PB）分析
+
+[分析PB指标，包括当前PB、估值水平判断等]
+
+### 3. PEG指标分析
+
+[分析PEG指标，评估成长性与估值匹配度]
+
+### 4. 其他估值指标
+
+[分析ROE、股息率等其他重要指标]
+
+---
+
+## 三、财务状况分析
+
+### 1. 盈利能力
+
+[分析营收、利润、毛利率等指标]
+
+### 2. 成长性分析
+
+[分析收入增长率、利润增长率等]
+
+### 3. 财务健康度
+
+[分析资产负债率、现金流等]
+
+---
+
+## 四、投资建议
+
+### 1. 估值判断
+
+[判断当前股价是否被低估或高估]
+
+### 2. 合理价位区间
+
+- **目标价位**：[给出具体价格区间] {market_info['currency_symbol']}
+- **止损位**：[给出止损价格] {market_info['currency_symbol']}
+
+### 3. 操作建议
+
+- **投资评级**：买入/持有/卖出
+- **风险提示**：[列出主要风险因素]
+
+---
+
+**重要提醒：**
+- 必须严格按照上述格式输出，使用标准的Markdown标题（#、##、###）
+- 不要使用emoji符号
+- 所有价格数据使用{market_info['currency_name']}（{market_info['currency_symbol']}）表示
+- 确保在分析中正确使用公司名称"{company_name}"和股票代码"{ticker}"
+- 报告标题必须是：# **{company_name}（{ticker}）基本面分析报告**
+- 报告必须基于工具返回的真实数据进行分析
+- 包含具体的估值指标数值和专业分析
+- 提供明确的投资建议和风险提示
+- 报告长度不少于800字
+- 使用中文撰写"""
+                            
+                            messages = state["messages"] + [result] + tool_messages + [HumanMessage(content=analysis_prompt)]
+                            final_result = llm.invoke(messages)
+                            report = final_result.content
+                            
+                            logger.info(f"📊 [基本面分析师] ✅ 基于工具结果生成完整分析报告，长度: {len(report)}")
+                            
+                            # 返回包含工具调用和最终分析的完整消息序列
+                            return {
+                                "messages": [result] + tool_messages + [final_result],
+                                "fundamentals_report": report,
+                                "fundamentals_tool_call_count": tool_call_count + 1
+                            }
+                        else:
+                            logger.warning(f"📊 [基本面分析师] ⚠️ 未能成功执行任何工具，继续标准处理流程")
+                    else:
+                        logger.warning(f"📊 [基本面分析师] ⚠️ 未能在内容中提取到JSON工具调用，继续标准处理流程")
+                        
+                except Exception as e:
+                    logger.error(f"❌ [基本面分析师] 解析工具调用时发生错误: {e}")
+                    import traceback
+                    logger.error(f"异常堆栈: {traceback.format_exc()}")
+                    logger.warning(f"📊 [基本面分析师] ⚠️ 降级处理，继续标准处理流程")
+
             if current_tool_calls > 0:
                 # 🔧 检查是否已经调用过工具（消息历史中有 ToolMessage）
                 messages = state.get("messages", [])
@@ -642,7 +834,8 @@ def create_fundamentals_analyst(llm, toolkit):
                         logger.info(f"🔍 [工具调用] 找到统一工具，准备强制调用")
                         logger.info(f"🔍 [工具调用] 传入参数 - ticker: '{ticker}', start_date: {start_date}, end_date: {current_date}")
 
-                        combined_data = unified_tool.invoke({
+                        # 🔧 修复：直接调用函数，因为工具是普通函数而非LangChain Tool对象
+                        combined_data = unified_tool(**{
                             'ticker': ticker,
                             'start_date': start_date,
                             'end_date': current_date,

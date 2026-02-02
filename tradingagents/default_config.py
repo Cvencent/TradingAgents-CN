@@ -17,9 +17,11 @@ DEFAULT_CONFIG = {
     "max_debate_rounds": 1,
     "max_risk_discuss_rounds": 1,
     "max_recur_limit": 100,
+    # Analysis timeout settings - 全局分析超时（秒）
+    "analysis_timeout": 600,  # 默认10分钟
     # Tool settings - 从环境变量读取，提供默认值
     "online_tools": os.getenv("ONLINE_TOOLS_ENABLED", "false").lower() == "true",
-    "online_news": os.getenv("ONLINE_NEWS_ENABLED", "true").lower() == "true", 
+    "online_news": os.getenv("ONLINE_NEWS_ENABLED", "true").lower() == "true",
     "realtime_data": os.getenv("REALTIME_DATA_ENABLED", "false").lower() == "true",
 
     # Note: Database and cache configuration is now managed by .env file and config.database_manager

@@ -6,7 +6,7 @@ MongoDB报告管理器
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
@@ -106,17 +106,30 @@ class MongoDBReportManager:
         except Exception as e:
             logger.error(f"❌ MongoDB索引创建失败: {e}")
     
-    def save_analysis_report(self, stock_symbol: str, analysis_results: Dict[str, Any],
-                           reports: Dict[str, str]) -> bool:
-        """保存分析报告到MongoDB"""
+    def save_analysis_report(self, stock_symbol: str, analysis_results: Dict[str, Any], 
+                           reports: Dict[str, str], task_id: str = None) -> bool:
+        """保存分析报告到MongoDB
+        
+        Args:
+            stock_symbol: 股票代码
+            analysis_results: 分析结果字典
+            reports: 报告内容字典
+            task_id: 任务ID（可选，用于关联analysis_tasks集合）
+        
+        Returns:
+            bool: 保存是否成功
+        """
         if not self.connected:
             logger.warning("MongoDB未连接，跳过保存")
             return False
 
         try:
-            # 生成分析ID
-            timestamp = datetime.now()
+            # 生成分析ID（使用中国时区 UTC+8）
+            china_tz = timezone(timedelta(hours=8))
+            timestamp = datetime.now(china_tz)
             analysis_id = f"{stock_symbol}_{timestamp.strftime('%Y%m%d_%H%M%S')}"
+            
+            logger.info(f"📊 [MongoDB保存] 开始保存报告: analysis_id={analysis_id}, task_id={task_id}")
 
             # 🔥 根据股票代码推断市场类型
             from tradingagents.utils.stock_utils import StockUtils
@@ -168,7 +181,7 @@ class MongoDBReportManager:
             # 构建文档
             document = {
                 "analysis_id": analysis_id,
-                "stock_symbol": stock_symbol,
+                "task_id": task_id,  # 🔥 添加task_id字段，用于关联analysis_tasks集合
                 "stock_name": stock_name,  # 🔥 添加股票名称字段
                 "market_type": market_type,  # 🔥 添加市场类型字段
                 "model_info": model_info,  # 🔥 添加模型信息字段
@@ -194,7 +207,7 @@ class MongoDBReportManager:
             result = self.collection.insert_one(document)
 
             if result.inserted_id:
-                logger.info(f"✅ 分析报告已保存到MongoDB: {analysis_id}")
+                logger.info(f"✅ 分析报告已保存到MongoDB: analysis_id={analysis_id}, task_id={task_id}, _id={result.inserted_id}")
                 return True
             else:
                 logger.error("❌ MongoDB插入失败")
@@ -240,7 +253,6 @@ class MongoDBReportManager:
                     timestamp = float(timestamp_value)
                 else:
                     # 其他情况，使用当前时间
-                    from datetime import datetime
                     timestamp = datetime.now().timestamp()
                 
                 # 转换为Web应用期望的格式

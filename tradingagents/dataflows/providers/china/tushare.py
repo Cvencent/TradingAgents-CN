@@ -123,8 +123,15 @@ class TushareProvider(BaseStockDataProvider):
                         test_data = self.api.stock_basic(list_status='L', limit=1)
                         self.logger.info(f"✅ [步骤3.1] API 调用成功，返回数据: {len(test_data) if test_data is not None else 0} 条")
                     except Exception as e:
-                        self.logger.warning(f"⚠️ [步骤3.1] 数据库 Token 测试失败: {e}，尝试降级到 .env 配置...")
-                        test_data = None
+                        error_msg = str(e)
+                        # 🔧 检测频率限制错误，快速失败避免阻塞
+                        if "每小时最多访问" in error_msg or "频次" in error_msg or "rate limit" in error_msg.lower():
+                            self.logger.warning(f"⚠️ [步骤3.1] Tushare 频率限制 detected: {error_msg}")
+                            self.logger.warning(f"⚠️ [步骤3.1] 跳过连接测试，尝试 .env Token...")
+                            test_data = None
+                        else:
+                            self.logger.warning(f"⚠️ [步骤3.1] 数据库 Token 测试失败: {e}，尝试降级到 .env 配置...")
+                            test_data = None
 
                     if test_data is not None and not test_data.empty:
                         self.connected = True
@@ -149,6 +156,14 @@ class TushareProvider(BaseStockDataProvider):
                         test_data = self.api.stock_basic(list_status='L', limit=1)
                         self.logger.info(f"✅ [步骤4.1] API 调用成功，返回数据: {len(test_data) if test_data is not None else 0} 条")
                     except Exception as e:
+                        error_msg = str(e)
+                        # 🔧 检测频率限制错误，快速失败避免阻塞
+                        if "每小时最多访问" in error_msg or "频次" in error_msg or "rate limit" in error_msg.lower():
+                            self.logger.warning(f"⚠️ [步骤4.1] Tushare 频率限制 detected: {error_msg}")
+                            self.logger.warning(f"⚠️ [步骤4.1] 跳过连接测试，标记为未连接但不阻塞服务")
+                            # 不返回 False，而是继续执行，让上层逻辑处理降级
+                            self.connected = False
+                            return False
                         self.logger.error(f"❌ [步骤4.1] .env Token 测试失败: {e}")
                         return False
 

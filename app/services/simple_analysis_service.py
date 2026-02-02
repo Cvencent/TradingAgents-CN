@@ -1984,6 +1984,10 @@ class SimpleAnalysisService:
         
         # 优先从Redis获取详细进度信息
         redis_progress = get_progress_by_id(task_id)
+        result = await global_memory_manager.get_task_dict(task_id)
+        if not result:
+            result = {}
+        
         if redis_progress:
             logger.info(f"📊 [Redis进度] 获取到详细进度: {task_id}")
 

@@ -6,7 +6,7 @@ import sys
 import os
 import uuid
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 # 导入日志模块
@@ -97,7 +97,7 @@ def extract_risk_assessment(state):
         logger.info(f"提取风险评估数据时出错: {e}")
         return None
 
-def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, llm_provider, llm_model, market_type="美股", progress_callback=None):
+def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, llm_provider, llm_model, market_type="美股", progress_callback=None, task_id=None):
     """执行股票分析
 
     Args:
@@ -108,6 +108,7 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         llm_provider: LLM提供商 (dashscope/deepseek/google)
         llm_model: 大模型名称
         progress_callback: 进度回调函数，用于更新UI状态
+        task_id: 任务ID（可选，用于关联analysis_tasks和analysis_reports集合）
     """
 
     def update_progress(message, step=None, total_steps=None):
@@ -117,7 +118,7 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         logger.info(f"[进度] {message}")
 
     # 生成会话ID用于Token跟踪和日志关联
-    session_id = f"analysis_{uuid.uuid4().hex[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    session_id = f"analysis_{uuid.uuid4().hex[:8]}_{datetime.now(timezone(timedelta(hours=8))).strftime('%Y%m%d_%H%M%S')}"
 
     # 1. 数据预获取和验证阶段
     update_progress("🔍 验证股票代码并预获取数据...", 1, 10)
@@ -233,6 +234,21 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         config["llm_provider"] = llm_provider
         config["deep_think_llm"] = llm_model
         config["quick_think_llm"] = llm_model
+        
+        # 根据研究深度调整全局超时时间（秒）
+        if research_depth == 1:  # 1级 - 快速分析
+            config["analysis_timeout"] = 300  # 5分钟
+        elif research_depth == 2:  # 2级 - 基础分析
+            config["analysis_timeout"] = 450  # 7.5分钟
+        elif research_depth == 3:  # 3级 - 标准分析
+            config["analysis_timeout"] = 600  # 10分钟
+        elif research_depth == 4:  # 4级 - 深度分析
+            config["analysis_timeout"] = 900  # 15分钟
+        else:  # 5级 - 全面分析
+            config["analysis_timeout"] = 1200  # 20分钟
+        
+        logger.info(f"⏱️ [分析超时设置] 研究深度: {research_depth}级, 超时时间: {config['analysis_timeout']}秒")
+        
         # 根据研究深度调整配置
         if research_depth == 1:  # 1级 - 快速分析
             config["max_debate_rounds"] = 1
@@ -562,10 +578,11 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
                 logger.warning(f"⚠️ [本地保存] 本地报告文件保存失败")
             
             # 2. 保存分析报告到MongoDB
-            logger.info(f"🗄️ [MongoDB保存] 开始保存分析报告到MongoDB")
+            logger.info(f"🗄️ [MongoDB保存] 开始保存分析报告到MongoDB，task_id={task_id}")
             save_success = save_analysis_report(
                 stock_symbol=stock_symbol,
-                analysis_results=results
+                analysis_results=results,
+                task_id=task_id
             )
             
             if save_success:
@@ -819,7 +836,7 @@ def validate_analysis_params(stock_symbol, analysis_date, analysts, research_dep
     
     # 验证分析日期
     try:
-        from datetime import datetime
+from datetime import datetime, timedelta, timezone
         datetime.strptime(analysis_date, '%Y-%m-%d')
     except ValueError:
         errors.append("分析日期格式无效，应为YYYY-MM-DD格式")

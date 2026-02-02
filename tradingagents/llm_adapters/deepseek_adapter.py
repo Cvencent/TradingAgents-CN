@@ -3,6 +3,7 @@ DeepSeek LLM适配器，支持Token使用统计
 """
 
 import os
+import json
 import time
 from typing import Any, Dict, List, Optional, Union
 from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, SystemMessage
@@ -123,9 +124,18 @@ class ChatDeepSeek(ChatOpenAI):
         session_id = kwargs.pop('session_id', None)
         analysis_type = kwargs.pop('analysis_type', None)
 
+        # 检测是否为302AI平台
+        # ChatOpenAI 使用 openai_api_base 属性
+        base_url = getattr(self, 'openai_api_base', None) or getattr(self, 'base_url', '')
+        is_302ai = '302' in (base_url or '').lower() or '302ai' in (base_url or '').lower()
+
         try:
-            # 调用父类方法生成响应
-            result = super()._generate(messages, stop, run_manager, **kwargs)
+            # 如果是302AI且有tools参数，需要特殊处理
+            if is_302ai and 'tools' in kwargs:
+                result = self._generate_with_tools_302ai(messages, stop, run_manager, **kwargs)
+            else:
+                # 调用父类方法生成响应
+                result = super()._generate(messages, stop, run_manager, **kwargs)
             
             # 提取token使用量
             input_tokens = 0
@@ -189,6 +199,219 @@ class ChatDeepSeek(ChatOpenAI):
         except Exception as e:
             logger.error(f"❌ [DeepSeek] 调用失败: {e}", exc_info=True)
             raise
+
+    def _generate_with_tools_302ai(
+        self,
+        messages: List[BaseMessage],
+        stop: Optional[List[str]] = None,
+        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        **kwargs: Any,
+    ) -> ChatResult:
+        """
+        302AI平台的工具调用处理方法
+        
+        302AI支持工具调用，但需要特殊格式：
+        1. 使用 tool-use-mode 参数控制工具调用模式
+        2. 不使用 tool_choice 参数
+        3. 使用标准的OpenAI格式tools参数
+        """
+        import json
+        import requests
+        
+        logger.info(f"🔧 [DeepSeek/302AI] 使用302AI特殊工具调用格式")
+        
+        # 提取tools参数
+        tools = kwargs.pop('tools', None)
+        logger.info(f"🔧 [DeepSeek/302AI] tools参数类型: {type(tools)}")
+        if tools:
+            logger.info(f"🔧 [DeepSeek/302AI] tools参数内容: {tools}")
+            logger.info(f"🔧 [DeepSeek/302AI] tools参数长度: {len(tools) if isinstance(tools, (list, dict)) else 'N/A'}")
+        
+        # 构建请求体（302AI格式）
+        formatted_messages = self._format_messages_for_302ai(messages)
+        payload = {
+            "model": self.model_name,
+            "messages": formatted_messages,
+            "temperature": self.temperature,
+        }
+        logger.info(f"🔧 [DeepSeek/302AI] 格式化后的messages: {formatted_messages}")
+        
+        # 添加max_tokens（如果设置了）
+        if self.max_tokens:
+            payload["max_tokens"] = self.max_tokens
+        
+        # 添加stop（如果设置了）
+        if stop:
+            payload["stop"] = stop
+        
+        # 302AI特有：使用tool-use-mode参数（模式1=自动）
+        if tools:
+            payload["tools"] = tools
+            payload["tool-use-mode"] = 1  # 302AI自动模式
+            logger.info(f"🔧 [DeepSeek/302AI] 添加tools参数和tool-use-mode=1")
+            logger.info(f"🔧 [DeepSeek/302AI] tools内容: {tools}")
+        
+        logger.info(f"🔧 [DeepSeek/302AI] 完整payload: {payload}")
+        
+        # 获取api_key（ChatOpenAI使用openai_api_key，类型为SecretStr）
+        # ChatOpenAI.model_fields 中只有 'openai_api_key' 字段
+        api_key = None
+        try:
+            openai_key = getattr(self, 'openai_api_key', None)
+            if openai_key and hasattr(openai_key, 'get_secret_value'):
+                api_key = openai_key.get_secret_value()
+        except (AttributeError, Exception):
+            pass
+        
+        if not api_key:
+            api_key = ''
+        
+        # 发送请求
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        # 获取base_url（兼容ChatOpenAI的不同属性名）
+        base_url = getattr(self, 'openai_api_base', None) or getattr(self, 'base_url', '')
+        logger.info(f"🔧 [DeepSeek/302AI] base_url: {base_url}")
+        
+        # 302AI 的正确端点是 /v1/chat/completions
+        # 如果 base_url 不包含 /v1，需要添加
+        if not base_url.endswith('/v1') and not base_url.endswith('/v1/'):
+            if base_url.endswith('/'):
+                chat_url = f"{base_url}v1/chat/completions"
+            else:
+                chat_url = f"{base_url}/v1/chat/completions"
+        else:
+            chat_url = f"{base_url}/chat/completions"
+        
+        logger.info(f"🔧 [DeepSeek/302AI] 请求URL: {chat_url}")
+        
+        try:
+            response = requests.post(
+                chat_url,
+                headers=headers,
+                json=payload,
+                timeout=60
+            )
+            
+            if response.status_code != 200:
+                error_msg = response.text
+                logger.error(f"❌ [DeepSeek/302AI] API错误: {error_msg[:200]}")
+                raise Exception(f"API错误 {response.status_code}: {error_msg[:200]}")
+            
+            # 解析响应
+            response_data = response.json()
+            result = self._parse_302ai_response(response_data)
+            return result
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"❌ [DeepSeek/302AI] 网络错误: {e}")
+            raise
+
+    def _format_messages_for_302ai(self, messages) -> List[Dict]:
+        """将LangChain消息格式转换为302AI格式"""
+        formatted = []
+        
+        # 处理messages可能是一个列表的情况
+        if isinstance(messages, list):
+            message_list = messages
+        else:
+            message_list = [messages]
+        
+        for msg in message_list:
+            # 处理tuple格式的消息（可能是 (role, content) 元组）
+            if isinstance(msg, tuple):
+                role, content = msg
+                formatted.append({"role": str(role), "content": str(content)})
+                continue
+            
+            # 处理字典格式的消息
+            if isinstance(msg, dict):
+                formatted.append({
+                    "role": msg.get("role", "user"),
+                    "content": str(msg.get("content", ""))
+                })
+                continue
+            
+            # 处理BaseMessage对象
+            if hasattr(msg, 'content'):
+                if isinstance(msg, SystemMessage):
+                    formatted.append({"role": "system", "content": msg.content})
+                elif isinstance(msg, HumanMessage):
+                    formatted.append({"role": "user", "content": msg.content})
+                elif isinstance(msg, AIMessage):
+                    # 检查是否有工具调用
+                    if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                        formatted.append({
+                            "role": "assistant",
+                            "content": msg.content or "",
+                            "tool_calls": [
+                                {
+                                    "id": tc.get("id", f"call_{i}"),
+                                    "type": "function",
+                                    "function": {
+                                        "name": tc.get("function", {}).get("name", ""),
+                                        "arguments": tc.get("function", {}).get("arguments", "")
+                                    }
+                                }
+                                for i, tc in enumerate(msg.tool_calls)
+                            ]
+                        })
+                    else:
+                        formatted.append({"role": "assistant", "content": msg.content})
+                else:
+                    formatted.append({"role": "user", "content": msg.content})
+            else:
+                # 未知格式，转为字符串
+                formatted.append({"role": "user", "content": str(msg)})
+        return formatted
+
+    def _parse_302ai_response(self, response_data: Dict) -> ChatResult:
+        """解析302AI响应并转换为LangChain格式"""
+        from langchain_core.outputs import ChatGeneration
+        
+        choice = response_data.get("choices", [{}])[0]
+        message = choice.get("message", {})
+        content = message.get("content", "")
+        finish_reason = choice.get("finish_reason", "stop")
+        
+        # 解析工具调用（如果有）
+        tool_calls = message.get("tool_calls", [])
+        
+        # 构建AIMessage
+        ai_message = AIMessage(content=content)
+        if tool_calls:
+            # LangChain 期望的格式：使用 ToolCall 对象
+            # 注意：LangChain 使用 'args' 而不是 'arguments'，且 args 是字典
+            from langchain_core.messages import ToolCall
+            ai_message.tool_calls = [
+                ToolCall(
+                    name=tc.get("function", {}).get("name", ""),
+                    args=json.loads(tc.get("function", {}).get("arguments", "{}")),
+                    id=tc.get("id", f"call_{i}"),
+                    type="function"
+                )
+                for i, tc in enumerate(tool_calls)
+            ]
+        
+        # 构建ChatResult
+        generation = ChatGeneration(message=ai_message)
+        result = ChatResult(generations=[generation])
+        
+        # 提取使用量
+        usage = response_data.get("usage", {})
+        if usage:
+            result.llm_output = {
+                "token_usage": {
+                    "prompt_tokens": usage.get("prompt_tokens", 0),
+                    "completion_tokens": usage.get("completion_tokens", 0),
+                    "total_tokens": usage.get("total_tokens", 0)
+                }
+            }
+        
+        return result
     
     def _estimate_input_tokens(self, messages: List[BaseMessage]) -> int:
         """

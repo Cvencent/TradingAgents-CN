@@ -85,7 +85,10 @@ def get_model_info(llm: BaseLanguageModel) -> dict:
     }
     
     # 确定模型类别
-    if info['is_deepseek'] or info['is_302ai']:
+    # 🔥 注意：302AI 独立分类，因为它支持标准工具调用，与原生DeepSeek不同
+    if info['is_302ai']:
+        info['model_category'] = '302ai'
+    elif info['is_deepseek']:
         info['model_category'] = 'deepseek'
     elif info['is_google']:
         info['model_category'] = 'google'
@@ -138,11 +141,27 @@ def create_llm_chain(
     logger.info(f"[{analyst_name}] 模型名称: {model_info['model_name']}")
     
     # 根据模型类型创建链
-    if model_info['model_category'] == 'deepseek':
-        # DeepSeek模型（包括302AI）：不使用bind_tools，直接使用原有prompt
-        logger.info(f"[{analyst_name}] DeepSeek/302AI模型，使用简化工具调用方式（不绑定工具）")
+    if model_info['model_category'] == '302ai':
+        # 🔥 302AI 平台：使用标准 bind_tools，DeepSeek适配器会特殊处理
+        # DeepSeek适配器会检测302AI并使用正确的参数格式（tool-use-mode=1）
+        logger.info(f"[{analyst_name}] 302AI平台模型，使用标准工具绑定（适配器自动处理302AI特殊参数）")
         
-        # 对于DeepSeek模型，不使用bind_tools，直接返回prompt | llm
+        if tools and bind_tools:
+            try:
+                # 302AI通过DeepSeek适配器处理，支持标准bind_tools
+                chain = prompt | llm.bind_tools(tools)
+                logger.info(f"[{analyst_name}] ✅ 302AI链创建成功（绑定{len(tools)}个工具）")
+            except Exception as e:
+                logger.warning(f"[{analyst_name}] 302AI工具绑定失败: {e}，降级为提示词模式")
+                chain = prompt | llm
+        else:
+            chain = prompt | llm
+            logger.info(f"[{analyst_name}] ✅ 302AI链创建成功（无工具）")
+    elif model_info['model_category'] == 'deepseek':
+        # 原生DeepSeek模型（非302AI）：不使用bind_tools，直接使用原有prompt
+        logger.info(f"[{analyst_name}] 原生DeepSeek模型，使用简化工具调用方式（不绑定工具）")
+        
+        # 对于原生DeepSeek模型，不使用bind_tools，直接返回prompt | llm
         # 工具信息已经在prompt中通过tool_names变量传递
         chain = prompt | llm
         
@@ -184,6 +203,8 @@ def should_use_tool_call_handler(llm: BaseLanguageModel) -> bool:
     """
     判断是否需要使用Google工具调用处理器
     
+    注意：302AI模型使用标准工具调用流程，不需要Google特殊处理
+    
     Args:
         llm: LLM模型实例
         
@@ -191,7 +212,8 @@ def should_use_tool_call_handler(llm: BaseLanguageModel) -> bool:
         bool: 是否需要使用GoogleToolCallHandler
     """
     model_info = get_model_info(llm)
-    return model_info['model_category'] == 'google'
+    # 只有Google模型需要特殊处理，302AI使用标准流程
+    return model_info['model_category'] == 'google' and not model_info['is_302ai']
 
 
 def log_model_usage(llm: BaseLanguageModel, analyst_name: str = "未知分析师"):
