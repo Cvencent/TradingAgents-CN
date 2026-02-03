@@ -244,44 +244,41 @@ class AsyncProgressTracker:
     def _get_analyst_display_name(self, analyst: str) -> str:
         """获取分析师显示名称（保留兼容性）"""
         name_map = {
+            'technology': '技术面分析师',
             'market': '市场分析师',
-            'fundamentals': '基本面分析师',
-            'technical': '技术分析师',
-            'sentiment': '情绪分析师',
-            'risk': '风险分析师'
+            'money': '资金面分析师',
+            'social': '社交媒体分析师',
+            'news': '新闻分析师',
+            'fundamentals': '基本面分析师'
         }
         return name_map.get(analyst, f'{analyst}分析师')
 
     def _get_analyst_step_info(self, analyst: str) -> Dict[str, str]:
         """获取分析师步骤信息（名称和描述）"""
         analyst_info = {
+            'technology': {
+                "name": "📈 技术面分析",
+                "description": "分析K线图形、技术指标、价格趋势、支撑阻力位等技术面因素"
+            },
             'market': {
                 "name": "📊 市场分析",
-                "description": "分析股价走势、成交量、市场热度等市场表现"
+                "description": "综合分析市场环境、行业趋势、大盘走势对个股的影响"
             },
-            'fundamentals': {
-                "name": "💼 基本面分析",
-                "description": "分析公司财务状况、盈利能力、成长性等基本面"
+            'money': {
+                "name": "💵 资金面分析",
+                "description": "分析资金流向、主力资金动向、成交量变化、筹码分布等资金面指标"
             },
-            'technical': {
-                "name": "📈 技术分析",
-                "description": "分析K线图形、技术指标、支撑阻力等技术面"
-            },
-            'sentiment': {
-                "name": "💭 情绪分析",
-                "description": "分析市场情绪、投资者心理、舆论倾向等"
+            'social': {
+                "name": "🌐 社交媒体",
+                "description": "分析社交媒体讨论、网络热度、散户情绪等"
             },
             'news': {
                 "name": "📰 新闻分析",
                 "description": "分析相关新闻、公告、行业动态对股价的影响"
             },
-            'social_media': {
-                "name": "🌐 社交媒体",
-                "description": "分析社交媒体讨论、网络热度、散户情绪等"
-            },
-            'risk': {
-                "name": "⚠️ 风险分析",
-                "description": "识别投资风险、评估风险等级、制定风控措施"
+            'fundamentals': {
+                "name": "💼 基本面分析",
+                "description": "分析公司财务状况、盈利能力、成长性等基本面"
             }
         }
 

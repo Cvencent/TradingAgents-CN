@@ -13,8 +13,8 @@ export interface Analyst {
 export const ANALYSTS: Analyst[] = [
   {
     id: 'market',
-    name: '市场分析师',
-    description: '分析市场趋势、行业动态和宏观经济环境',
+    name: '技术面分析师',
+    description: '分析公司技术面指标',
     icon: 'TrendCharts'
   },
   {
@@ -34,6 +34,18 @@ export const ANALYSTS: Analyst[] = [
     name: '社媒分析师',
     description: '分析社交媒体情绪、投资者心理和舆论导向',
     icon: 'ChatDotRound'
+  },
+  {
+    id: 'market_trend',
+    name: '市场分析师',
+    description: '分析A股大盘走势、股票所属行业走势和整个市场行情',
+    icon: 'TrendCharts'
+  },
+  {
+    id: 'capital_flow',
+    name: '资金盘分析师',
+    description: '分析股票资金面、主力资金流向和机构资金动向',
+    icon: 'Money'
   }
 ]
 
@@ -41,7 +53,7 @@ export const ANALYSTS: Analyst[] = [
 export const ANALYST_NAMES = ANALYSTS.map(analyst => analyst.name)
 
 // 默认选中的分析师
-export const DEFAULT_ANALYSTS = ['市场分析师', '基本面分析师']
+export const DEFAULT_ANALYSTS = ['技术面分析师', '基本面分析师', '市场分析师', '资金盘分析师']
 
 // 根据名称获取分析师信息
 export const getAnalystByName = (name: string): Analyst | undefined => {
@@ -60,7 +72,9 @@ export const isValidAnalyst = (name: string): boolean => {
 
 // 中文名称到英文ID的映射
 export const ANALYST_NAME_TO_ID_MAP: Record<string, string> = {
-  '市场分析师': 'market',
+  '技术面分析师': 'market',
+  '市场分析师': 'market_trend',
+  '资金盘分析师': 'capital_flow',
   '基本面分析师': 'fundamentals',
   '新闻分析师': 'news',
   '社媒分析师': 'social'

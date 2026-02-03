@@ -812,7 +812,9 @@ const formatTime = (time: string) => {
 // 将分析师英文名称转换为中文
 const formatAnalysts = (analysts: string[]) => {
   const analystNameMap: Record<string, string> = {
-    'market': '市场分析师',
+    'market': '技术面分析师',
+    'market_trend': '市场分析师',
+    'capital_flow': '资金盘分析师',
     'fundamentals': '基本面分析师',
     'news': '新闻分析师',
     'social': '社媒分析师',

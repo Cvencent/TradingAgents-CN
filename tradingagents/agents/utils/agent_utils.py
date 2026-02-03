@@ -1402,3 +1402,190 @@ class Toolkit:
             error_msg = f"统一情绪分析工具执行失败: {str(e)}"
             logger.error(f"❌ [统一情绪工具] {error_msg}")
             return error_msg
+
+    @staticmethod
+    @register_tool(category="market", description="获取A股大盘走势和行业走势")
+    @log_tool_call(tool_name="get_market_trend_and_sector", log_args=True)
+    def get_market_trend_and_sector(
+        ticker: Annotated[str, "股票代码"],
+        start_date: Annotated[str, "开始日期，格式：YYYY-MM-DD"],
+        end_date: Annotated[str, "结束日期，格式：YYYY-MM-DD"]
+    ) -> str:
+        """
+        获取A股大盘走势（上证、深证、创业板）和股票所属行业走势
+        使用 akshare 数据源
+
+        Args:
+            ticker: 股票代码
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            str: 大盘走势和行业走势分析报告
+        """
+        logger.info(f"📈 [大盘走势工具] 获取大盘和行业数据: {ticker}")
+
+        try:
+            import akshare as ak
+
+            # 获取上证指数
+            sh_index_data = ak.stock_zh_index_daily(symbol="sh000001", start_date=start_date, end_date=end_date)
+            sh_report = f"## 上证指数走势\n"
+            if sh_index_data is not None and not sh_index_data.empty:
+                sh_report += f"最新收盘价: {sh_index_data.iloc[-1]['close']:.2f}\n"
+                sh_report += f"涨跌幅: {((sh_index_data.iloc[-1]['close'] - sh_index_data.iloc[0]['close']) / sh_index_data.iloc[0]['close'] * 100):.2f}%\n"
+            else:
+                sh_report += "数据获取失败\n"
+
+            # 获取深证指数
+            sz_index_data = ak.stock_zh_index_daily(symbol="sz399001", start_date=start_date, end_date=end_date)
+            sz_report = f"\n## 深证指数走势\n"
+            if sz_index_data is not None and not sz_index_data.empty:
+                sz_report += f"最新收盘价: {sz_index_data.iloc[-1]['close']:.2f}\n"
+                sz_report += f"涨跌幅: {((sz_index_data.iloc[-1]['close'] - sz_index_data.iloc[0]['close']) / sz_index_data.iloc[0]['close'] * 100):.2f}%\n"
+            else:
+                sz_report += "数据获取失败\n"
+
+            # 获取创业板指数
+            cyb_index_data = ak.stock_zh_index_daily(symbol="sz399006", start_date=start_date, end_date=end_date)
+            cyb_report = f"\n## 创业板指数走势\n"
+            if cyb_index_data is not None and not cyb_index_data.empty:
+                cyb_report += f"最新收盘价: {cyb_index_data.iloc[-1]['close']:.2f}\n"
+                cyb_report += f"涨跌幅: {((cyb_index_data.iloc[-1]['close'] - cyb_index_data.iloc[0]['close']) / cyb_index_data.iloc[0]['close'] * 100):.2f}%\n"
+            else:
+                cyb_report += "数据获取失败\n"
+
+            # 获取股票所属行业信息
+            industry_report = f"\n## 行业走势分析\n"
+            try:
+                # 获取股票基本信息
+                stock_info = ak.stock_info_a_code_name(symbol=ticker)
+                if stock_info is not None and not stock_info.empty:
+                    industry_name = stock_info.iloc[0].get('industry', '未知行业')
+                    industry_report += f"所属行业: {industry_name}\n"
+
+                    # 获取行业指数（简化处理，使用申万行业指数）
+                    industry_report += "行业整体走势数据获取中...\n"
+                else:
+                    industry_report += "行业信息获取失败\n"
+            except Exception as e:
+                industry_report += f"行业信息获取失败: {str(e)}\n"
+
+            # 组合所有报告
+            combined_result = f"""# {ticker} 大盘走势和行业分析
+
+{sh_report}{sz_report}{cyb_report}{industry_report}
+
+数据来源: akshare
+数据日期范围: {start_date} 至 {end_date}
+"""
+
+            logger.info(f"📈 [大盘走势工具] 数据获取完成，总长度: {len(combined_result)}")
+            return combined_result
+
+        except Exception as e:
+            error_msg = f"大盘走势和行业数据获取失败: {str(e)}"
+            logger.error(f"❌ [大盘走势工具] {error_msg}")
+            return error_msg
+
+    @staticmethod
+    @register_tool(category="market", description="获取股票资金面数据")
+    @log_tool_call(tool_name="get_stock_capital_flow", log_args=True)
+    def get_stock_capital_flow(
+        ticker: Annotated[str, "股票代码"],
+        start_date: Annotated[str, "开始日期，格式：YYYY-MM-DD"],
+        end_date: Annotated[str, "结束日期，格式：YYYY-MM-DD"]
+    ) -> str:
+        """
+        获取股票资金面数据（主力资金、北向资金、机构资金等）
+        使用 tushare 数据源
+
+        Args:
+            ticker: 股票代码
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            str: 资金面分析报告
+        """
+        logger.info(f"💰 [资金面工具] 获取资金面数据: {ticker}")
+
+        try:
+            import tushare as ts
+
+            # 获取API Token
+            from app.core.config import get_settings
+            settings = get_settings()
+            token = settings.TUSHARE_TOKEN or os.getenv('TUSHARE_TOKEN')
+
+            if not token:
+                error_msg = "Tushare Token未配置，请在设置中配置TUSHARE_TOKEN"
+                logger.error(f"❌ [资金面工具] {error_msg}")
+                return error_msg
+
+            # 初始化tushare
+            ts.set_token(token)
+
+            # 获取资金流向数据
+            money_flow_report = f"## 资金流向数据\n"
+
+            try:
+                # 获取个股资金流向数据
+                money_flow_df = ts.moneyflow(tscode=ticker, start_date=start_date, end_date=end_date)
+                if money_flow_df is not None and not money_flow_df.empty:
+                    latest_flow = money_flow_df.iloc[-1]
+                    money_flow_report += f"净流入: {latest_flow.get('net_mfd_amt', 0):.2f} 万元\n"
+                    money_flow_report += f"主力净流入: {latest_flow.get('n_mfd_amt', 0):.2f} 万元\n"
+                    money_flow_report += f"小单净流入: {latest_flow.get('n_elp_amt', 0):.2f} 万元\n"
+                    money_flow_report += f"中单净流入: {latest_flow.get('n_elg_amt', 0):.2f} 万元\n"
+                    money_flow_report += f"大单净流入: {latest_flow.get('n_ecl_amt', 0):.2f} 万元\n"
+                else:
+                    money_flow_report += "资金流向数据获取失败\n"
+            except Exception as e:
+                money_flow_report += f"资金流向数据获取失败: {str(e)}\n"
+
+            # 获取北向资金数据
+            northbound_report = f"\n## 北向资金流向\n"
+            try:
+                # 获取沪深股通资金流向
+                moneyflow_hsgt_df = ts.moneyflow_hsgt(start_date=start_date, end_date=end_date)
+                if moneyflow_hsgt_df is not None and not moneyflow_hsgt_df.empty:
+                    latest_hsgt = moneyflow_hsgt_df.iloc[-1]
+                    northbound_report += f"北向资金净流入: {latest_hsgt.get('north_money', 0):.2f} 亿元\n"
+                    northbound_report += f"南向资金净流入: {latest_hsgt.get('south_money', 0):.2f} 亿元\n"
+                else:
+                    northbound_report += "北向资金数据获取失败\n"
+            except Exception as e:
+                northbound_report += f"北向资金数据获取失败: {str(e)}\n"
+
+            # 获取机构资金数据
+            institution_report = f"\n## 机构资金动向\n"
+            try:
+                # 获取机构交易数据
+                institution_df = ts.institutional_trader(tscode=ticker, start_date=start_date, end_date=end_date)
+                if institution_df is not None and not institution_df.empty:
+                    latest_inst = institution_df.iloc[-1]
+                    institution_report += f"机构买入: {latest_inst.get('buy_vol', 0):.2f} 万股\n"
+                    institution_report += f"机构卖出: {latest_inst.get('sell_vol', 0):.2f} 万股\n"
+                    institution_report += f"机构净买入: {latest_inst.get('buy_vol', 0) - latest_inst.get('sell_vol', 0):.2f} 万股\n"
+                else:
+                    institution_report += "机构资金数据获取失败\n"
+            except Exception as e:
+                institution_report += f"机构资金数据获取失败: {str(e)}\n"
+
+            # 组合所有报告
+            combined_result = f"""# {ticker} 资金面分析
+
+{money_flow_report}{northbound_report}{institution_report}
+
+数据来源: tushare
+数据日期范围: {start_date} 至 {end_date}
+"""
+
+            logger.info(f"💰 [资金面工具] 数据获取完成，总长度: {len(combined_result)}")
+            return combined_result
+
+        except Exception as e:
+            error_msg = f"资金面数据获取失败: {str(e)}"
+            logger.error(f"❌ [资金面工具] {error_msg}")
+            return error_msg

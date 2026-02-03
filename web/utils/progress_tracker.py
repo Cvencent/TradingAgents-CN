@@ -55,11 +55,12 @@ class SmartAnalysisProgressTracker:
     def _get_analyst_display_name(self, analyst: str) -> str:
         """获取分析师显示名称"""
         name_map = {
+            'technology': '技术面分析师',
             'market': '市场分析师',
-            'fundamentals': '基本面分析师',
-            'technical': '技术分析师',
-            'sentiment': '情绪分析师',
-            'risk': '风险分析师'
+            'money': '资金面分析师',
+            'social': '社交媒体分析师',
+            'news': '新闻分析师',
+            'fundamentals': '基本面分析师'
         }
         return name_map.get(analyst, analyst)
 

@@ -4,6 +4,8 @@ from .utils.memory import FinancialSituationMemory
 
 from .analysts.fundamentals_analyst import create_fundamentals_analyst
 from .analysts.market_analyst import create_market_analyst
+from .analysts.market_trend_analyst import create_market_trend_analyst
+from .analysts.capital_flow_analyst import create_capital_flow_analyst
 from .analysts.news_analyst import create_news_analyst
 from .analysts.social_media_analyst import create_social_media_analyst
 
@@ -35,6 +37,8 @@ __all__ = [
     "create_research_manager",
     "create_fundamentals_analyst",
     "create_market_analyst",
+    "create_market_trend_analyst",
+    "create_capital_flow_analyst",
     "create_neutral_debator",
     "create_news_analyst",
     "create_risky_debator",

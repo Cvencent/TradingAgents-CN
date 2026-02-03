@@ -825,7 +825,7 @@ def validate_analysis_params(stock_symbol, analysis_date, analysts, research_dep
     if not analysts or len(analysts) == 0:
         errors.append("必须至少选择一个分析师")
     
-    valid_analysts = ['market', 'social', 'news', 'fundamentals']
+    valid_analysts = ['technology', 'market', 'money', 'social', 'news', 'fundamentals']
     invalid_analysts = [a for a in analysts if a not in valid_analysts]
     if invalid_analysts:
         errors.append(f"无效的分析师类型: {', '.join(invalid_analysts)}")
@@ -836,7 +836,7 @@ def validate_analysis_params(stock_symbol, analysis_date, analysts, research_dep
     
     # 验证分析日期
     try:
-from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta, timezone
         datetime.strptime(analysis_date, '%Y-%m-%d')
     except ValueError:
         errors.append("分析日期格式无效，应为YYYY-MM-DD格式")

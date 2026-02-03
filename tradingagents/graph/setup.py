@@ -68,32 +68,34 @@ class GraphSetup:
         delete_nodes = {}
         tool_nodes = {}
 
-        if "market" in selected_analysts:
-            # 现在所有LLM都使用标准市场分析师（包括阿里百炼的OpenAI兼容适配器）
-            llm_provider = self.config.get("llm_provider", "").lower()
-
-            # 检查是否使用OpenAI兼容的阿里百炼适配器
-            using_dashscope_openai = (
-                "dashscope" in llm_provider and
-                hasattr(self.quick_thinking_llm, '__class__') and
-                'OpenAI' in self.quick_thinking_llm.__class__.__name__
+        if "technology" in selected_analysts:
+            # 技术面分析师 - 使用原有的市场分析师实现（专注于技术面分析）
+            logger.debug(f"📈 [DEBUG] 使用技术面分析师")
+            analyst_nodes["technology"] = create_market_analyst(
+                self.quick_thinking_llm, self.toolkit
             )
+            delete_nodes["technology"] = create_msg_delete()
+            tool_nodes["technology"] = self.tool_nodes["market"]
 
-            if using_dashscope_openai:
-                logger.debug(f"📈 [DEBUG] 使用标准市场分析师（阿里百炼OpenAI兼容模式）")
-            elif "dashscope" in llm_provider or "阿里百炼" in self.config.get("llm_provider", ""):
-                logger.debug(f"📈 [DEBUG] 使用标准市场分析师（阿里百炼原生模式）")
-            elif "deepseek" in llm_provider:
-                logger.debug(f"📈 [DEBUG] 使用标准市场分析师（DeepSeek）")
-            else:
-                logger.debug(f"📈 [DEBUG] 使用标准市场分析师")
-
-            # 所有LLM都使用标准分析师
-            analyst_nodes["market"] = create_market_analyst(
+        if "market" in selected_analysts:
+            # 市场分析师 - 使用市场趋势分析师（综合分析市场环境）
+            logger.debug(f"📊 [DEBUG] 使用市场分析师（市场趋势分析）")
+            from tradingagents.agents.analysts.market_trend_analyst import create_market_trend_analyst
+            analyst_nodes["market"] = create_market_trend_analyst(
                 self.quick_thinking_llm, self.toolkit
             )
             delete_nodes["market"] = create_msg_delete()
             tool_nodes["market"] = self.tool_nodes["market"]
+
+        if "money" in selected_analysts:
+            # 资金面分析师 - 使用资金流向分析师
+            logger.debug(f"💵 [DEBUG] 使用资金面分析师（资金流向分析）")
+            from tradingagents.agents.analysts.capital_flow_analyst import create_capital_flow_analyst
+            analyst_nodes["money"] = create_capital_flow_analyst(
+                self.quick_thinking_llm, self.toolkit
+            )
+            delete_nodes["money"] = create_msg_delete()
+            tool_nodes["money"] = self.tool_nodes["market"]
 
         if "social" in selected_analysts:
             analyst_nodes["social"] = create_social_media_analyst(
