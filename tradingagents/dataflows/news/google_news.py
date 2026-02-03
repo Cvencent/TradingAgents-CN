@@ -30,15 +30,25 @@ def is_rate_limited(response):
 @retry(
     retry=(retry_if_result(is_rate_limited) | retry_if_exception_type(requests.exceptions.ConnectionError) | retry_if_exception_type(requests.exceptions.Timeout)),
     wait=wait_exponential(multiplier=1, min=4, max=60),
-    stop=stop_after_attempt(5),
+    stop=stop_after_attempt(3),
 )
 def make_request(url, headers):
     """Make a request with retry logic for rate limiting and connection issues"""
     # Random delay before each request to avoid detection
-    time.sleep(random.uniform(SLEEP_MIN, SLEEP_MAX))
+    sleep_time = random.uniform(SLEEP_MIN, SLEEP_MAX)
+    logger.info(f"[Google新闻] 等待 {sleep_time:.1f} 秒后发送请求...")
+    time.sleep(sleep_time)
+    
+    logger.info(f"[Google新闻] 发送请求到: {url[:80]}...")
+    
     # 添加超时参数，设置连接超时和读取超时
-    response = requests.get(url, headers=headers, timeout=(10, 30))  # 连接超时10秒，读取超时30秒
-    return response
+    try:
+        response = requests.get(url, headers=headers, timeout=(15, 60))  # 连接超时15秒，读取超时60秒
+        logger.info(f"[Google新闻] 响应状态码: {response.status_code}")
+        return response
+    except requests.exceptions.Timeout as e:
+        logger.error(f"[Google新闻] 请求超时: {e}")
+        raise
 
 
 def getNewsData(query, start_date, end_date):

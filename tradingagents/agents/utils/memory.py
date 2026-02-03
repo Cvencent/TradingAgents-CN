@@ -311,18 +311,35 @@ class FinancialSituationMemory:
             # 🔧 根据 backend_url 自动选择正确的 API Key
             backend_url = config.get("backend_url", "")
             
-            # 检查是否使用 302AI
-            if "302.ai" in backend_url or "302ai" in backend_url:
-                openai_key = os.getenv('AI302_API_KEY') or os.getenv('OPENAI_API_KEY')
+            # 检查是否使用 302AI - 优先检查环境变量
+            ai302_embedding_url = os.getenv('AI302_EMBEDDING_BASE_URL')
+            ai302_api_key = os.getenv('AI302_API_KEY') or os.getenv('AI302_EMBEDDING_API_KEY')
+            
+            is_302ai = (
+                ai302_embedding_url or  # 环境变量设置了302AI embedding URL
+                ai302_api_key or        # 环境变量设置了302AI API key
+                "302.ai" in backend_url or 
+                "302ai" in backend_url
+            )
+            
+            if is_302ai:
+                # 优先使用环境变量中的302AI配置
+                if ai302_embedding_url:
+                    backend_url = ai302_embedding_url
+                    openai_key = ai302_api_key or os.getenv('OPENAI_API_KEY')
+                    logger.info(f"使用302AI Embedding环境变量配置: {backend_url}")
+                else:
+                    openai_key = os.getenv('AI302_API_KEY') or os.getenv('OPENAI_API_KEY')
+                
                 if openai_key:
                     self.client = OpenAI(
                         api_key=openai_key,
                         base_url=backend_url
                     )
-                    logger.info(f"💡 使用302AI嵌入服务（API Key来源: AI302_API_KEY）")
+                    logger.info(f"💡 使用302AI嵌入服务（API Key来源: {'AI302_EMBEDDING_API_KEY' if ai302_api_key else 'AI302_API_KEY'}）")
                 else:
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ 未找到AI302_API_KEY，记忆功能已禁用")
+                    logger.warning(f"⚠️ 未找到AI302_API_KEY或AI302_EMBEDDING_API_KEY，记忆功能已禁用")
             else:
                 # 默认使用 OPENAI_API_KEY
                 openai_key = os.getenv('OPENAI_API_KEY')

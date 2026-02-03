@@ -8,8 +8,10 @@ try:
     from .news import fetch_top_from_category
 except ImportError:
     from .news.reddit import fetch_top_from_category
-
+ 
 from .news.google_news import *
+from .news.bing_news import getNewsData as get_bing_news_data, format_bing_news
+from .news.ths_news import get_ths_news, format_ths_news
 
 
 from .news.chinese_finance import get_chinese_social_sentiment

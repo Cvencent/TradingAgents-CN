@@ -1031,6 +1031,8 @@ class SimpleAnalysisService:
 
             # 同步更新MongoDB状态为完成
             await self._update_task_status(task_id, AnalysisStatus.COMPLETED, 100)
+            # 保存完整分析结果到analysis_tasks集合
+            await self._save_analysis_result(task_id, result)
 
             # 创建通知：分析完成（方案B：REST+SSE）
             try:

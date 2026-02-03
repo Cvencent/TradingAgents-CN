@@ -1235,27 +1235,21 @@ class Toolkit:
                     logger.error(f"❌ [统一新闻工具] 东方财富新闻获取失败: {em_e}")
                     result_data.append(f"## 东方财富新闻\n获取失败: {em_e}")
 
-                # 2. 获取Google新闻作为补充
+                # 2. 获取同花顺财经新闻作为补充
                 try:
-                    # 获取公司中文名称用于搜索
-                    if is_china:
-                        # A股使用股票代码搜索，添加更多中文关键词
-                        clean_ticker = ticker.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
-                                       .replace('.XSHE', '').replace('.XSHG', '')
-                        search_query = f"{clean_ticker} 股票 公司 财报 新闻"
-                        logger.info(f"🇨🇳 [统一新闻工具] A股Google新闻搜索关键词: {search_query}")
-                    else:
-                        # 港股使用代码搜索
-                        search_query = f"{ticker} 港股"
-                        logger.info(f"🇭🇰 [统一新闻工具] 港股Google新闻搜索关键词: {search_query}")
+                    clean_ticker = ticker.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
+                                   .replace('.XSHE', '').replace('.XSHG', '').replace('.HK', '')
+                    
+                    logger.info(f"[统一新闻工具] 获取同花顺财经新闻: {clean_ticker}")
 
-                    from tradingagents.dataflows.interface import get_google_news
-                    news_data = get_google_news(search_query, curr_date)
-                    result_data.append(f"## Google新闻\n{news_data}")
-                    logger.info(f"🇨🇳🇭🇰 [统一新闻工具] 成功获取Google新闻")
-                except Exception as google_e:
-                    logger.error(f"❌ [统一新闻工具] Google新闻获取失败: {google_e}")
-                    result_data.append(f"## Google新闻\n获取失败: {google_e}")
+                    from tradingagents.dataflows.news.ths_news import get_ths_news, format_ths_news
+                    ths_news = get_ths_news(clean_ticker)
+                    ths_formatted = format_ths_news(ths_news, clean_ticker)
+                    result_data.append(f"## 同花顺财经\n{ths_formatted}")
+                    logger.info(f"[统一新闻工具] 成功获取同花顺财经 {len(ths_news)} 条新闻")
+                except Exception as ths_e:
+                    logger.error(f"[统一新闻工具] 同花顺财经获取失败: {ths_e}")
+                    result_data.append(f"## 同花顺财经\n获取失败: {ths_e}")
 
             else:
                 # 美股：使用Finnhub新闻
