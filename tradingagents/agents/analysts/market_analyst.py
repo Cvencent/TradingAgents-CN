@@ -450,6 +450,16 @@ def create_market_analyst(llm, toolkit):
                         tool_args = tool_call.get('args', {})
                         tool_id = tool_call.get('id')
 
+                        # 🔧 修复：处理不同格式的 tool_calls
+                        # 有些模型可能使用 'arguments' 字段（JSON 字符串）
+                        if not tool_args and 'arguments' in tool_call:
+                            import json
+                            try:
+                                tool_args = json.loads(tool_call['arguments'])
+                            except (json.JSONDecodeError, TypeError):
+                                logger.warning(f"⚠️ [工具调用] 无法解析 arguments 字段: {tool_call.get('arguments')}")
+                                tool_args = {}
+
                         logger.debug(f"📊 [DEBUG] 执行工具: {tool_name}, 参数: {tool_args}")
 
                         # 找到对应的工具并执行

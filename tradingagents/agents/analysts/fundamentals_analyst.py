@@ -305,6 +305,7 @@ def create_fundamentals_analyst(llm, toolkit):
         prompt = prompt.partial(current_date=current_date)
         prompt = prompt.partial(ticker=ticker)
         prompt = prompt.partial(company_name=company_name)
+        prompt = prompt.partial(start_date=start_date)
 
         # 检测模型类型并创建新实例以避免工具缓存
         if hasattr(llm, '__class__') and 'DashScope' in llm.__class__.__name__:

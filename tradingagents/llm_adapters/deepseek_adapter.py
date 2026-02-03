@@ -5,7 +5,7 @@ DeepSeek LLM适配器，支持Token使用统计
 import os
 import json
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
 from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, SystemMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_openai import ChatOpenAI
@@ -43,6 +43,7 @@ class ChatDeepSeek(ChatOpenAI):
         base_url: str = "https://api.deepseek.com",
         temperature: float = 0.1,
         max_tokens: Optional[int] = None,
+        request_timeout: Optional[Union[float, Tuple[float, float]]] = 300,
         **kwargs
     ):
         """
@@ -54,6 +55,7 @@ class ChatDeepSeek(ChatOpenAI):
             base_url: API基础URL
             temperature: 温度参数
             max_tokens: 最大token数
+            request_timeout: 请求超时时间（秒），默认300秒
             **kwargs: 其他参数
         """
         
@@ -101,10 +103,12 @@ class ChatDeepSeek(ChatOpenAI):
             base_url=base_url,
             temperature=temperature,
             max_tokens=max_tokens,
+            request_timeout=request_timeout,
             **kwargs
         )
         
         self.model_name = model
+        self.request_timeout = request_timeout
         
     def _generate(
         self,
@@ -293,7 +297,7 @@ class ChatDeepSeek(ChatOpenAI):
                 chat_url,
                 headers=headers,
                 json=payload,
-                timeout=60
+                timeout=self.request_timeout
             )
             
             if response.status_code != 200:
