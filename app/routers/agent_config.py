@@ -4,7 +4,7 @@ Agent配置管理API路由
 
 import logging
 from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Path
 from pydantic import BaseModel
 
 from app.routers.auth_db import get_current_user
@@ -127,6 +127,66 @@ async def get_agent_config(
         )
 
 
+class InitializeRequest(BaseModel):
+    """初始化请求模型"""
+    overwrite: bool = True  # 默认覆盖已有配置
+
+
+@router.post("/initialize", summary="初始化默认Agent配置", response_model=AgentConfigListResponse)
+async def initialize_default_agent_configs(
+    request: Optional[InitializeRequest] = None,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_mongo_db_sync)
+):
+    """
+    初始化默认Agent配置
+    会覆盖现有配置，恢复为6个默认分析师
+    """
+    try:
+        mongo_agent_config = MongoAgentConfig(db)
+        
+        # 先删除错误的"initialize"配置（如果存在）
+        mongo_agent_config.delete_agent_config("initialize")
+        
+        # 执行初始化，默认覆盖已有配置
+        overwrite = request.overwrite if request else True
+        success = mongo_agent_config.initialize_default_configs(overwrite=overwrite)
+        
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="初始化默认Agent配置失败"
+            )
+        
+        # 获取初始化后的配置
+        configs = mongo_agent_config.get_all_agent_configs()
+        
+        await log_operation(
+            user_id=str(current_user.get("user_id", "")),
+            username=current_user.get("username", "unknown"),
+            action_type=ActionType.CONFIG_MANAGEMENT,
+            action="初始化默认Agent配置",
+            details={"count": len(configs)},
+            ip_address="",
+            user_agent=""
+        )
+        
+        return AgentConfigListResponse(
+            success=True,
+            message="初始化默认Agent配置成功",
+            data=configs,
+            total=len(configs)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"初始化默认Agent配置失败: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"初始化默认Agent配置失败: {str(e)}"
+        )
+
+
 @router.post("/{agent_id}", summary="保存Agent配置", response_model=AgentConfigResponse)
 async def save_agent_config(
     agent_id: str,
@@ -137,6 +197,12 @@ async def save_agent_config(
     """
     保存指定Agent的配置
     """
+    # 防止与静态路由冲突
+    if agent_id == "initialize":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="无效的agent_id"
+        )
     try:
         # 获取现有配置
         mongo_agent_config = MongoAgentConfig(db)
@@ -237,51 +303,4 @@ async def delete_agent_config(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"删除Agent配置失败: {str(e)}"
-        )
-
-
-@router.post("/initialize", summary="初始化默认Agent配置", response_model=AgentConfigListResponse)
-async def initialize_default_agent_configs(
-    current_user: dict = Depends(get_current_user),
-    db = Depends(get_mongo_db_sync)
-):
-    """
-    初始化默认Agent配置
-    """
-    try:
-        mongo_agent_config = MongoAgentConfig(db)
-        success = mongo_agent_config.initialize_default_configs()
-        
-        if not success:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="初始化默认Agent配置失败"
-            )
-        
-        # 获取初始化后的配置
-        configs = mongo_agent_config.get_all_agent_configs()
-        
-        await log_operation(
-            user_id=str(current_user.get("user_id", "")),
-            username=current_user.get("username", "unknown"),
-            action_type=ActionType.CONFIG_MANAGEMENT,
-            action="初始化默认Agent配置",
-            details={"count": len(configs)},
-            ip_address="",
-            user_agent=""
-        )
-        
-        return AgentConfigListResponse(
-            success=True,
-            message="初始化默认Agent配置成功",
-            data=configs,
-            total=len(configs)
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"初始化默认Agent配置失败: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"初始化默认Agent配置失败: {str(e)}"
         )

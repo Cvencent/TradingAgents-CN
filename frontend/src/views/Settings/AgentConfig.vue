@@ -271,7 +271,7 @@ const loadAllTools = async () => {
 const initializeDefaultConfigs = async () => {
   loading.value = true
   try {
-    const response = await ApiClient.post('/api/agent-config/initialize')
+    const response = await ApiClient.post('/api/agent-config/initialize', { overwrite: true })
     if (response.success) {
       configs.value = Array.isArray(response.data) ? response.data : []
       ElMessage.success('默认配置初始化成功')

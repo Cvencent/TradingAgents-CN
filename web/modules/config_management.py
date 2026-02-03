@@ -498,6 +498,68 @@ def render_system_settings():
             else:
                 st.session_state.confirm_reset = True
                 st.warning("⚠️ 再次点击确认重置")
+    
+    # Agent配置管理
+    st.markdown("**🤖 Agent配置管理**")
+    st.info("""
+    **初始化默认Agent配置**：将MongoDB中的Agent配置重置为默认值，包含6个分析师：
+    - 📈 技术面分析师 (technology)
+    - 📊 市场分析师 (market)  
+    - 💵 资金面分析师 (money)
+    - 🌐 社交媒体分析师 (social)
+    - 📰 新闻分析师 (news)
+    - 💰 基本面分析师 (fundamentals)
+    
+    ⚠️ **注意**：这会覆盖现有的Agent配置，但不会影响历史分析报告。
+    """)
+    
+    if st.button("🔄 初始化默认Agent配置", help="将Agent配置重置为6个分析师的默认配置", key="init_agent_configs"):
+        if st.session_state.get("confirm_init_agent", False):
+            # 调用后端API初始化默认配置
+            try:
+                import requests
+                import os
+                from dotenv import load_dotenv
+                load_dotenv()
+                
+                # 从环境变量或session_state获取配置
+                backend_host = os.getenv('BACKEND_HOST', 'localhost')
+                backend_port = os.getenv('BACKEND_PORT', '8000')
+                backend_url = f"http://{backend_host}:{backend_port}"
+                
+                # 获取token
+                token = st.session_state.get('token') or st.session_state.get('access_token') or ''
+                
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                }
+                
+                response = requests.post(
+                    f"{backend_url}/api/agent-config/initialize",
+                    headers=headers,
+                    json={"overwrite": True}
+                )
+                
+                if response.status_code == 200:
+                    st.success("✅ Agent配置已初始化！请刷新页面查看新的分析师选项。")
+                else:
+                    error_detail = response.text
+                    try:
+                        error_json = response.json()
+                        error_detail = error_json.get('detail', response.text)
+                    except:
+                        pass
+                    st.error(f"❌ 初始化失败 (HTTP {response.status_code}): {error_detail}")
+            except Exception as e:
+                st.error(f"❌ 调用API失败: {e}")
+                import traceback
+                st.error(traceback.format_exc())
+            
+            st.session_state.confirm_init_agent = False
+        else:
+            st.session_state.confirm_init_agent = True
+            st.warning("⚠️ 再次点击确认初始化（会覆盖现有Agent配置）")
 
 
 def render_env_status():
