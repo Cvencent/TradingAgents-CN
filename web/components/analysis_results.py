@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import hashlib
 import logging
+import requests
 
 # MongoDB相关导入
 try:
@@ -1241,6 +1242,51 @@ def render_detailed_analysis_content(selected_result):
     """渲染详细分析结果内容"""
     st.subheader("📊 完整分析数据")
 
+    # 添加查看Prompt按钮
+    task_id = selected_result.get('task_id') or selected_result.get('analysis_id')
+    if task_id:
+        import os
+        backend_url = os.getenv('WEBAPI_BASE_URL', 'http://localhost:8000')
+        
+        def get_auth_headers():
+            """获取认证请求头"""
+            # 尝试从session_state获取token
+            if 'auth_token' in st.session_state:
+                return {"Authorization": f"Bearer {st.session_state.auth_token}"}
+            return {}
+        
+        col1, col2 = st.columns([1, 10])
+        with col1:
+            if st.button("📝 查看Prompt", key=f"view_prompt_detail_{task_id}", help="查看分析过程中使用的Prompt"):
+                try:
+                    prompt_response = requests.get(
+                        f"{backend_url}/api/reports/{task_id}/prompts",
+                        headers=get_auth_headers()
+                    )
+                    if prompt_response.status_code == 200:
+                        prompt_data = prompt_response.json()
+                        prompts = prompt_data.get('data', {}).get('prompts', [])
+                        
+                        if prompts:
+                            with st.expander("📝 分析Prompt详情", expanded=True):
+                                st.info("💡 以下是各分析师在分析过程中使用的Prompt，可用于调试和优化")
+                                
+                                for i, prompt in enumerate(prompts):
+                                    st.markdown(f"#### {prompt.get('analyst_name', prompt.get('analyst', 'Unknown'))}")
+                                    st.text_area(
+                                        f"Prompt {i+1}",
+                                        value=prompt.get('content', ''),
+                                        height=150,
+                                        key=f"prompt_detail_{task_id}_{i}"
+                                    )
+                                    st.markdown("---")
+                        else:
+                            st.warning("未找到Prompt记录。可能原因：1) 分析过程中未记录Prompt")
+                    else:
+                        st.error(f"获取Prompt失败: {prompt_response.text}")
+                except Exception as e:
+                    st.error(f"获取Prompt失败: {e}")
+
     # 检查是否有报告数据（支持文件系统和MongoDB）
     if 'reports' in selected_result and selected_result['reports']:
         # 显示文件系统中的报告
@@ -1699,6 +1745,44 @@ def show_expanded_detail(result):
     with st.container():
         st.markdown("---")
         st.markdown("### 📊 详细分析报告")
+
+        # 添加查看Prompt按钮
+        if result.get('task_id') or result.get('analysis_id'):
+            col1, col2 = st.columns([1, 10])
+            with col1:
+                task_id = result.get('task_id') or result.get('analysis_id')
+                if st.button("📝 查看Prompt", key=f"view_prompt_{task_id}", help="查看分析过程中使用的Prompt"):
+                    try:
+                        # 调用API获取prompt
+                        prompt_response = requests.get(
+                            f"{API_BASE_URL}/api/reports/{task_id}/prompts",
+                            headers=get_auth_headers()
+                        )
+                        if prompt_response.status_code == 200:
+                            prompt_data = prompt_response.json()
+                            prompts = prompt_data.get('data', {}).get('prompts', [])
+                            
+                            if prompts:
+                                # 在expandable中显示prompt
+                                with st.expander("📝 分析Prompt详情", expanded=True):
+                                    st.info("💡 以下是各分析师在分析过程中使用的Prompt，可用于调试和优化")
+                                    
+                                    for i, prompt in enumerate(prompts):
+                                        with st.container():
+                                            st.markdown(f"#### {prompt.get('analyst_name', prompt.get('analyst', 'Unknown'))}")
+                                            st.text_area(
+                                                f"Prompt {i+1}",
+                                                value=prompt.get('content', ''),
+                                                height=150,
+                                                key=f"prompt_{task_id}_{i}"
+                                            )
+                                            st.markdown("---")
+                            else:
+                                st.warning("未找到Prompt记录。可能原因：1) 日志已过期 2) 分析过程中未记录Prompt")
+                        else:
+                            st.error(f"获取Prompt失败: {prompt_response.text}")
+                    except Exception as e:
+                        st.error(f"获取Prompt失败: {e}")
 
         # 检查是否有报告数据
         if 'reports' not in result or not result['reports']:

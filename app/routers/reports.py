@@ -425,6 +425,106 @@ async def delete_report(
         logger.error(f"❌ 删除报告失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/{report_id}/prompts")
+async def get_analysis_prompts(
+    report_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """获取分析过程中使用的prompt
+    
+    从MongoDB的analysis_reports集合中提取各分析师使用的prompt
+    """
+    try:
+        logger.info(f"🔍 获取分析prompt: {report_id}")
+        
+        db = get_mongo_db()
+        
+        # 查询报告
+        query = _build_report_query(report_id)
+        doc = await db.analysis_reports.find_one(query)
+        
+        if not doc:
+            # 从analysis_tasks查找
+            task_doc = await db.analysis_tasks.find_one(
+                {"$or": [
+                    {"task_id": report_id},
+                    {"result.analysis_id": report_id}
+                ]},
+                {"task_id": 1, "stock_code": 1, "result.prompts": 1}
+            )
+            if not task_doc:
+                raise HTTPException(status_code=404, detail="报告不存在")
+            
+            # 从analysis_tasks提取prompt
+            result = task_doc.get("result", {})
+            prompts_dict = result.get("prompts", {})
+            
+            prompts = []
+            for analyst, content in prompts_dict.items():
+                prompts.append({
+                    "analyst": analyst,
+                    "analyst_name": analyst.replace("_", " ").title(),
+                    "type": "stored",
+                    "content": content[:5000] if isinstance(content, str) else str(content)[:5000],
+                    "timestamp": ""
+                })
+            
+            logger.info(f"✅ 从analysis_tasks找到 {len(prompts)} 个prompt记录")
+            
+            return {
+                "success": True,
+                "data": {
+                    "task_id": task_doc.get("task_id"),
+                    "prompts": prompts,
+                    "count": len(prompts)
+                },
+                "message": "Prompt获取成功"
+            }
+        
+        # 从analysis_reports提取prompt
+        prompts_dict = doc.get("prompts", {})
+        
+        prompts = []
+        for analyst, content in prompts_dict.items():
+            prompts.append({
+                "analyst": analyst,
+                "analyst_name": analyst.replace("_", " ").title(),
+                "type": "stored",
+                "content": content[:5000] if isinstance(content, str) else str(content)[:5000],
+                "timestamp": ""
+            })
+        
+        # 如果MongoDB中没有prompts，尝试从detailed_analysis中提取
+        if not prompts:
+            detailed_analysis = doc.get("detailed_analysis", {})
+            for key, value in detailed_analysis.items():
+                if isinstance(value, str) and len(value) > 100:
+                    prompts.append({
+                        "analyst": key.replace("_analysis", ""),
+                        "analyst_name": key.replace("_analysis", "").replace("_", " ").title(),
+                        "type": "detailed_analysis",
+                        "content": value[:5000],
+                        "timestamp": ""
+                    })
+        
+        logger.info(f"✅ 从analysis_reports找到 {len(prompts)} 个prompt记录")
+        
+        return {
+            "success": True,
+            "data": {
+                "task_id": doc.get("task_id") or report_id,
+                "prompts": prompts,
+                "count": len(prompts)
+            },
+            "message": "Prompt获取成功"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ 获取prompt失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/{report_id}/download")
 async def download_report(
     report_id: str,

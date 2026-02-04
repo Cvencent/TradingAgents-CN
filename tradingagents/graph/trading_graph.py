@@ -1031,9 +1031,12 @@ class TradingAgentsGraph:
         # 根据是否有进度回调选择不同的stream_mode
         args = self.propagator.get_graph_args(use_progress_callback=bool(progress_callback))
 
+        # 🔧 修复：用于保存中间状态的变量
+        intermediate_state = {'state': None, 'has_partial_result': False}
+        
         # 定义执行分析的函数
         def _execute_analysis():
-            nonlocal node_timings, current_node_start, current_node_name
+            nonlocal node_timings, current_node_start, current_node_name, intermediate_state
             
             final_state = None
             
@@ -1067,6 +1070,12 @@ class TradingAgentsGraph:
                         for node_name, node_update in chunk.items():
                             if not node_name.startswith('__'):
                                 final_state.update(node_update)
+                        
+                        # 🔧 保存中间状态（用于超时恢复）
+                        if final_state and len(final_state) > 10:
+                            intermediate_state['state'] = final_state.copy()
+                            intermediate_state['has_partial_result'] = True
+                            logger.debug(f"💾 [中间状态] 已保存，包含 {len(final_state)} 个字段")
                     else:
                         # values 模式：chunk = {"messages": [...], ...}
                         if len(chunk.get("messages", [])) > 0:
@@ -1109,6 +1118,12 @@ class TradingAgentsGraph:
                         for node_name, node_update in chunk.items():
                             if not node_name.startswith('__'):
                                 final_state.update(node_update)
+                        
+                        # 🔧 保存中间状态（用于超时恢复）
+                        if final_state and len(final_state) > 10:
+                            intermediate_state['state'] = final_state.copy()
+                            intermediate_state['has_partial_result'] = True
+                            logger.debug(f"💾 [中间状态] 已保存，包含 {len(final_state)} 个字段")
                 else:
                     # 原有的invoke模式（也需要计时）
                     logger.info("⏱️ 使用 invoke 模式执行分析（无进度回调）")
@@ -1136,6 +1151,12 @@ class TradingAgentsGraph:
                         for node_name, node_update in chunk.items():
                             if not node_name.startswith('__'):
                                 final_state.update(node_update)
+                        
+                        # 🔧 保存中间状态（用于超时恢复）
+                        if final_state and len(final_state) > 10:
+                            intermediate_state['state'] = final_state.copy()
+                            intermediate_state['has_partial_result'] = True
+                            logger.debug(f"💾 [中间状态] 已保存，包含 {len(final_state)} 个字段")
 
             # 记录最后一个节点的时间
             if current_node_name and current_node_start:
@@ -1197,8 +1218,29 @@ class TradingAgentsGraph:
                     logger.error(f"⏱️ [超时] 分析任务超过 {global_timeout}秒 未完成，强制终止")
                     # 取消任务
                     future.cancel()
-                    # 返回超时错误
-                    timeout_state = init_agent_state.copy()
+                    # 🔧 修复：使用中间状态而不是空状态
+                    timeout_state = None
+                    if intermediate_state.get('has_partial_result') and intermediate_state.get('state'):
+                        # 使用已保存的部分结果
+                        timeout_state = intermediate_state['state'].copy()
+                        logger.warning(f"⏱️ [超时恢复] 使用部分完成的分析结果，包含 {len(timeout_state)} 个字段")
+                        # 添加超时标记
+                        timeout_state['timeout_error'] = True
+                        timeout_state['timeout_duration'] = global_timeout
+                        timeout_state['partial_result'] = True
+                        # 从已完成的分析师报告中提取决策
+                        partial_decision = self._build_decision_from_partial_state(timeout_state)
+                        if partial_decision:
+                            partial_decision['model_info'] = 'Timeout_Partial'
+                            partial_decision['error'] = 'analysis_timeout_partial'
+                            partial_decision['reasoning'] = f'分析部分完成但超时（{global_timeout}秒）。已生成部分分析师报告。建议：检查网络连接或降低研究深度后重新分析。'
+                            return timeout_state, partial_decision
+                    
+                    # 没有中间状态，使用初始状态
+                    if timeout_state is None:
+                        timeout_state = init_agent_state.copy()
+                        logger.warning("⏱️ [超时恢复] 没有可用的中间状态，使用空状态")
+                    
                     timeout_state['timeout_error'] = True
                     timeout_state['timeout_duration'] = global_timeout
                     timeout_decision = {
@@ -1404,6 +1446,91 @@ class TradingAgentsGraph:
                 "quick_think_model": self.config.get('quick_think_llm', 'unknown')
             }
         }
+
+    def _build_decision_from_partial_state(self, state: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """🔧 从部分完成的状态构建决策
+        
+        当分析超时时，尝试从已完成的分析师报告中提取有用的决策信息
+        
+        Args:
+            state: 部分完成的状态字典
+            
+        Returns:
+            决策字典，如果没有可用信息则返回None
+        """
+        try:
+            # 检查是否有任何分析师报告
+            analyst_reports = []
+            
+            # 收集所有可用的分析师报告
+            if state.get('market_report'):
+                analyst_reports.append(('市场分析师', state['market_report']))
+            if state.get('fundamentals_report'):
+                analyst_reports.append(('基本面分析师', state['fundamentals_report']))
+            if state.get('sentiment_report'):
+                analyst_reports.append(('情绪分析师', state['sentiment_report']))
+            if state.get('news_report'):
+                analyst_reports.append(('新闻分析师', state['news_report']))
+            
+            if not analyst_reports:
+                logger.warning("⏱️ [超时恢复] 没有找到任何可用的分析师报告")
+                return None
+            
+            logger.info(f"⏱️ [超时恢复] 找到 {len(analyst_reports)} 个已完成的分析师报告")
+            
+            # 从报告中提取投资建议（简单关键词匹配）
+            buy_count = 0
+            sell_count = 0
+            hold_count = 0
+            
+            for analyst_name, report in analyst_reports:
+                report_lower = report.lower()
+                # 统计投资建议关键词
+                if any(kw in report_lower for kw in ['买入', 'buy', '推荐买入', '强烈买入']):
+                    buy_count += 1
+                elif any(kw in report_lower for kw in ['卖出', 'sell', '推荐卖出', '强烈卖出', '减持']):
+                    sell_count += 1
+                else:
+                    hold_count += 1
+            
+            # 基于统计结果生成决策
+            total = len(analyst_reports)
+            if buy_count > sell_count and buy_count > hold_count:
+                action = 'BUY'
+                confidence = buy_count / total * 0.6  # 部分完成的置信度降低
+            elif sell_count > buy_count and sell_count > hold_count:
+                action = 'SELL'
+                confidence = sell_count / total * 0.6
+            else:
+                action = 'HOLD'
+                confidence = max(hold_count, buy_count, sell_count) / total * 0.5
+            
+            # 提取目标价格（如果有）
+            target_price = None
+            for _, report in analyst_reports:
+                # 简单提取价格信息
+                import re
+                prices = re.findall(r'目标价[格]*[:：]?\s*(\d+\.?\d*)', report)
+                if prices:
+                    try:
+                        target_price = float(prices[0])
+                        break
+                    except:
+                        pass
+            
+            return {
+                'action': action,
+                'confidence': round(confidence, 2),
+                'risk_score': round(1.0 - confidence, 2),  # 部分完成的风险较高
+                'target_price': target_price,
+                'reasoning': f'基于{total}位分析师的部分报告生成。市场分析师:{"✓" if state.get("market_report") else "✗"}, 基本面分析师:{"✓" if state.get("fundamentals_report") else "✗"}, 情绪分析师:{"✓" if state.get("sentiment_report") else "✗"}, 新闻分析师:{"✓" if state.get("news_report") else "✗"}。',
+                'model_info': 'Partial_Analysis',
+                'analysts_completed': [name for name, _ in analyst_reports]
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ [超时恢复] 构建部分决策失败: {e}")
+            return None
 
     def _print_timing_summary(self, node_timings: Dict[str, float], total_elapsed: float):
         """打印详细的时间统计报告

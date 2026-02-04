@@ -1031,9 +1031,11 @@ class SimpleAnalysisService:
 
             # 同步更新MongoDB状态为完成
             await self._update_task_status(task_id, AnalysisStatus.COMPLETED, 100)
-            # 保存完整分析结果到analysis_tasks集合
-            await self._save_analysis_result(task_id, result)
-
+            # 🔧 修复：移除重复的_save_analysis_result调用
+            # 完整的分析结果已经在_save_analysis_results_complete中通过
+            # _save_analysis_result_web_style保存到analysis_tasks，无需重复保存
+            # 重复保存会导致包含不可序列化state的数据覆盖干净的数据
+            
             # 创建通知：分析完成（方案B：REST+SSE）
             try:
                 from app.services.notifications_service import get_notifications_service
@@ -1594,18 +1596,27 @@ class SimpleAnalysisService:
 
                 # 从state中提取报告内容
                 for field in report_fields:
-                    if hasattr(state, field):
-                        value = getattr(state, field, "")
-                    elif isinstance(state, dict) and field in state:
-                        value = state[field]
-                    else:
-                        value = ""
+                    try:
+                        if hasattr(state, field):
+                            value = getattr(state, field, "")
+                        elif isinstance(state, dict) and field in state:
+                            value = state[field]
+                        else:
+                            value = ""
 
-                    if isinstance(value, str) and len(value.strip()) > 10:  # 只保存有实际内容的报告
-                        reports[field] = value.strip()
-                        logger.info(f"📊 [REPORTS] 提取报告: {field} - 长度: {len(value.strip())}")
-                    else:
-                        logger.debug(f"⚠️ [REPORTS] 跳过报告: {field} - 内容为空或太短")
+                        if isinstance(value, str) and len(value.strip()) > 10:
+                            reports[field] = value.strip()
+                            logger.info(f"📊 [REPORTS] 提取报告: {field} - 长度: {len(value.strip())}")
+                        elif isinstance(value, list):
+                            value_str = str(value)
+                            if len(value_str.strip()) > 10:
+                                reports[field] = value_str.strip()
+                                logger.info(f"📊 [REPORTS] 提取报告: {field} - 长度(列表转字符串): {len(value_str.strip())}")
+                        else:
+                            logger.debug(f"⚠️ [REPORTS] 跳过报告: {field} - 内容为空或太短")
+                    except Exception as e:
+                        logger.warning(f"⚠️ 提取字段 {field} 时出错: {e}")
+                        continue
 
                 # 处理研究团队辩论状态报告
                 logger.info(f"🔍 [DEBUG] 检查investment_debate_state...")
@@ -1662,16 +1673,21 @@ class SimpleAnalysisService:
                                 reports['bear_researcher'] = bear_content.strip()
                                 logger.info(f"📊 [REPORTS] 提取报告: bear_researcher - 长度: {len(bear_content.strip())}")
 
-                        # 提取研究经理决策
-                        if hasattr(debate_state, 'judge_decision'):
-                            decision_content = getattr(debate_state, 'judge_decision', "")
-                        elif isinstance(debate_state, dict) and 'judge_decision' in debate_state:
-                            decision_content = debate_state['judge_decision']
-                        else:
-                            decision_content = str(debate_state)
+                            # 提取研究经理决策
+                            try:
+                                if hasattr(debate_state, 'judge_decision'):
+                                    decision_content = getattr(debate_state, 'judge_decision', "")
+                                elif isinstance(debate_state, dict) and 'judge_decision' in debate_state:
+                                    decision_content = debate_state['judge_decision']
+                                else:
+                                    decision_content = str(debate_state)
 
-                        if decision_content and len(decision_content.strip()) > 10:
-                            reports['research_team_decision'] = decision_content.strip()
+                                if decision_content:
+                                    decision_str = str(decision_content)
+                                    if len(decision_str.strip()) > 10:
+                                        reports['research_team_decision'] = decision_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取judge_decision时出错: {e}")
                             logger.info(f"📊 [REPORTS] 提取报告: research_team_decision - 长度: {len(decision_content.strip())}")
 
                 # 处理风险管理团队辩论状态报告
@@ -1741,16 +1757,21 @@ class SimpleAnalysisService:
                                 reports['neutral_analyst'] = neutral_content.strip()
                                 logger.info(f"📊 [REPORTS] 提取报告: neutral_analyst - 长度: {len(neutral_content.strip())}")
 
-                        # 提取投资组合经理决策
-                        if hasattr(risk_state, 'judge_decision'):
-                            risk_decision = getattr(risk_state, 'judge_decision', "")
-                        elif isinstance(risk_state, dict) and 'judge_decision' in risk_state:
-                            risk_decision = risk_state['judge_decision']
-                        else:
-                            risk_decision = str(risk_state)
+                            # 提取投资组合经理决策
+                            try:
+                                if hasattr(risk_state, 'judge_decision'):
+                                    risk_decision = getattr(risk_state, 'judge_decision', "")
+                                elif isinstance(risk_state, dict) and 'judge_decision' in risk_state:
+                                    risk_decision = risk_state['judge_decision']
+                                else:
+                                    risk_decision = str(risk_state)
 
-                        if risk_decision and len(risk_decision.strip()) > 10:
-                            reports['risk_management_decision'] = risk_decision.strip()
+                                if risk_decision:
+                                    risk_decision_str = str(risk_decision)
+                                    if len(risk_decision_str.strip()) > 10:
+                                        reports['risk_management_decision'] = risk_decision_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取风险管理judge_decision时出错: {e}")
                             logger.info(f"📊 [REPORTS] 提取报告: risk_management_decision - 长度: {len(risk_decision.strip())}")
 
                 logger.info(f"📊 [REPORTS] 从state中提取到 {len(reports)} 个报告: {list(reports.keys())}")
@@ -2481,6 +2502,104 @@ class SimpleAnalysisService:
         except Exception as e:
             logger.error(f"❌ 更新任务状态失败: {task_id} - {e}")
 
+    def _extract_prompts_from_state(self, state: Dict[str, Any]) -> Dict[str, str]:
+        """从state中提取prompt信息
+        
+        从messages中提取HumanMessage内容作为各分析师使用的prompt
+        
+        Args:
+            state: 分析状态字典
+            
+        Returns:
+            包含各分析师prompt的字典
+        """
+        prompts = {}
+        
+        try:
+            # 获取messages列表
+            messages = state.get("messages", []) if isinstance(state, dict) else []
+            if not messages:
+                return prompts
+            
+            # 分析师名称映射
+            analyst_mapping = {
+                'market_report': 'Market Analyst',
+                'fundamentals_report': 'Fundamentals Analyst', 
+                'sentiment_report': 'Sentiment Analyst',
+                'news_report': 'News Analyst',
+                'social_report': 'Social Analyst',
+                'capital_flow_report': 'Capital Flow Analyst',
+                'investment_plan': 'Research Team',
+                'trader_investment_plan': 'Trader',
+                'final_trade_decision': 'Final Decision',
+                'bull_researcher': 'Bull Researcher',
+                'bear_researcher': 'Bear Researcher',
+                'risky_analyst': 'Risky Analyst',
+                'safe_analyst': 'Safe Analyst',
+                'neutral_analyst': 'Neutral Analyst',
+            }
+            
+            # 遍历messages，提取HumanMessage作为prompt
+            current_analyst = None
+            current_prompt_parts = []
+            
+            for msg in messages:
+                try:
+                    # 获取消息类型和内容
+                    msg_type = type(msg).__name__
+                    msg_content = ""
+                    
+                    if hasattr(msg, 'content'):
+                        msg_content = msg.content
+                    elif isinstance(msg, dict) and 'content' in msg:
+                        msg_content = msg['content']
+                    
+                    # 如果是HumanMessage，记录为prompt
+                    if msg_type in ['HumanMessage', 'Human'] or (isinstance(msg, dict) and msg.get('type') in ['human', 'user']):
+                        if current_prompt_parts:
+                            # 保存前一个analyst的prompt
+                            if current_analyst:
+                                prompts[current_analyst] = '\n'.join(current_prompt_parts).strip()
+                            current_prompt_parts = []
+                        
+                        # 从SystemMessage中获取analyst信息
+                        current_prompt_parts.append(str(msg_content))
+                        
+                        # 尝试从之前的SystemMessage中获取analyst名称
+                        for m in messages:
+                            if type(m).__name__ in ['SystemMessage', 'System']:
+                                sys_content = getattr(m, 'content', '') if hasattr(m, 'content') else (m.get('content', '') if isinstance(m, dict) else '')
+                                # 匹配analyst名称
+                                for key, analyst_name in analyst_mapping.items():
+                                    if analyst_name.lower() in sys_content.lower() or analyst_name in sys_content:
+                                        current_analyst = analyst_name
+                                        break
+                    
+                    elif msg_type in ['AIMessage', 'AI', 'ToolMessage']:
+                        # 如果是AI或ToolMessage，保存前一个prompt
+                        if current_prompt_parts and current_analyst:
+                            full_prompt = '\n'.join(current_prompt_parts).strip()
+                            if len(full_prompt) > 50:  # 只保存有内容的prompt
+                                prompts[current_analyst] = full_prompt
+                            current_prompt_parts = []
+                            current_analyst = None
+                        
+                except Exception as e:
+                    continue
+            
+            # 保存最后一个prompt
+            if current_prompt_parts and current_analyst:
+                full_prompt = '\n'.join(current_prompt_parts).strip()
+                if len(full_prompt) > 50:
+                    prompts[current_analyst] = full_prompt
+            
+            logger.info(f"📝 [Prompts] 从state中提取到 {len(prompts)} 个prompt")
+            
+        except Exception as e:
+            logger.warning(f"⚠️ 提取prompt时出错: {e}")
+        
+        return prompts
+
     async def _save_analysis_result(self, task_id: str, result: Dict[str, Any]):
         """保存分析结果（原始方法）"""
         try:
@@ -2523,116 +2642,163 @@ class SimpleAnalysisService:
 
                     # 从state中提取报告内容
                     for field in report_fields:
-                        if hasattr(state, field):
-                            value = getattr(state, field, "")
-                        elif isinstance(state, dict) and field in state:
-                            value = state[field]
-                        else:
-                            value = ""
+                        try:
+                            if hasattr(state, field):
+                                value = getattr(state, field, "")
+                            elif isinstance(state, dict) and field in state:
+                                value = state[field]
+                            else:
+                                value = ""
 
-                        if isinstance(value, str) and len(value.strip()) > 10:  # 只保存有实际内容的报告
-                            reports[field] = value.strip()
+                            if isinstance(value, str) and len(value.strip()) > 10:
+                                reports[field] = value.strip()
+                            elif isinstance(value, list):
+                                value_str = str(value)
+                                if len(value_str.strip()) > 10:
+                                    reports[field] = value_str.strip()
+                        except Exception as e:
+                            logger.warning(f"⚠️ 提取字段 {field} 时出错: {e}")
+                            continue
 
                     # 处理研究团队辩论状态报告
                     if hasattr(state, 'investment_debate_state') or (isinstance(state, dict) and 'investment_debate_state' in state):
                         debate_state = getattr(state, 'investment_debate_state', None) if hasattr(state, 'investment_debate_state') else state.get('investment_debate_state')
                         if debate_state:
                             # 提取多头研究员历史
-                            if hasattr(debate_state, 'bull_history'):
-                                bull_content = getattr(debate_state, 'bull_history', "")
-                            elif isinstance(debate_state, dict) and 'bull_history' in debate_state:
-                                bull_content = debate_state['bull_history']
-                            else:
-                                bull_content = ""
+                            try:
+                                if hasattr(debate_state, 'bull_history'):
+                                    bull_content = getattr(debate_state, 'bull_history', "")
+                                elif isinstance(debate_state, dict) and 'bull_history' in debate_state:
+                                    bull_content = debate_state['bull_history']
+                                else:
+                                    bull_content = ""
 
-                            if bull_content and len(bull_content.strip()) > 10:
-                                reports['bull_researcher'] = bull_content.strip()
+                                if bull_content:
+                                    bull_str = str(bull_content)
+                                    if len(bull_str.strip()) > 10:
+                                        reports['bull_researcher'] = bull_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取bull_history时出错: {e}")
 
                             # 提取空头研究员历史
-                            if hasattr(debate_state, 'bear_history'):
-                                bear_content = getattr(debate_state, 'bear_history', "")
-                            elif isinstance(debate_state, dict) and 'bear_history' in debate_state:
-                                bear_content = debate_state['bear_history']
-                            else:
-                                bear_content = ""
+                            try:
+                                if hasattr(debate_state, 'bear_history'):
+                                    bear_content = getattr(debate_state, 'bear_history', "")
+                                elif isinstance(debate_state, dict) and 'bear_history' in debate_state:
+                                    bear_content = debate_state['bear_history']
+                                else:
+                                    bear_content = ""
 
-                            if bear_content and len(bear_content.strip()) > 10:
-                                reports['bear_researcher'] = bear_content.strip()
+                                if bear_content:
+                                    bear_str = str(bear_content)
+                                    if len(bear_str.strip()) > 10:
+                                        reports['bear_researcher'] = bear_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取bear_history时出错: {e}")
 
                             # 提取研究经理决策
-                            if hasattr(debate_state, 'judge_decision'):
-                                decision_content = getattr(debate_state, 'judge_decision', "")
-                            elif isinstance(debate_state, dict) and 'judge_decision' in debate_state:
-                                decision_content = debate_state['judge_decision']
-                            else:
-                                decision_content = str(debate_state)
+                            try:
+                                if hasattr(debate_state, 'judge_decision'):
+                                    decision_content = getattr(debate_state, 'judge_decision', "")
+                                elif isinstance(debate_state, dict) and 'judge_decision' in debate_state:
+                                    decision_content = debate_state['judge_decision']
+                                else:
+                                    decision_content = str(debate_state)
 
-                            if decision_content and len(decision_content.strip()) > 10:
-                                reports['research_team_decision'] = decision_content.strip()
+                                if decision_content:
+                                    decision_str = str(decision_content)
+                                    if len(decision_str.strip()) > 10:
+                                        reports['research_team_decision'] = decision_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取judge_decision时出错: {e}")
 
                     # 处理风险管理团队辩论状态报告
                     if hasattr(state, 'risk_debate_state') or (isinstance(state, dict) and 'risk_debate_state' in state):
                         risk_state = getattr(state, 'risk_debate_state', None) if hasattr(state, 'risk_debate_state') else state.get('risk_debate_state')
                         if risk_state:
                             # 提取激进分析师历史
-                            if hasattr(risk_state, 'risky_history'):
-                                risky_content = getattr(risk_state, 'risky_history', "")
-                            elif isinstance(risk_state, dict) and 'risky_history' in risk_state:
-                                risky_content = risk_state['risky_history']
-                            else:
-                                risky_content = ""
+                            try:
+                                if hasattr(risk_state, 'risky_history'):
+                                    risky_content = getattr(risk_state, 'risky_history', "")
+                                elif isinstance(risk_state, dict) and 'risky_history' in risk_state:
+                                    risky_content = risk_state['risky_history']
+                                else:
+                                    risky_content = ""
 
-                            if risky_content and len(risky_content.strip()) > 10:
-                                reports['risky_analyst'] = risky_content.strip()
+                                if risky_content:
+                                    risky_str = str(risky_content)
+                                    if len(risky_str.strip()) > 10:
+                                        reports['risky_analyst'] = risky_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取risky_history时出错: {e}")
 
                             # 提取保守分析师历史
-                            if hasattr(risk_state, 'safe_history'):
-                                safe_content = getattr(risk_state, 'safe_history', "")
-                            elif isinstance(risk_state, dict) and 'safe_history' in risk_state:
-                                safe_content = risk_state['safe_history']
-                            else:
-                                safe_content = ""
+                            try:
+                                if hasattr(risk_state, 'safe_history'):
+                                    safe_content = getattr(risk_state, 'safe_history', "")
+                                elif isinstance(risk_state, dict) and 'safe_history' in risk_state:
+                                    safe_content = risk_state['safe_history']
+                                else:
+                                    safe_content = ""
 
-                            if safe_content and len(safe_content.strip()) > 10:
-                                reports['safe_analyst'] = safe_content.strip()
+                                if safe_content:
+                                    safe_str = str(safe_content)
+                                    if len(safe_str.strip()) > 10:
+                                        reports['safe_analyst'] = safe_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取safe_history时出错: {e}")
 
                             # 提取中性分析师历史
-                            if hasattr(risk_state, 'neutral_history'):
-                                neutral_content = getattr(risk_state, 'neutral_history', "")
-                            elif isinstance(risk_state, dict) and 'neutral_history' in risk_state:
-                                neutral_content = risk_state['neutral_history']
-                            else:
-                                neutral_content = ""
+                            try:
+                                if hasattr(risk_state, 'neutral_history'):
+                                    neutral_content = getattr(risk_state, 'neutral_history', "")
+                                elif isinstance(risk_state, dict) and 'neutral_history' in risk_state:
+                                    neutral_content = risk_state['neutral_history']
+                                else:
+                                    neutral_content = ""
 
-                            if neutral_content and len(neutral_content.strip()) > 10:
-                                reports['neutral_analyst'] = neutral_content.strip()
+                                if neutral_content:
+                                    neutral_str = str(neutral_content)
+                                    if len(neutral_str.strip()) > 10:
+                                        reports['neutral_analyst'] = neutral_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取neutral_history时出错: {e}")
 
                             # 提取投资组合经理决策
-                            if hasattr(risk_state, 'judge_decision'):
-                                risk_decision = getattr(risk_state, 'judge_decision', "")
-                            elif isinstance(risk_state, dict) and 'judge_decision' in risk_state:
-                                risk_decision = risk_state['judge_decision']
-                            else:
-                                risk_decision = str(risk_state)
+                            try:
+                                if hasattr(risk_state, 'judge_decision'):
+                                    risk_decision = getattr(risk_state, 'judge_decision', "")
+                                elif isinstance(risk_state, dict) and 'judge_decision' in risk_state:
+                                    risk_decision = risk_state['judge_decision']
+                                else:
+                                    risk_decision = str(risk_state)
 
-                            if risk_decision and len(risk_decision.strip()) > 10:
-                                reports['risk_management_decision'] = risk_decision.strip()
+                                if risk_decision:
+                                    risk_decision_str = str(risk_decision)
+                                    if len(risk_decision_str.strip()) > 10:
+                                        reports['risk_management_decision'] = risk_decision_str.strip()
+                            except Exception as e:
+                                logger.warning(f"⚠️ 提取风险管理judge_decision时出错: {e}")
 
                     logger.info(f"📊 从state中提取到 {len(reports)} 个报告: {list(reports.keys())}")
 
                 except Exception as e:
                     logger.warning(f"⚠️ 处理state中的reports时出错: {e}")
-                    # 降级到从detailed_analysis提取
-                    if 'detailed_analysis' in result:
-                        try:
-                            detailed_analysis = result['detailed_analysis']
-                            if isinstance(detailed_analysis, dict):
-                                for key, value in detailed_analysis.items():
-                                    if isinstance(value, str) and len(value) > 50:
-                                        reports[key] = value
-                                logger.info(f"📊 降级：从detailed_analysis中提取到 {len(reports)} 个报告")
-                        except Exception as fallback_error:
-                            logger.warning(f"⚠️ 降级提取也失败: {fallback_error}")
+                    # 🔧 修复：如果已有报告，不要用降级数据覆盖
+                    if not reports:
+                        # 降级到从detailed_analysis提取
+                        if 'detailed_analysis' in result:
+                            try:
+                                detailed_analysis = result['detailed_analysis']
+                                if isinstance(detailed_analysis, dict):
+                                    for key, value in detailed_analysis.items():
+                                        if isinstance(value, str) and len(value) > 50:
+                                            reports[key] = value
+                                    logger.info(f"📊 降级：从detailed_analysis中提取到 {len(reports)} 个报告")
+                            except Exception as fallback_error:
+                                logger.warning(f"⚠️ 降级提取也失败: {fallback_error}")
+                    else:
+                        logger.info(f"📊 已从state中提取 {len(reports)} 个报告，跳过降级逻辑")
 
             # 🔥 根据股票代码推断市场类型
             from tradingagents.utils.stock_utils import StockUtils
@@ -2715,8 +2881,8 @@ class SimpleAnalysisService:
                 # 🔥 关键修复：添加格式化后的decision字段！
                 "decision": result.get("decision", {}),
 
-                # 🔥 关键修复：添加state字段，保存完整的分析状态
-                "state": result.get("state", {}),
+                # 🔥 关键修复：添加原始分析结果引用（可选，用于调试）
+                "raw_result_keys": list(result.keys()),
 
                 # 元数据
                 "created_at": timestamp,
@@ -2741,14 +2907,19 @@ class SimpleAnalysisService:
             if result_insert.inserted_id:
                 logger.info(f"✅ 分析报告已保存到MongoDB analysis_reports: {analysis_id}")
 
-                # 同时更新analysis_tasks集合中的result字段，保持API兼容性
+                # 🔧 关键修复：先保存到analysis_tasks，确保数据完整性
+                # 使用document中的analysis_date（本地生成），而不是result中可能缺失的字段
+                analysis_date = document.get("analysis_date")  # 本地生成的日期
                 await db.analysis_tasks.update_one(
                     {"task_id": task_id},
                     {"$set": {"result": {
                         "analysis_id": analysis_id,
                         "stock_symbol": stock_symbol,
                         "stock_code": result.get('stock_code', stock_symbol),
-                        "analysis_date": result.get('analysis_date'),
+                        "stock_name": document.get("stock_name"),  # 🔥 添加股票名称
+                        "market_type": document.get("market_type"),  # 🔥 添加市场类型
+                        "model_info": document.get("model_info"),  # 🔥 添加模型信息
+                        "analysis_date": analysis_date,  # 🔧 使用本地生成的日期
                         "summary": result.get("summary", ""),
                         "recommendation": result.get("recommendation", ""),
                         "confidence_score": result.get("confidence_score", 0.0),
@@ -2758,7 +2929,7 @@ class SimpleAnalysisService:
                         "execution_time": result.get("execution_time", 0),
                         "tokens_used": result.get("tokens_used", 0),
                         "reports": reports,  # 包含提取的报告内容
-                        # 🔥 关键修复：添加格式化后的decision字段！
+                        "prompts": self._extract_prompts_from_state(result.get('state', {})),  # 🔧 添加prompt提取
                         "decision": result.get("decision", {})
                     }}}
                 )
@@ -2768,21 +2939,40 @@ class SimpleAnalysisService:
 
         except Exception as e:
             logger.error(f"❌ 保存分析结果失败: {task_id} - {e}")
-            # 降级到简单保存
+            # 🔧 关键修复：降级保存时保留关键信息，不覆盖已有的完整结果
             try:
-                simple_result = {
-                    'task_id': task_id,
-                    'success': result.get('success', True),
-                    'error': str(e),
-                    'completed_at': datetime.utcnow().isoformat()
-                }
-                await db.analysis_tasks.update_one(
+                # 检查是否已有完整结果，如果有则保留
+                existing_task = await db.analysis_tasks.find_one(
                     {"task_id": task_id},
-                    {"$set": {"result": simple_result}}
+                    {"result": 1}
                 )
-                logger.info(f"💾 使用简化结果保存: {task_id}")
+                
+                if existing_task and existing_task.get("result", {}).get("reports"):
+                    # 已有完整结果，只添加错误标记
+                    await db.analysis_tasks.update_one(
+                        {"task_id": task_id},
+                        {"$set": {
+                            "result.save_error": str(e),
+                            "result.save_warning": "analysis_reports保存失败，但数据在analysis_tasks中可用"
+                        }}
+                    )
+                    logger.info(f"💾 保留已有完整结果，添加错误标记: {task_id}")
+                else:
+                    # 没有完整结果，保存简化版本
+                    simple_result = {
+                        'task_id': task_id,
+                        'success': result.get('success', True),
+                        'error': str(e),
+                        'completed_at': datetime.utcnow().isoformat(),
+                        'warning': "完整报告保存失败，请检查数据库连接"
+                    }
+                    await db.analysis_tasks.update_one(
+                        {"task_id": task_id},
+                        {"$set": {"result": simple_result}}
+                    )
+                    logger.info(f"💾 使用简化结果保存: {task_id}")
             except Exception as fallback_error:
-                logger.error(f"❌ 简化保存也失败: {task_id} - {fallback_error}")
+                logger.error(f"❌ 降级保存也失败: {task_id} - {fallback_error}")
 
     async def _save_analysis_results_complete(self, task_id: str, result: Dict[str, Any]):
         """完整的分析结果保存 - 完全采用web目录的双重保存方式"""

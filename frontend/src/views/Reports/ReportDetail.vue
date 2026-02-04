@@ -45,6 +45,13 @@
               <el-icon><ShoppingCart /></el-icon>
               应用到交易
             </el-button>
+            <el-button
+              type="primary"
+              @click="viewPrompts"
+            >
+              <el-icon><ChatDotRound /></el-icon>
+              查看Prompt
+            </el-button>
             <el-dropdown trigger="click" @command="downloadReport">
               <el-button type="primary">
                 <el-icon><Download /></el-icon>
@@ -359,14 +366,15 @@ const extendedModuleList = computed(() => {
 // 获取当前选中的模块内容（辩论模块返回空，因为内容在横向Tab中展示）
 const currentModuleContent = computed(() => {
   if (!report.value?.reports || !activeModule.value) return ''
-  
+
   // 辩论模块的内容在右侧横向Tab中展示，这里返回空
   if (isDebateModule(activeModule.value)) {
     return ''
   }
-  
+
   // 普通模块
-  return report.value.reports[activeModule.value] || ''
+  const rawContent = report.value.reports[activeModule.value] || ''
+  return cleanReportContent(rawContent)
 })
 
 // 获取模型配置列表
@@ -795,6 +803,55 @@ const goBack = () => {
   router.push('/reports')
 }
 
+// 查看Prompt
+const viewPrompts = async () => {
+  try {
+    const reportId = report.value?.id || route.params.id as string
+    
+    const response = await fetch(`/api/reports/${reportId}/prompts`, {
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const result = await response.json()
+
+    if (result.success && result.data?.prompts?.length > 0) {
+      // 显示prompt弹窗
+      const prompts = result.data.prompts
+      let promptContent = ''
+      
+      for (const p of prompts) {
+        promptContent += `### ${p.analyst_name || p.analyst}\n\n`
+        promptContent += p.content || ''
+        promptContent += '\n\n---\n\n'
+      }
+
+      // 使用ElMessageBox显示
+      await ElMessageBox.alert(
+        `<div style="max-height: 60vh; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-size: 12px; line-height: 1.5;">${promptContent}</div>`,
+        '分析Prompt详情',
+        {
+          confirmButtonText: '关闭',
+          dangerouslyUseHTMLString: true,
+          customClass: 'prompt-dialog',
+          callback: () => {}
+        }
+      )
+    } else {
+      ElMessage.warning('未找到Prompt记录')
+    }
+  } catch (error: any) {
+    console.error('获取Prompt失败:', error)
+    ElMessage.error(error.message || '获取Prompt失败')
+  }
+}
+
 // 工具函数
 const getStatusText = (status: string) => {
   const statusMap: Record<string, string> = {
@@ -908,6 +965,36 @@ const getModuleDisplayName = (moduleName: string) => {
   return nameMap[moduleName] || moduleName.replace(/_/g, ' ')
 }
 
+const cleanReportContent = (content: any): string => {
+  if (!content) return ''
+
+  if (typeof content !== 'string') {
+    return String(content || '')
+  }
+
+  const trimmed = content.trim()
+
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    try {
+      const parsed = JSON.parse(trimmed)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const firstItem = parsed[0]
+        if (typeof firstItem === 'string') {
+          return firstItem
+        }
+        return JSON.stringify(parsed, null, 2)
+      }
+    } catch {
+      const match = trimmed.match(/^\['(.+)'\]$/s)
+      if (match && match[1]) {
+        return match[1]
+      }
+    }
+  }
+
+  return content
+}
+
 const renderMarkdown = (content: string) => {
   if (!content) return ''
   try {
@@ -1003,10 +1090,12 @@ const getDebateRounds = (moduleName: string): Array<{round: number, content: str
       return rounds
     }
   }
-  
+
   // 旧格式：从字符串中解析轮次
   const contentKey = moduleName as keyof typeof report.value.reports
-  const content = report.value.reports?.[contentKey] as string
+  const rawContent = report.value.reports?.[contentKey]
+  const content = cleanReportContent(rawContent)
+
   if (content) {
     const parts = content.split('=== 第')
     const rounds = parts
@@ -1018,9 +1107,15 @@ const getDebateRounds = (moduleName: string): Array<{round: number, content: str
         const roundContent = part.substring(contentStart).trim()
         return { round: roundNumber, content: roundContent }
       })
-    return rounds
+
+    if (rounds.length > 0) {
+      return rounds
+    }
+
+    // 如果解析不出轮次，将整个内容作为一轮返回
+    return [{ round: 1, content }]
   }
-  
+
   return []
 }
 

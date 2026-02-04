@@ -185,9 +185,8 @@ class GoogleToolCallHandler:
                                 logger.info(f"[{analyst_name}] ✅ LangChain工具执行成功，结果长度: {len(str(tool_result))} 字符")
                                 logger.debug(f"[{analyst_name}] 🔧 工具结果类型: {type(tool_result)}")
                             elif callable(tool):
-                                # 普通Python函数，直接调用
-                                logger.info(f"[{analyst_name}] 🚀 正在调用Python函数工具...")
-                                tool_result = tool(**tool_args)
+                                # 🔧 修复：使用 invoke 方法调用 StructuredTool
+                                tool_result = tool.invoke(tool_args)
                                 logger.info(f"[{analyst_name}] ✅ Python函数工具执行成功，结果长度: {len(str(tool_result))} 字符")
                                 logger.debug(f"[{analyst_name}] 🔧 工具结果类型: {type(tool_result)}")
                             else:

@@ -237,15 +237,15 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         
         # 根据研究深度调整全局超时时间（秒）
         if research_depth == 1:  # 1级 - 快速分析
-            config["analysis_timeout"] = 300  # 5分钟
+            config["analysis_timeout"] = 1800  # 30分钟
         elif research_depth == 2:  # 2级 - 基础分析
-            config["analysis_timeout"] = 450  # 7.5分钟
+            config["analysis_timeout"] = 2400  # 40分钟
         elif research_depth == 3:  # 3级 - 标准分析
-            config["analysis_timeout"] = 600  # 10分钟
+            config["analysis_timeout"] = 3000  # 50分钟
         elif research_depth == 4:  # 4级 - 深度分析
-            config["analysis_timeout"] = 900  # 15分钟
+            config["analysis_timeout"] = 3600  # 1小时
         else:  # 5级 - 全面分析
-            config["analysis_timeout"] = 1200  # 20分钟
+            config["analysis_timeout"] = 3600  # 1小时
         
         logger.info(f"⏱️ [分析超时设置] 研究深度: {research_depth}级, 超时时间: {config['analysis_timeout']}秒")
         
