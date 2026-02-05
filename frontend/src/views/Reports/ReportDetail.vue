@@ -807,7 +807,7 @@ const goBack = () => {
 const viewPrompts = async () => {
   try {
     const reportId = report.value?.id || route.params.id as string
-    
+
     const response = await fetch(`/api/reports/${reportId}/prompts`, {
       headers: {
         'Authorization': `Bearer ${authStore.token}`,
@@ -822,29 +822,107 @@ const viewPrompts = async () => {
     const result = await response.json()
 
     if (result.success && result.data?.prompts?.length > 0) {
-      // 显示prompt弹窗
-      const prompts = result.data.prompts
-      let promptContent = ''
-      
-      for (const p of prompts) {
-        promptContent += `### ${p.analyst_name || p.analyst}\n\n`
-        promptContent += p.content || ''
-        promptContent += '\n\n---\n\n'
-      }
+      // 🔥 新增：按步骤分组显示
+      const promptsByStep = result.data.prompts_by_step || {}
+      const steps = Object.keys(promptsByStep)
 
-      // 使用ElMessageBox显示
+      if (steps.length > 0) {
+        // 有步骤分组，按步骤显示
+        let dialogContent = ''
+
+        for (const step of steps) {
+          const stepData = promptsByStep[step]
+          dialogContent += `## ${stepData.icon || '📋'} ${stepData.name}\n\n`
+
+          for (const p of stepData.prompts) {
+            dialogContent += `### ${p.analyst_name || p.analyst}\n\n`
+            dialogContent += p.content || ''
+            dialogContent += '\n\n---\n\n'
+          }
+        }
+
+        // 显示警告信息
+        let warningMsg = ''
+        if (result.data.warning) {
+          warningMsg = `<div style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+            <strong>⚠️ 注意：</strong>${result.data.warning}
+          </div>`
+        }
+
+        await ElMessageBox.alert(
+          `${warningMsg}<div style="max-height: 50vh; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-size: 12px; line-height: 1.5;">${dialogContent}</div>`,
+          '分析Prompt详情',
+          {
+            confirmButtonText: '关闭',
+            dangerouslyUseHTMLString: true,
+            customClass: 'prompt-dialog',
+            callback: () => {}
+          }
+        )
+      } else {
+        // 没有步骤分组，按原来的方式显示
+        const prompts = result.data.prompts
+        let promptContent = ''
+
+        for (const p of prompts) {
+          const analystType = p.type === 'report_content' ? '[报告内容参考]' : ''
+          promptContent += `### ${p.analyst_name || p.analyst} ${analystType}\n\n`
+          promptContent += p.content || ''
+          promptContent += '\n\n---\n\n'
+        }
+
+        // 显示警告信息
+        let warningMsg = ''
+        if (result.data.warning) {
+          warningMsg = `<div style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+            <strong>⚠️ 注意：</strong>${result.data.warning}
+          </div>`
+        }
+
+        await ElMessageBox.alert(
+          `${warningMsg}<div style="max-height: 50vh; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-size: 12px; line-height: 1.5;">${promptContent}</div>`,
+          '分析Prompt详情',
+          {
+            confirmButtonText: '关闭',
+            dangerouslyUseHTMLString: true,
+            customClass: 'prompt-dialog',
+            callback: () => {}
+          }
+        )
+      }
+    } else if (result.success && result.data?.prompts_by_step && Object.keys(result.data.prompts_by_step).length > 0) {
+      // 🔥 新增：有步骤分组但没有prompts的情况
+      const promptsByStep = result.data.prompts_by_step
+
       await ElMessageBox.alert(
-        `<div style="max-height: 60vh; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-size: 12px; line-height: 1.5;">${promptContent}</div>`,
-        '分析Prompt详情',
+        `<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 16px; border-radius: 4px;">
+          <strong>❌ 未找到Prompt记录</strong>
+          <p style="margin: 12px 0 0 0;">${result.data.warning || '该分析任务未保存prompt数据'}</p>
+        </div>`,
+        '提示',
         {
           confirmButtonText: '关闭',
           dangerouslyUseHTMLString: true,
-          customClass: 'prompt-dialog',
           callback: () => {}
         }
       )
     } else {
-      ElMessage.warning('未找到Prompt记录')
+      // 没有找到prompt，显示详细信息
+      const warningMsg = result.data?.warning || '该分析任务未保存prompt数据'
+      ElMessageBox.alert(
+        `<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 16px; border-radius: 4px;">
+          <strong>❌ 未找到Prompt记录</strong>
+          <p style="margin: 12px 0 0 0;">${warningMsg}</p>
+          <p style="margin: 12px 0 0 0; color: #856404;">💡 说明：在分析过程中，messages数据未保存到数据库，因此无法提取原始prompt。</p>
+          <p style="margin: 8px 0 0 0; font-size: 12px; color: #6c757d;">新运行的分析任务将包含完整的prompt记录。</p>
+        </div>`,
+        '提示',
+        {
+          confirmButtonText: '关闭',
+          dangerouslyUseHTMLString: true,
+          callback: () => {}
+        }
+      )
     }
   } catch (error: any) {
     console.error('获取Prompt失败:', error)

@@ -82,11 +82,43 @@ class MongoDBReportManager:
             
             self.connected = True
             logger.info(f"✅ MongoDB连接成功: {mongodb_database}.analysis_reports")
-            
+
         except Exception as e:
             logger.error(f"❌ MongoDB连接失败: {e}")
             self.connected = False
-    
+
+    def _serialize_message(self, msg: Any) -> Dict[str, Any]:
+        """序列化LangChain消息对象为字典"""
+        try:
+            if hasattr(msg, 'model_dump'):
+                # 使用model_dump方法（较新的LangChain版本）
+                return msg.model_dump()
+            elif hasattr(msg, 'to_dict'):
+                # 使用to_dict方法（较老的LangChain版本）
+                return msg.to_dict()
+            elif hasattr(msg, '__dict__'):
+                # 手动转换为字典
+                return {
+                    'type': type(msg).__name__,
+                    'content': getattr(msg, 'content', str(msg)),
+                    **getattr(msg, 'additional_kwargs', {})
+                }
+            elif isinstance(msg, dict):
+                # 已经是字典
+                return msg
+            else:
+                # 其他情况，尝试转换为字符串
+                return {'type': type(msg).__name__, 'content': str(msg)}
+        except Exception as e:
+            logger.warning(f"⚠️ 序列化消息失败: {e}")
+            return {'type': 'unknown', 'content': str(msg)}
+
+    def _serialize_messages(self, messages: List[Any]) -> List[Dict[str, Any]]:
+        """序列化消息列表"""
+        if not messages:
+            return []
+        return [self._serialize_message(msg) for msg in messages]
+
     def _create_indexes(self):
         """创建索引以提高查询性能"""
         try:
@@ -178,6 +210,15 @@ class MongoDBReportManager:
             # 获取模型信息
             model_info = analysis_results.get("model_info", "Unknown")
 
+            # 🔥 添加：提取并序列化 messages 用于后续提取 prompts
+            raw_messages = analysis_results.get("state", {}).get("messages", [])
+            if raw_messages:
+                messages = self._serialize_messages(raw_messages)
+                logger.info(f"📝 [Messages] 检测到 {len(messages)} 条消息记录，已序列化")
+            else:
+                messages = []
+                logger.warning(f"⚠️ [Messages] 未找到messages数据，将无法提取prompts")
+
             # 构建文档
             document = {
                 "analysis_id": analysis_id,
@@ -197,6 +238,9 @@ class MongoDBReportManager:
 
                 # 报告内容
                 "reports": reports,
+
+                # 🔥 添加：messages 用于提取 prompts
+                "messages": messages,
 
                 # 元数据
                 "created_at": timestamp,

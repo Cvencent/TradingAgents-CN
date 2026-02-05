@@ -1669,12 +1669,17 @@ def save_analysis_result(analysis_id: str, stock_symbol: str, analysts: List[str
                 mongodb_manager = MongoDBReportManager()
 
                 # 使用标准的save_analysis_report方法，确保数据结构一致
+                # 🔧 修复：从 result_data 中获取完整的 state 用于保存 messages
+                result_from_runner = result_data.get('result', {}) if isinstance(result_data, dict) else {}
+                state_from_runner = result_from_runner.get('state', {}) if isinstance(result_from_runner, dict) else {}
+
                 analysis_results = {
                     'stock_symbol': result_entry.get('stock_symbol', ''),
                     'analysts': result_entry.get('analysts', []),
                     'research_depth': result_entry.get('research_depth', 1),
                     'summary': result_entry.get('summary', ''),
-                    'model_info': result_entry.get('model_info', 'Unknown')  # 🔥 添加模型信息字段
+                    'model_info': result_entry.get('model_info', 'Unknown'),
+                    'state': state_from_runner  # 🔧 添加：保存完整的 state 用于提取 messages
                 }
 
                 # 尝试从文件系统读取报告内容

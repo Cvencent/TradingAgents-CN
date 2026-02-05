@@ -2504,100 +2504,115 @@ class SimpleAnalysisService:
 
     def _extract_prompts_from_state(self, state: Dict[str, Any]) -> Dict[str, str]:
         """从state中提取prompt信息
-        
+
         从messages中提取HumanMessage内容作为各分析师使用的prompt
-        
+
         Args:
             state: 分析状态字典
-            
+
         Returns:
             包含各分析师prompt的字典
         """
         prompts = {}
-        
+
         try:
             # 获取messages列表
             messages = state.get("messages", []) if isinstance(state, dict) else []
             if not messages:
+                logger.warning(f"⚠️ [Prompts] messages为空，无法提取prompts")
                 return prompts
-            
-            # 分析师名称映射
+
+            logger.info(f"📝 [Prompts] 开始从 {len(messages)} 条消息中提取prompts")
+
+            # 分析师名称映射（支持多种格式）
             analyst_mapping = {
-                'market_report': 'Market Analyst',
-                'fundamentals_report': 'Fundamentals Analyst', 
-                'sentiment_report': 'Sentiment Analyst',
-                'news_report': 'News Analyst',
-                'social_report': 'Social Analyst',
-                'capital_flow_report': 'Capital Flow Analyst',
-                'investment_plan': 'Research Team',
-                'trader_investment_plan': 'Trader',
-                'final_trade_decision': 'Final Decision',
-                'bull_researcher': 'Bull Researcher',
-                'bear_researcher': 'Bear Researcher',
-                'risky_analyst': 'Risky Analyst',
-                'safe_analyst': 'Safe Analyst',
-                'neutral_analyst': 'Neutral Analyst',
+                'Market Analyst': 'market_report',
+                'Fundamentals Analyst': 'fundamentals_report',
+                'Sentiment Analyst': 'sentiment_report',
+                'News Analyst': 'news_report',
+                'Social Analyst': 'social_report',
+                'Capital Flow Analyst': 'capital_flow_report',
+                'Research Team': 'investment_plan',
+                'Trader': 'trader_investment_plan',
+                'Final Decision': 'final_trade_decision',
+                'Bull Researcher': 'bull_researcher',
+                'Bear Researcher': 'bear_researcher',
+                'Risky Analyst': 'risky_analyst',
+                'Safe Analyst': 'safe_analyst',
+                'Neutral Analyst': 'neutral_analyst',
             }
-            
+
             # 遍历messages，提取HumanMessage作为prompt
             current_analyst = None
             current_prompt_parts = []
-            
+            system_messages = []  # 保存SystemMessage用于后续查找analyst名称
+
             for msg in messages:
                 try:
                     # 获取消息类型和内容
                     msg_type = type(msg).__name__
                     msg_content = ""
-                    
+
                     if hasattr(msg, 'content'):
                         msg_content = msg.content
                     elif isinstance(msg, dict) and 'content' in msg:
                         msg_content = msg['content']
-                    
-                    # 如果是HumanMessage，记录为prompt
-                    if msg_type in ['HumanMessage', 'Human'] or (isinstance(msg, dict) and msg.get('type') in ['human', 'user']):
-                        if current_prompt_parts:
-                            # 保存前一个analyst的prompt
-                            if current_analyst:
-                                prompts[current_analyst] = '\n'.join(current_prompt_parts).strip()
-                            current_prompt_parts = []
-                        
-                        # 从SystemMessage中获取analyst信息
-                        current_prompt_parts.append(str(msg_content))
-                        
-                        # 尝试从之前的SystemMessage中获取analyst名称
-                        for m in messages:
-                            if type(m).__name__ in ['SystemMessage', 'System']:
-                                sys_content = getattr(m, 'content', '') if hasattr(m, 'content') else (m.get('content', '') if isinstance(m, dict) else '')
-                                # 匹配analyst名称
-                                for key, analyst_name in analyst_mapping.items():
-                                    if analyst_name.lower() in sys_content.lower() or analyst_name in sys_content:
-                                        current_analyst = analyst_name
-                                        break
-                    
-                    elif msg_type in ['AIMessage', 'AI', 'ToolMessage']:
-                        # 如果是AI或ToolMessage，保存前一个prompt
+                        msg_type = msg.get('type', msg_type)
+
+                    # 收集SystemMessage用于后续查找
+                    if msg_type in ['SystemMessage', 'System', 'system'] or (isinstance(msg, dict) and msg.get('type') in ['system', 'System']):
+                        system_messages.append(msg_content)
+                        continue
+
+                    # 如果是HumanMessage
+                    if msg_type in ['HumanMessage', 'Human', 'human'] or (isinstance(msg, dict) and msg.get('type') in ['human', 'user']):
+                        # 保存前一个analyst的prompt
                         if current_prompt_parts and current_analyst:
                             full_prompt = '\n'.join(current_prompt_parts).strip()
-                            if len(full_prompt) > 50:  # 只保存有内容的prompt
+                            if len(full_prompt) > 50:
                                 prompts[current_analyst] = full_prompt
+                                logger.info(f"  ✅ 提取到 {current_analyst}: {len(full_prompt)} 字符")
+                            current_prompt_parts = []
+
+                        # 添加当前HumanMessage内容
+                        current_prompt_parts.append(str(msg_content))
+
+                        # 从SystemMessage中查找analyst名称
+                        for sys_content in system_messages:
+                            for analyst_name, key in analyst_mapping.items():
+                                if analyst_name.lower() in str(sys_content).lower():
+                                    current_analyst = key
+                                    break
+                            if current_analyst:
+                                break
+
+                    # 如果是AIMessage或ToolMessage
+                    elif msg_type in ['AIMessage', 'AI', 'ai', 'ToolMessage', 'tool']:
+                        # 保存当前prompt
+                        if current_prompt_parts and current_analyst:
+                            full_prompt = '\n'.join(current_prompt_parts).strip()
+                            if len(full_prompt) > 50:
+                                prompts[current_analyst] = full_prompt
+                                logger.info(f"  ✅ 提取到 {current_analyst}: {len(full_prompt)} 字符")
                             current_prompt_parts = []
                             current_analyst = None
-                        
+
                 except Exception as e:
+                    logger.warning(f"⚠️ 处理消息时出错: {e}")
                     continue
-            
+
             # 保存最后一个prompt
             if current_prompt_parts and current_analyst:
                 full_prompt = '\n'.join(current_prompt_parts).strip()
                 if len(full_prompt) > 50:
                     prompts[current_analyst] = full_prompt
-            
+                    logger.info(f"  ✅ 提取到 {current_analyst}: {len(full_prompt)} 字符")
+
             logger.info(f"📝 [Prompts] 从state中提取到 {len(prompts)} 个prompt")
-            
+
         except Exception as e:
             logger.warning(f"⚠️ 提取prompt时出错: {e}")
-        
+
         return prompts
 
     async def _save_analysis_result(self, task_id: str, result: Dict[str, Any]):
@@ -2629,18 +2644,33 @@ class SimpleAnalysisService:
                 try:
                     state = result['state']
 
-                    # 定义所有可能的报告字段
+                    # 定义所有可能的报告字段 - 包含所有分析师的报告
+                    # 注意：这里包含了所有可能的报告字段，即使某些分析师没有被选中
+                    # 后端仍然会运行完整的分析流程（包括所有分析师）
                     report_fields = [
-                        'market_report',
-                        'sentiment_report',
-                        'news_report',
-                        'fundamentals_report',
-                        'investment_plan',
-                        'trader_investment_plan',
-                        'final_trade_decision'
+                        'market_report',        # 市场分析师/技术面分析师
+                        'sentiment_report',    # 情绪分析师
+                        'news_report',         # 新闻分析师
+                        'fundamentals_report', # 基本面分析师
+                        'social_report',       # 社媒分析师
+                        'capital_flow_report', # 资金流分析师
+                        'investment_plan',     # 研究团队投资计划
+                        'trader_investment_plan', # 交易员计划
+                        'final_trade_decision',    # 最终决策
+                        # 研究团队辩论
+                        'bull_researcher',
+                        'bear_researcher',
+                        'research_team_decision',
+                        # 风险管理团队辩论
+                        'risky_analyst',
+                        'safe_analyst',
+                        'neutral_analyst',
+                        'risk_management_decision',
                     ]
 
-                    # 从state中提取报告内容
+                    # 🔧 从state中提取报告内容
+                    # 注意：这里放宽了条件，允许提取空报告（长度为0）
+                    # 这是因为后端运行完整流程时，所有分析师都会生成报告
                     for field in report_fields:
                         try:
                             if hasattr(state, field):
@@ -2650,15 +2680,27 @@ class SimpleAnalysisService:
                             else:
                                 value = ""
 
-                            if isinstance(value, str) and len(value.strip()) > 10:
-                                reports[field] = value.strip()
+                            if isinstance(value, str):
+                                content = value.strip()
+                                if len(content) > 0:
+                                    reports[field] = content
+                                    logger.info(f"📊 [REPORTS] 提取报告: {field} - 长度: {len(content)}")
+                                elif len(content) == 0:
+                                    # 空报告也记录日志
+                                    logger.info(f"📊 [REPORTS] 报告字段存在但为空: {field}")
                             elif isinstance(value, list):
-                                value_str = str(value)
-                                if len(value_str.strip()) > 10:
-                                    reports[field] = value_str.strip()
+                                value_str = str(value).strip()
+                                if len(value_str) > 0:
+                                    reports[field] = value_str
+                                    logger.info(f"📊 [REPORTS] 提取报告: {field} - 长度(列表): {len(value_str)}")
+                                elif len(value_str) == 0:
+                                    logger.info(f"📊 [REPORTS] 报告字段存在但为空(列表): {field}")
                         except Exception as e:
                             logger.warning(f"⚠️ 提取字段 {field} 时出错: {e}")
                             continue
+
+                    # 🔧 记录提取到的报告数量
+                    logger.info(f"📊 [REPORTS] 共提取到 {len(reports)} 个报告字段")
 
                     # 处理研究团队辩论状态报告
                     if hasattr(state, 'investment_debate_state') or (isinstance(state, dict) and 'investment_debate_state' in state):
@@ -2929,6 +2971,7 @@ class SimpleAnalysisService:
                         "execution_time": result.get("execution_time", 0),
                         "tokens_used": result.get("tokens_used", 0),
                         "reports": reports,  # 包含提取的报告内容
+                        "messages": result.get("state", {}).get("messages", []),  # 🔥 添加messages
                         "prompts": self._extract_prompts_from_state(result.get('state', {})),  # 🔧 添加prompt提取
                         "decision": result.get("decision", {})
                     }}}

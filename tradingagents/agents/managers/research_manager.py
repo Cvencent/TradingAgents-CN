@@ -9,12 +9,13 @@ logger = get_logger("default")
 def create_research_manager(llm, memory):
     def research_manager_node(state) -> dict:
         history = state["investment_debate_state"].get("history", "")
-        market_research_report = state["market_report"]
-        sentiment_report = state["sentiment_report"]
-        news_report = state["news_report"]
-        fundamentals_report = state["fundamentals_report"]
+        # 🔧 修复：使用 .get() 安全访问，可能不存在
+        market_research_report = state.get("market_report", "")
+        sentiment_report = state.get("sentiment_report", "")
+        news_report = state.get("news_report", "")
+        fundamentals_report = state.get("fundamentals_report", "")
 
-        investment_debate_state = state["investment_debate_state"]
+        investment_debate_state = state.get("investment_debate_state", {})
 
         curr_situation = f"{market_research_report}\n\n{sentiment_report}\n\n{news_report}\n\n{fundamentals_report}"
 

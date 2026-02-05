@@ -13,11 +13,12 @@ def create_risk_manager(llm, memory):
 
         history = state["risk_debate_state"]["history"]
         risk_debate_state = state["risk_debate_state"]
-        market_research_report = state["market_report"]
-        news_report = state["news_report"]
-        fundamentals_report = state["news_report"]
-        sentiment_report = state["sentiment_report"]
-        trader_plan = state["investment_plan"]
+        # 🔧 修复：使用 .get() 安全访问，可能不存在
+        market_research_report = state.get("market_report", "")
+        news_report = state.get("news_report", "")
+        fundamentals_report = state.get("fundamentals_report", "")
+        sentiment_report = state.get("sentiment_report", "")
+        trader_plan = state.get("investment_plan", "[暂无投资计划]")
 
         curr_situation = f"{market_research_report}\n\n{sentiment_report}\n\n{news_report}\n\n{fundamentals_report}"
 

@@ -97,7 +97,8 @@ Adhere strictly to these instructions, and ensure your output is detailed, accur
     def reflect_trader(self, current_state, returns_losses, trader_memory):
         """Reflect on trader's decision and update memory."""
         situation = self._extract_current_situation(current_state)
-        trader_decision = current_state["trader_investment_plan"]
+        # 🔧 修复：使用 .get() 安全访问，可能不存在
+        trader_decision = current_state.get("trader_investment_plan", "[暂无交易员决策]")
 
         result = self._reflect_on_component(
             "TRADER", trader_decision, situation, returns_losses

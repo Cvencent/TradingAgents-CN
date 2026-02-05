@@ -1069,8 +1069,17 @@ class TradingAgentsGraph:
                             final_state = init_agent_state.copy()
                         for node_name, node_update in chunk.items():
                             if not node_name.startswith('__'):
-                                final_state.update(node_update)
-                        
+                                # 🔧 修复：正确处理messages列表的累积
+                                if "messages" in node_update:
+                                    if "messages" not in final_state:
+                                        final_state["messages"] = []
+                                    # 添加新消息
+                                    new_messages = node_update["messages"]
+                                    if isinstance(new_messages, list):
+                                        final_state["messages"].extend(new_messages)
+                                else:
+                                    final_state.update(node_update)
+
                         # 🔧 保存中间状态（用于超时恢复）
                         if final_state and len(final_state) > 10:
                             intermediate_state['state'] = final_state.copy()
@@ -1081,13 +1090,28 @@ class TradingAgentsGraph:
                         if len(chunk.get("messages", [])) > 0:
                             chunk["messages"][-1].pretty_print()
                         trace.append(chunk)
-                        final_state = chunk
+                        # 🔧 修复：累积messages而不是只取最后一个chunk
+                        if final_state is None:
+                            final_state = init_agent_state.copy()
+                        # 合并messages
+                        if "messages" in chunk:
+                            if "messages" not in final_state:
+                                final_state["messages"] = []
+                            # 添加新消息
+                            new_messages = chunk["messages"]
+                            if isinstance(new_messages, list):
+                                final_state["messages"].extend(new_messages)
+                        # 更新其他字段
+                        for key, value in chunk.items():
+                            if key != "messages":
+                                final_state[key] = value
 
                 if not trace and final_state:
                     # updates 模式下，使用累积的状态
                     pass
                 elif trace:
-                    final_state = trace[-1]
+                    # 使用累积后的final_state
+                    pass
             else:
                 # Standard mode without tracing but with progress updates
                 if progress_callback:
@@ -1117,8 +1141,16 @@ class TradingAgentsGraph:
                             final_state = init_agent_state.copy()
                         for node_name, node_update in chunk.items():
                             if not node_name.startswith('__'):
-                                final_state.update(node_update)
-                        
+                                # 🔧 修复：正确处理messages列表的累积
+                                if "messages" in node_update:
+                                    if "messages" not in final_state:
+                                        final_state["messages"] = []
+                                    new_messages = node_update["messages"]
+                                    if isinstance(new_messages, list):
+                                        final_state["messages"].extend(new_messages)
+                                else:
+                                    final_state.update(node_update)
+
                         # 🔧 保存中间状态（用于超时恢复）
                         if final_state and len(final_state) > 10:
                             intermediate_state['state'] = final_state.copy()
@@ -1150,8 +1182,16 @@ class TradingAgentsGraph:
                             final_state = init_agent_state.copy()
                         for node_name, node_update in chunk.items():
                             if not node_name.startswith('__'):
-                                final_state.update(node_update)
-                        
+                                # 🔧 修复：正确处理messages列表的累积
+                                if "messages" in node_update:
+                                    if "messages" not in final_state:
+                                        final_state["messages"] = []
+                                    new_messages = node_update["messages"]
+                                    if isinstance(new_messages, list):
+                                        final_state["messages"].extend(new_messages)
+                                else:
+                                    final_state.update(node_update)
+
                         # 🔧 保存中间状态（用于超时恢复）
                         if final_state and len(final_state) > 10:
                             intermediate_state['state'] = final_state.copy()
@@ -1620,34 +1660,43 @@ class TradingAgentsGraph:
 
     def _log_state(self, trade_date, final_state):
         """Log the final state to a JSON file."""
+        # 使用 .get() 安全地访问可能不存在的 key
+        def safe_get(data, key, default=""):
+            return data.get(key, default) if isinstance(data, dict) else default
+
+        def safe_get_nested(data, *keys, default=""):
+            result = data
+            for key in keys:
+                if isinstance(result, dict):
+                    result = result.get(key, {})
+                else:
+                    return default
+            return result if result else default
+
         self.log_states_dict[str(trade_date)] = {
-            "company_of_interest": final_state["company_of_interest"],
-            "trade_date": final_state["trade_date"],
-            "market_report": final_state["market_report"],
-            "sentiment_report": final_state["sentiment_report"],
-            "news_report": final_state["news_report"],
-            "fundamentals_report": final_state["fundamentals_report"],
+            "company_of_interest": safe_get(final_state, "company_of_interest", ""),
+            "trade_date": safe_get(final_state, "trade_date", ""),
+            "market_report": safe_get(final_state, "market_report", ""),
+            "sentiment_report": safe_get(final_state, "sentiment_report", ""),
+            "news_report": safe_get(final_state, "news_report", ""),
+            "fundamentals_report": safe_get(final_state, "fundamentals_report", ""),
             "investment_debate_state": {
-                "bull_history": final_state["investment_debate_state"]["bull_history"],
-                "bear_history": final_state["investment_debate_state"]["bear_history"],
-                "history": final_state["investment_debate_state"]["history"],
-                "current_response": final_state["investment_debate_state"][
-                    "current_response"
-                ],
-                "judge_decision": final_state["investment_debate_state"][
-                    "judge_decision"
-                ],
+                "bull_history": safe_get_nested(final_state, "investment_debate_state", "bull_history", ""),
+                "bear_history": safe_get_nested(final_state, "investment_debate_state", "bear_history", ""),
+                "history": safe_get_nested(final_state, "investment_debate_state", "history", ""),
+                "current_response": safe_get_nested(final_state, "investment_debate_state", "current_response", ""),
+                "judge_decision": safe_get_nested(final_state, "investment_debate_state", "judge_decision", ""),
             },
-            "trader_investment_decision": final_state["trader_investment_plan"],
+            "trader_investment_decision": safe_get(final_state, "trader_investment_plan", ""),
             "risk_debate_state": {
-                "risky_history": final_state["risk_debate_state"]["risky_history"],
-                "safe_history": final_state["risk_debate_state"]["safe_history"],
-                "neutral_history": final_state["risk_debate_state"]["neutral_history"],
-                "history": final_state["risk_debate_state"]["history"],
-                "judge_decision": final_state["risk_debate_state"]["judge_decision"],
+                "risky_history": safe_get_nested(final_state, "risk_debate_state", "risky_history", ""),
+                "safe_history": safe_get_nested(final_state, "risk_debate_state", "safe_history", ""),
+                "neutral_history": safe_get_nested(final_state, "risk_debate_state", "neutral_history", ""),
+                "history": safe_get_nested(final_state, "risk_debate_state", "history", ""),
+                "judge_decision": safe_get_nested(final_state, "risk_debate_state", "judge_decision", ""),
             },
-            "investment_plan": final_state["investment_plan"],
-            "final_trade_decision": final_state["final_trade_decision"],
+            "investment_plan": safe_get(final_state, "investment_plan", ""),
+            "final_trade_decision": safe_get(final_state, "final_trade_decision", ""),
         }
 
         # Save to file

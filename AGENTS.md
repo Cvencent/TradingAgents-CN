@@ -71,7 +71,7 @@ from typing_extensions import TypedDict, Annotated
 
 class AgentState(TypedDict):
     company_of_interest: Annotated[str, "Company description"]
-    market_report: Annotated[str, "Report from market analyst"]
+    market_report: Annotated[str, "Report from market analyst"]  
     tool_call_count: Annotated[int, "Tool invocation counter"]
 
 def create_llm(provider: str, model: str, config: Dict[str, Any]) -> Optional[ChatOpenAI]:

@@ -18,9 +18,10 @@ def create_risky_debator(llm):
         market_research_report = state["market_report"]
         sentiment_report = state["sentiment_report"]
         news_report = state["news_report"]
-        fundamentals_report = state["fundamentals_report"]
+        fundamentals_report = state.get("fundamentals_report", "")
 
-        trader_decision = state["trader_investment_plan"]
+        # 🔧 修复：使用 .get() 安全访问，可能不存在
+        trader_decision = state.get("trader_investment_plan", "[暂无交易员决策]")
 
         # 📊 记录输入数据长度
         logger.info(f"📊 [Risky Analyst] 输入数据长度统计:")

@@ -143,22 +143,10 @@ def render_analysis_form():
                     cached_analysts.append('social')
 
         with col1:
-            technology_analyst = st.checkbox(
-                "📈 技术面分析师",
-                value='technology' in cached_analysts,
-                help="专注于技术面分析、价格趋势、技术指标、图表形态识别"
-            )
-
             market_analyst = st.checkbox(
-                "📊 市场分析师",
+                "📈 市场分析师",
                 value='market' in cached_analysts,
-                help="综合分析市场环境、行业趋势、大盘走势对个股的影响"
-            )
-
-            money_analyst = st.checkbox(
-                "💵 资金面分析师",
-                value='money' in cached_analysts,
-                help="分析资金流向、主力资金动向、成交量变化、筹码分布等资金面指标"
+                help="专注于技术面分析、价格趋势、技术指标"
             )
 
             # 始终显示社交媒体分析师checkbox，但在A股时禁用
@@ -194,12 +182,8 @@ def render_analysis_form():
 
         # 收集选中的分析师
         selected_analysts = []
-        if technology_analyst:
-            selected_analysts.append(("technology", "技术面分析师"))
         if market_analyst:
             selected_analysts.append(("market", "市场分析师"))
-        if money_analyst:
-            selected_analysts.append(("money", "资金面分析师"))
         if social_analyst:
             selected_analysts.append(("social", "社交媒体分析师"))
         if news_analyst:

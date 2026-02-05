@@ -431,18 +431,19 @@ async def get_analysis_prompts(
     user: dict = Depends(get_current_user)
 ):
     """获取分析过程中使用的prompt
-    
+
     从MongoDB的analysis_reports集合中提取各分析师使用的prompt
+    按分析步骤分组返回（与报告详情页面步骤一致）
     """
     try:
         logger.info(f"🔍 获取分析prompt: {report_id}")
-        
+
         db = get_mongo_db()
-        
+
         # 查询报告
         query = _build_report_query(report_id)
         doc = await db.analysis_reports.find_one(query)
-        
+
         if not doc:
             # 从analysis_tasks查找
             task_doc = await db.analysis_tasks.find_one(
@@ -454,11 +455,23 @@ async def get_analysis_prompts(
             )
             if not task_doc:
                 raise HTTPException(status_code=404, detail="报告不存在")
-            
-            # 从analysis_tasks提取prompt
+
             result = task_doc.get("result", {})
             prompts_dict = result.get("prompts", {})
-            
+
+            if not prompts_dict:
+                return {
+                    "success": True,
+                    "data": {
+                        "task_id": task_doc.get("task_id"),
+                        "prompts": [],
+                        "prompts_by_step": {},
+                        "count": 0,
+                        "warning": "该分析任务的prompt数据未保存。messages数据在分析过程中未被记录到数据库。"
+                    },
+                    "message": "Prompt获取成功，但该任务未保存prompt数据"
+                }
+
             prompts = []
             for analyst, content in prompts_dict.items():
                 prompts.append({
@@ -468,22 +481,272 @@ async def get_analysis_prompts(
                     "content": content[:5000] if isinstance(content, str) else str(content)[:5000],
                     "timestamp": ""
                 })
-            
-            logger.info(f"✅ 从analysis_tasks找到 {len(prompts)} 个prompt记录")
-            
+
             return {
                 "success": True,
                 "data": {
                     "task_id": task_doc.get("task_id"),
                     "prompts": prompts,
+                    "prompts_by_step": {},
                     "count": len(prompts)
                 },
                 "message": "Prompt获取成功"
             }
-        
-        # 从analysis_reports提取prompt
+
+        # 🔥 按分析步骤组织prompts（与报告详情页面一致）
+        def organize_prompts_by_step(prompts_list):
+            """将prompts按分析步骤分组（与报告详情页面一致）"""
+            # 分析步骤定义（与报告详情页面一致）
+            step_definitions = [
+                {
+                    "key": "analyst_team",
+                    "name": "📊 分析师团队",
+                    "icon": "📊",
+                    "analysts": ["market_report", "sentiment_report", "news_report", "fundamentals_report"]
+                },
+                {
+                    "key": "research_team",
+                    "name": "🔬 研究团队",
+                    "icon": "🔬",
+                    "analysts": ["bull_researcher", "bear_researcher", "research_team_decision"]
+                },
+                {
+                    "key": "trading_team",
+                    "name": "💼 交易团队",
+                    "icon": "💼",
+                    "analysts": ["trader_investment_plan"]
+                },
+                {
+                    "key": "risk_team",
+                    "name": "⚠️ 风险管理",
+                    "icon": "⚠️",
+                    "analysts": ["risky_analyst", "safe_analyst", "neutral_analyst", "risk_management_decision"]
+                },
+                {
+                    "key": "final_decision",
+                    "name": "🎯 最终决策",
+                    "icon": "🎯",
+                    "analysts": ["final_trade_decision"]
+                },
+            ]
+
+            # 分析师中文名称映射（与报告详情页面一致）
+            analyst_names = {
+                "market_report": "市场技术分析",
+                "sentiment_report": "市场情绪分析",
+                "news_report": "新闻事件分析",
+                "fundamentals_report": "基本面分析",
+                "bull_researcher": "多头研究员",
+                "bear_researcher": "空头研究员",
+                "research_team_decision": "研究经理决策",
+                "trader_investment_plan": "交易员计划",
+                "risky_analyst": "激进分析师",
+                "safe_analyst": "保守分析师",
+                "neutral_analyst": "中性分析师",
+                "risk_management_decision": "投资组合经理",
+                "final_trade_decision": "最终交易决策",
+            }
+
+            # 初始化步骤
+            steps = {step["key"]: {
+                "name": step["name"],
+                "icon": step["icon"],
+                "prompts": []
+            } for step in step_definitions}
+
+            # 将prompts分配到对应步骤
+            for p in prompts_list:
+                analyst = p.get("analyst", "")
+                content = p.get("content", "")
+                analyst_name = p.get("analyst_name", analyst_names.get(analyst, analyst))
+
+                # 查找该分析师属于哪个步骤
+                assigned = False
+                for step in step_definitions:
+                    if analyst in step["analysts"]:
+                        steps[step["key"]]["prompts"].append({
+                            "analyst": analyst,
+                            "analyst_name": analyst_name,
+                            "content": content,
+                            "type": p.get("type", "unknown")
+                        })
+                        assigned = True
+                        break
+
+                # 如果没找到对应的步骤，尝试模糊匹配
+                if not assigned:
+                    for step in step_definitions:
+                        for step_analyst in step["analysts"]:
+                            if analyst.startswith(step_analyst.split("_")[0]):
+                                steps[step["key"]]["prompts"].append({
+                                    "analyst": analyst,
+                                    "analyst_name": analyst_name,
+                                    "content": content,
+                                    "type": p.get("type", "unknown")
+                                })
+                                assigned = True
+                                break
+                        if assigned:
+                            break
+
+            # 移除空的步骤
+            return {k: v for k, v in steps.items() if v["prompts"]}
+
+        # 优先从messages中提取prompts
+        messages = doc.get("messages", [])
+        if messages:
+            logger.info(f"📝 从messages中提取prompts，共 {len(messages)} 条消息")
+
+            analyst_mapping = {
+                'market_report': 'Market Analyst',
+                'fundamentals_report': 'Fundamentals Analyst',
+                'sentiment_report': 'Sentiment Analyst',
+                'news_report': 'News Analyst',
+                'bull_researcher': 'Bull Researcher',
+                'bear_researcher': 'Bear Researcher',
+                'risky_analyst': 'Risky Analyst',
+                'safe_analyst': 'Safe Analyst',
+                'neutral_analyst': 'Neutral Analyst',
+                'investment_plan': 'Research Team',
+                'trader_investment_plan': 'Trader',
+                'final_trade_decision': 'Final Decision',
+            }
+
+            prompts = []
+            current_analyst = None
+            current_prompt_parts = []
+            system_messages = []
+
+            for msg in messages:
+                try:
+                    msg_type = msg.get('type', '') if isinstance(msg, dict) else type(msg).__name__
+                    msg_content = msg.get('content', '') if isinstance(msg, dict) else (msg.content if hasattr(msg, 'content') else str(msg))
+
+                    if msg_type in ['system', 'System', 'system']:
+                        system_messages.append(msg_content)
+                        continue
+
+                    if msg_type in ['human', 'Human', 'HumanMessage']:
+                        if current_prompt_parts and current_analyst:
+                            full_prompt = '\n'.join(current_prompt_parts).strip()
+                            if len(full_prompt) > 50:
+                                prompts.append({
+                                    "analyst": current_analyst,
+                                    "analyst_name": analyst_mapping.get(current_analyst, current_analyst).replace("_", " ").title(),
+                                    "type": "extracted",
+                                    "content": full_prompt[:5000],
+                                    "timestamp": ""
+                                })
+                            current_prompt_parts = []
+
+                        current_prompt_parts.append(str(msg_content))
+
+                        for sys_content in system_messages:
+                            for key, analyst_name in analyst_mapping.items():
+                                if analyst_name.lower() in str(sys_content).lower():
+                                    current_analyst = key
+                                    break
+                            if current_analyst:
+                                break
+
+                    elif msg_type in ['ai', 'AI', 'AIMessage', 'tool', 'ToolMessage']:
+                        if current_prompt_parts and current_analyst:
+                            full_prompt = '\n'.join(current_prompt_parts).strip()
+                            if len(full_prompt) > 50:
+                                prompts.append({
+                                    "analyst": current_analyst,
+                                    "analyst_name": analyst_mapping.get(current_analyst, current_analyst).replace("_", " ").title(),
+                                    "type": "extracted",
+                                    "content": full_prompt[:5000],
+                                    "timestamp": ""
+                                })
+                            current_prompt_parts = []
+                            current_analyst = None
+
+                except Exception as e:
+                    continue
+
+            if current_prompt_parts and current_analyst:
+                full_prompt = '\n'.join(current_prompt_parts).strip()
+                if len(full_prompt) > 50:
+                    prompts.append({
+                        "analyst": current_analyst,
+                        "analyst_name": analyst_mapping.get(current_analyst, current_analyst).replace("_", " ").title(),
+                        "type": "extracted",
+                        "content": full_prompt[:5000],
+                        "timestamp": ""
+                    })
+
+            if prompts:
+                prompts_by_step = organize_prompts_by_step(prompts)
+                logger.info(f"✅ 从messages中提取到 {len(prompts)} 个prompt，分为 {len(prompts_by_step)} 个步骤")
+                return {
+                    "success": True,
+                    "data": {
+                        "task_id": doc.get("task_id") or report_id,
+                        "prompts": prompts,
+                        "prompts_by_step": prompts_by_step,
+                        "count": len(prompts),
+                        "source": "messages"
+                    },
+                    "message": f"成功从messages中提取 {len(prompts)} 个prompt"
+                }
+
+        # 尝试从prompts字段获取
         prompts_dict = doc.get("prompts", {})
-        
+
+        if not prompts_dict:
+            reports = doc.get("reports", {})
+            prompts = []
+
+            report_analyst_names = {
+                'bull_researcher': 'Bull Researcher',
+                'bear_researcher': 'Bear Researcher',
+                'risky_analyst': 'Risky Analyst',
+                'safe_analyst': 'Safe Analyst',
+                'neutral_analyst': 'Neutral Analyst',
+                'market_report': 'Market Analyst',
+                'fundamentals_report': 'Fundamentals Analyst',
+                'news_report': 'News Analyst',
+                'sentiment_report': 'Sentiment Analyst',
+            }
+
+            for key, value in reports.items():
+                if key in report_analyst_names and isinstance(value, str) and len(value) > 100:
+                    prompts.append({
+                        "analyst": key,
+                        "analyst_name": report_analyst_names.get(key, key),
+                        "type": "report_content",
+                        "content": f"[注：该任务未保存原始prompt，以下为分析师生成的报告内容]\n\n{value[:4000]}",
+                        "timestamp": ""
+                    })
+
+            if prompts:
+                prompts_by_step = organize_prompts_by_step(prompts)
+                return {
+                    "success": True,
+                    "data": {
+                        "task_id": doc.get("task_id") or report_id,
+                        "prompts": prompts,
+                        "prompts_by_step": prompts_by_step,
+                        "count": len(prompts),
+                        "warning": "原始prompt未保存，已提取报告内容作为参考"
+                    },
+                    "message": "已提取报告内容作为参考"
+                }
+
+            return {
+                "success": True,
+                "data": {
+                    "task_id": doc.get("task_id") or report_id,
+                    "prompts": [],
+                    "prompts_by_step": {},
+                    "count": 0,
+                    "warning": "该分析任务的prompt数据未保存到数据库"
+                },
+                "message": "Prompt获取成功，但该任务未保存prompt数据"
+            }
+
         prompts = []
         for analyst, content in prompts_dict.items():
             prompts.append({
@@ -493,32 +756,21 @@ async def get_analysis_prompts(
                 "content": content[:5000] if isinstance(content, str) else str(content)[:5000],
                 "timestamp": ""
             })
-        
-        # 如果MongoDB中没有prompts，尝试从detailed_analysis中提取
-        if not prompts:
-            detailed_analysis = doc.get("detailed_analysis", {})
-            for key, value in detailed_analysis.items():
-                if isinstance(value, str) and len(value) > 100:
-                    prompts.append({
-                        "analyst": key.replace("_analysis", ""),
-                        "analyst_name": key.replace("_analysis", "").replace("_", " ").title(),
-                        "type": "detailed_analysis",
-                        "content": value[:5000],
-                        "timestamp": ""
-                    })
-        
-        logger.info(f"✅ 从analysis_reports找到 {len(prompts)} 个prompt记录")
-        
+
+        prompts_by_step = organize_prompts_by_step(prompts)
+        logger.info(f"✅ 从analysis_reports找到 {len(prompts)} 个prompt")
+
         return {
             "success": True,
             "data": {
                 "task_id": doc.get("task_id") or report_id,
                 "prompts": prompts,
+                "prompts_by_step": prompts_by_step,
                 "count": len(prompts)
             },
             "message": "Prompt获取成功"
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:

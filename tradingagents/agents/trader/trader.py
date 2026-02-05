@@ -10,11 +10,12 @@ logger = get_logger("default")
 def create_trader(llm, memory):
     def trader_node(state, name):
         company_name = state["company_of_interest"]
-        investment_plan = state["investment_plan"]
-        market_research_report = state["market_report"]
-        sentiment_report = state["sentiment_report"]
-        news_report = state["news_report"]
-        fundamentals_report = state["fundamentals_report"]
+        # 🔧 修复：使用 .get() 安全访问，可能不存在
+        investment_plan = state.get("investment_plan", "")
+        market_research_report = state.get("market_report", "")
+        sentiment_report = state.get("sentiment_report", "")
+        news_report = state.get("news_report", "")
+        fundamentals_report = state.get("fundamentals_report", "")
 
         # 使用统一的股票类型检测
         from tradingagents.utils.stock_utils import StockUtils
