@@ -108,10 +108,20 @@ def create_trader(llm, memory):
         logger.debug(f"💰 [DEBUG] 交易员回复前500字符: {result.content[:500]}...")
         logger.debug(f"💰 [DEBUG] ===== 交易员节点结束 =====")
 
+        # 🔥 关键修复：构建完整的请求prompt（用于前端展示）
+        full_trader_prompt = ""
+        for msg in messages:
+            role = msg.get('role', 'unknown')
+            content = msg.get('content', '')
+            full_trader_prompt += f"\n\n=== {role.upper()} ===\n{content}"
+        
+        logger.info(f"🔍 [Trader] 返回 trader_request_prompt，总长度: {len(full_trader_prompt)} chars")
+
         return {
             "messages": [result],
             "trader_investment_plan": result.content,
             "sender": name,
+            "trader_request_prompt": full_trader_prompt  # 🔥 保存完整的请求prompt
         }
 
     return functools.partial(trader_node, name="Trader")

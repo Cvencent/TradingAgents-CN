@@ -84,7 +84,7 @@ def test_analysis_depth_differences():
             print(f"   ✅ 关键指标提及: PE({pe_mentions}) PB({pb_mentions}) ROE({roe_mentions})")
             
         except Exception as e:
-            print(f"   ❌ 错误: {e}")
+            print(f"   [X] 错误: {e}")
             results[depth] = {'error': str(e)}
         
         time.sleep(1)  # 避免请求过快

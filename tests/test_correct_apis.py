@@ -44,11 +44,11 @@ def test_google_news_tool():
                 return True  # 功能正常，只是没有内容
                 
         except Exception as e:
-            print(f"❌ Google新闻获取失败: {e}")
+            print(f"[X] Google新闻获取失败: {e}")
             return False
             
     except ImportError as e:
-        print(f"❌ Google新闻工具导入失败: {e}")
+        print(f"[X] Google新闻工具导入失败: {e}")
         return False
 
 def test_reddit_tools():
@@ -91,7 +91,7 @@ def test_reddit_tools():
                         print("⚠️ Reddit全球新闻获取成功但内容为空")
                         
                 except Exception as e:
-                    print(f"❌ Reddit全球新闻获取失败: {e}")
+                    print(f"[X] Reddit全球新闻获取失败: {e}")
                 
                 # 测试公司新闻
                 try:
@@ -110,7 +110,7 @@ def test_reddit_tools():
                         print("⚠️ Reddit公司新闻获取成功但内容为空")
                         
                 except Exception as e:
-                    print(f"❌ Reddit公司新闻获取失败: {e}")
+                    print(f"[X] Reddit公司新闻获取失败: {e}")
                     
                 return True
             else:
@@ -122,7 +122,7 @@ def test_reddit_tools():
             return False
             
     except ImportError as e:
-        print(f"❌ Reddit工具导入失败: {e}")
+        print(f"[X] Reddit工具导入失败: {e}")
         return False
 
 def test_toolkit_integration():
@@ -154,22 +154,22 @@ def test_toolkit_integration():
         if hasattr(toolkit, 'get_google_news'):
             print("✅ toolkit.get_google_news 方法存在")
         else:
-            print("❌ toolkit.get_google_news 方法不存在")
+            print("[X] toolkit.get_google_news 方法不存在")
             
         if hasattr(toolkit, 'get_reddit_global_news'):
             print("✅ toolkit.get_reddit_global_news 方法存在")
         else:
-            print("❌ toolkit.get_reddit_global_news 方法不存在")
+            print("[X] toolkit.get_reddit_global_news 方法不存在")
             
         if hasattr(toolkit, 'get_reddit_company_news'):
             print("✅ toolkit.get_reddit_company_news 方法存在")
         else:
-            print("❌ toolkit.get_reddit_company_news 方法不存在")
+            print("[X] toolkit.get_reddit_company_news 方法不存在")
         
         return True
         
     except Exception as e:
-        print(f"❌ 工具包集成测试失败: {e}")
+        print(f"[X] 工具包集成测试失败: {e}")
         return False
 
 def main():
@@ -182,8 +182,8 @@ def main():
     reddit_id = os.getenv('REDDIT_CLIENT_ID')
     
     print(f"🔑 API密钥状态:")
-    print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
-    print(f"   Reddit API: {'✅ 已配置' if reddit_id else '❌ 未配置'}")
+    print(f"   Google API: {'✅ 已配置' if google_key else '[X] 未配置'}")
+    print(f"   Reddit API: {'✅ 已配置' if reddit_id else '[X] 未配置'}")
     
     # 运行测试
     results = {}
@@ -197,7 +197,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())

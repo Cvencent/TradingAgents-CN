@@ -21,7 +21,7 @@ def test_pypandoc_import():
         print("✅ pypandoc导入成功")
         return True
     except ImportError as e:
-        print(f"❌ pypandoc导入失败: {e}")
+        print(f"[X] pypandoc导入失败: {e}")
         return False
 
 def test_pandoc_version():
@@ -33,7 +33,7 @@ def test_pandoc_version():
         print(f"✅ Pandoc版本: {version}")
         return True
     except Exception as e:
-        print(f"❌ 获取pandoc版本失败: {e}")
+        print(f"[X] 获取pandoc版本失败: {e}")
         return False
 
 def test_pandoc_download():
@@ -59,7 +59,7 @@ def test_pandoc_download():
         return True
         
     except Exception as e:
-        print(f"❌ Pandoc下载失败: {e}")
+        print(f"[X] Pandoc下载失败: {e}")
         return False
 
 def test_markdown_conversion():
@@ -100,7 +100,7 @@ def test_markdown_conversion():
             print("✅ Markdown → HTML 转换成功")
             print(f"   输出长度: {len(html_output)} 字符")
         except Exception as e:
-            print(f"❌ Markdown → HTML 转换失败: {e}")
+            print(f"[X] Markdown → HTML 转换失败: {e}")
             return False
         
         # 测试转换为DOCX
@@ -125,11 +125,11 @@ def test_markdown_conversion():
                 # 清理临时文件
                 os.unlink(output_file)
             else:
-                print("❌ DOCX文件未生成")
+                print("[X] DOCX文件未生成")
                 return False
                 
         except Exception as e:
-            print(f"❌ Markdown → DOCX 转换失败: {e}")
+            print(f"[X] Markdown → DOCX 转换失败: {e}")
             return False
         
         # 测试转换为PDF (可能失败，因为需要额外工具)
@@ -162,7 +162,7 @@ def test_markdown_conversion():
         return True
         
     except Exception as e:
-        print(f"❌ 转换测试失败: {e}")
+        print(f"[X] 转换测试失败: {e}")
         return False
 
 def test_report_exporter():
@@ -206,7 +206,7 @@ def test_report_exporter():
             print("✅ Markdown报告生成成功")
             print(f"   内容长度: {len(md_content)} 字符")
         except Exception as e:
-            print(f"❌ Markdown报告生成失败: {e}")
+            print(f"[X] Markdown报告生成失败: {e}")
             return False
         
         # 测试DOCX导出 (如果pandoc可用)
@@ -216,7 +216,7 @@ def test_report_exporter():
                 print("✅ DOCX报告生成成功")
                 print(f"   内容大小: {len(docx_content)} 字节")
             except Exception as e:
-                print(f"❌ DOCX报告生成失败: {e}")
+                print(f"[X] DOCX报告生成失败: {e}")
                 return False
         else:
             print("⚠️ 跳过DOCX测试 (pandoc不可用)")
@@ -224,7 +224,7 @@ def test_report_exporter():
         return True
         
     except Exception as e:
-        print(f"❌ 报告导出器测试失败: {e}")
+        print(f"[X] 报告导出器测试失败: {e}")
         return False
 
 def main():
@@ -248,7 +248,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试异常: {e}")
+            print(f"[X] 测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -260,7 +260,7 @@ def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name:20} {status}")
         if result:
             passed += 1

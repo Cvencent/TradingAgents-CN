@@ -26,7 +26,7 @@ class ProgressLogHandler(logging.Handler):
             # 在锁外面打印，避免死锁
             print(f"📊 [进度集成] 注册跟踪器: {analysis_id}")
         except Exception as e:
-            print(f"❌ [进度集成] 注册跟踪器失败: {e}")
+            print(f"[X] [进度集成] 注册跟踪器失败: {e}")
 
     @classmethod
     def unregister_tracker(cls, analysis_id: str):
@@ -41,7 +41,7 @@ class ProgressLogHandler(logging.Handler):
             if removed:
                 print(f"📊 [进度集成] 注销跟踪器: {analysis_id}")
         except Exception as e:
-            print(f"❌ [进度集成] 注销跟踪器失败: {e}")
+            print(f"[X] [进度集成] 注销跟踪器失败: {e}")
     
     def emit(self, record):
         """处理日志记录"""
@@ -67,11 +67,11 @@ class ProgressLogHandler(logging.Handler):
                             print(f"📊 [进度集成] 转发消息到 {analysis_id}: {message[:50]}...")
                             break  # 只更新第一个匹配的跟踪器
                         except Exception as e:
-                            print(f"❌ [进度集成] 更新失败: {e}")
+                            print(f"[X] [进度集成] 更新失败: {e}")
                         
         except Exception as e:
             # 不要让日志处理器的错误影响主程序
-            print(f"❌ [进度集成] 日志处理错误: {e}")
+            print(f"[X] [进度集成] 日志处理错误: {e}")
     
     def _extract_stock_symbol(self, message: str) -> Optional[str]:
         """从消息中提取股票代码"""

@@ -35,10 +35,10 @@ def test_tool_binding():
         if set(params) == set(expected_params):
             print("✅ 参数匹配正确")
         else:
-            print(f"❌ 参数不匹配，期望: {expected_params}, 实际: {params}")
+            print(f"[X] 参数不匹配，期望: {expected_params}, 实际: {params}")
             
     except Exception as e:
-        print(f"❌ LangChain工具转换失败: {e}")
+        print(f"[X] LangChain工具转换失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -50,7 +50,7 @@ def test_tool_binding():
         print(f"✅ 工具调用成功，结果长度: {len(result)} 字符")
         print(f"结果预览: {result[:200]}...")
     except Exception as e:
-        print(f"❌ 工具调用失败: {e}")
+        print(f"[X] 工具调用失败: {e}")
         import traceback
         traceback.print_exc()
         return False

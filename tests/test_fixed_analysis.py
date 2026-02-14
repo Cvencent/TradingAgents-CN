@@ -23,7 +23,7 @@ def test_fixed_analysis():
         if response.status_code == 200:
             print("✅ API服务正常运行")
         else:
-            print(f"❌ API服务异常: {response.status_code}")
+            print(f"[X] API服务异常: {response.status_code}")
             return False
 
         # 2. 登录获取token
@@ -43,7 +43,7 @@ def test_fixed_analysis():
             access_token = login_result["data"]["access_token"]
             print("✅ 登录成功，获取到token")
         else:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             print(f"   响应: {login_response.text}")
             return False
         
@@ -81,7 +81,7 @@ def test_fixed_analysis():
             task_id = result.get("task_id")
             print(f"✅ 分析任务已提交: {task_id}")
         else:
-            print(f"❌ 提交分析请求失败: {response.status_code}")
+            print(f"[X] 提交分析请求失败: {response.status_code}")
             print(f"   响应: {response.text}")
             return False
         
@@ -141,9 +141,9 @@ def test_fixed_analysis():
                             else:
                                 print(f"⚠️ reports目录存在但没有报告文件")
                         else:
-                            print(f"❌ reports目录不存在")
+                            print(f"[X] reports目录不存在")
                     else:
-                        print(f"❌ 分析结果目录不存在: {data_dir}")
+                        print(f"[X] 分析结果目录不存在: {data_dir}")
                         # 检查是否还是保存到UNKNOWN目录
                         unknown_dir = Path("data/analysis_results/UNKNOWN/2025-08-20")
                         if unknown_dir.exists():
@@ -165,15 +165,15 @@ def test_fixed_analysis():
                         
                         return True
                     else:
-                        print(f"❌ 获取分析结果失败: {result_response.status_code}")
+                        print(f"[X] 获取分析结果失败: {result_response.status_code}")
                         return False
                         
                 elif status == "failed":
-                    print(f"❌ 分析任务失败: {message}")
+                    print(f"[X] 分析任务失败: {message}")
                     return False
                     
             else:
-                print(f"❌ 查询任务状态失败: {status_response.status_code}")
+                print(f"[X] 查询任务状态失败: {status_response.status_code}")
                 return False
             
             # 等待5秒后再次查询
@@ -183,7 +183,7 @@ def test_fixed_analysis():
         return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 if __name__ == "__main__":

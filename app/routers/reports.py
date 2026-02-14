@@ -21,6 +21,32 @@ logger = logging.getLogger("webapi")
 # 股票名称缓存
 _stock_name_cache = {}
 
+def _build_report_query(report_id: str) -> dict:
+    """构建报告查询条件 - 支持多种ID格式
+
+    Args:
+        report_id: 报告ID (可以是task_id, analysis_id, 或MongoDB _id)
+
+    Returns:
+        MongoDB查询条件字典
+    """
+    from bson import ObjectId
+    # 尝试多种ID格式
+    query_conditions = [
+        {"task_id": report_id},
+        {"analysis_id": report_id},
+    ]
+
+    # 尝试ObjectId格式（24位十六进制字符串）
+    if len(report_id) == 24:
+        try:
+            query_conditions.append({"_id": ObjectId(report_id)})
+        except Exception:
+            pass
+
+    return {"$or": query_conditions}
+
+
 def get_stock_name(stock_code: str) -> str:
     """
     获取股票名称
@@ -232,7 +258,7 @@ async def get_reports_list(
         }
 
     except Exception as e:
-        logger.error(f"❌ 获取报告列表失败: {e}")
+        logger.error(f"[X] 获取报告列表失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{report_id}/detail")
@@ -349,7 +375,7 @@ async def get_report_detail(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 获取报告详情失败: {e}")
+        logger.error(f"[X] 获取报告详情失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{report_id}/content/{module}")
@@ -391,7 +417,7 @@ async def get_report_module_content(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 获取报告模块内容失败: {e}")
+        logger.error(f"[X] 获取报告模块内容失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{report_id}")
@@ -422,7 +448,7 @@ async def delete_report(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 删除报告失败: {e}")
+        logger.error(f"[X] 删除报告失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{report_id}/prompts")
@@ -502,7 +528,7 @@ async def get_analysis_prompts(
                     "key": "analyst_team",
                     "name": "📊 分析师团队",
                     "icon": "📊",
-                    "analysts": ["market_report", "sentiment_report", "news_report", "fundamentals_report"]
+                    "analysts": ["market_report", "sentiment_report", "news_report", "fundamentals_report", "capital_flow_report"]
                 },
                 {
                     "key": "research_team",
@@ -532,10 +558,11 @@ async def get_analysis_prompts(
 
             # 分析师中文名称映射（与报告详情页面一致）
             analyst_names = {
-                "market_report": "市场技术分析",
+                "market_report": "技术面分析",
                 "sentiment_report": "市场情绪分析",
                 "news_report": "新闻事件分析",
                 "fundamentals_report": "基本面分析",
+                "capital_flow_report": "资金面分析",
                 "bull_researcher": "多头研究员",
                 "bear_researcher": "空头研究员",
                 "research_team_decision": "研究经理决策",
@@ -592,7 +619,36 @@ async def get_analysis_prompts(
             # 移除空的步骤
             return {k: v for k, v in steps.items() if v["prompts"]}
 
-        # 优先从messages中提取prompts
+        # 🔥 优先从prompts字段获取（这是保存的原始request_prompt）
+        prompts_dict = doc.get("prompts", {})
+        if prompts_dict:
+            logger.info(f"📝 从prompts字段获取原始request_prompts，共 {len(prompts_dict)} 个")
+            prompts = []
+            for analyst, content in prompts_dict.items():
+                prompts.append({
+                    "analyst": analyst,
+                    "analyst_name": analyst.replace("_", " ").title(),
+                    "type": "original",
+                    "content": content[:5000] if isinstance(content, str) else str(content)[:5000],
+                    "timestamp": ""
+                })
+
+            prompts_by_step = organize_prompts_by_step(prompts)
+            logger.info(f"✅ 从prompts字段找到 {len(prompts)} 个原始prompt")
+
+            return {
+                "success": True,
+                "data": {
+                    "task_id": doc.get("task_id") or report_id,
+                    "prompts": prompts,
+                    "prompts_by_step": prompts_by_step,
+                    "count": len(prompts),
+                    "source": "original_prompts"
+                },
+                "message": f"成功获取 {len(prompts)} 个原始request prompt"
+            }
+
+        # 如果没有prompts字段，尝试从messages中提取
         messages = doc.get("messages", [])
         if messages:
             logger.info(f"📝 从messages中提取prompts，共 {len(messages)} 条消息")
@@ -612,70 +668,78 @@ async def get_analysis_prompts(
                 'final_trade_decision': 'Final Decision',
             }
 
+            # 🔥 关键修复：从消息内容中识别分析师的关键词映射
+            analyst_keywords = {
+                'market_report': ['market analyst', '市场分析师', '技术面分析', '技术分析师', '股票趋势分析', '市场趋势', '股票市场趋势'],
+                'fundamentals_report': ['fundamentals analyst', '基本面分析师', '基本面分析', '公司基本信息'],
+                'sentiment_report': ['sentiment analyst', '情绪分析师', '市场情绪分析', 'sentiment'],
+                'news_report': ['news analyst', '新闻分析师', '新闻事件分析', '新闻舆情'],
+                'bull_researcher': ['bull researcher', '多头研究员', 'bullish', '看涨', '牛市'],
+                'bear_researcher': ['bear researcher', '空头研究员', 'bearish', '看跌', '熊市'],
+                'risky_analyst': ['risky analyst', '激进分析师', '激进风险评估', '激进'],
+                'safe_analyst': ['safe analyst', '保守分析师', '保守风险评估', '保守'],
+                'neutral_analyst': ['neutral analyst', '中性分析师', '中性风险评估', '中性'],
+                'trader_investment_plan': ['trader', '交易员', '交易计划', '投资策略'],
+                'final_trade_decision': ['final decision', '最终决策', '最终交易决策', '投资建议', '卖出', '买入', '持有'],
+            }
+
             prompts = []
-            current_analyst = None
-            current_prompt_parts = []
-            system_messages = []
+
+            # 🔥 新策略：为每个分析师单独收集消息
+            # 首先，找出所有涉及的分析师
+            analyst_messages = {key: [] for key in analyst_mapping.keys()}
 
             for msg in messages:
                 try:
                     msg_type = msg.get('type', '') if isinstance(msg, dict) else type(msg).__name__
                     msg_content = msg.get('content', '') if isinstance(msg, dict) else (msg.content if hasattr(msg, 'content') else str(msg))
 
-                    if msg_type in ['system', 'System', 'system']:
-                        system_messages.append(msg_content)
+                    if msg_type in ['system', 'System', 'system', 'remove', 'Remove']:
                         continue
 
-                    if msg_type in ['human', 'Human', 'HumanMessage']:
-                        if current_prompt_parts and current_analyst:
-                            full_prompt = '\n'.join(current_prompt_parts).strip()
-                            if len(full_prompt) > 50:
-                                prompts.append({
-                                    "analyst": current_analyst,
-                                    "analyst_name": analyst_mapping.get(current_analyst, current_analyst).replace("_", " ").title(),
-                                    "type": "extracted",
-                                    "content": full_prompt[:5000],
-                                    "timestamp": ""
-                                })
-                            current_prompt_parts = []
+                    if not msg_content:
+                        continue
 
-                        current_prompt_parts.append(str(msg_content))
-
-                        for sys_content in system_messages:
-                            for key, analyst_name in analyst_mapping.items():
-                                if analyst_name.lower() in str(sys_content).lower():
-                                    current_analyst = key
-                                    break
-                            if current_analyst:
+                    # 检查这条消息属于哪些分析师
+                    content_lower = str(msg_content).lower()
+                    matched_analysts = []
+                    for analyst_key, keywords in analyst_keywords.items():
+                        for keyword in keywords:
+                            if keyword.lower() in content_lower:
+                                matched_analysts.append(analyst_key)
                                 break
 
-                    elif msg_type in ['ai', 'AI', 'AIMessage', 'tool', 'ToolMessage']:
-                        if current_prompt_parts and current_analyst:
-                            full_prompt = '\n'.join(current_prompt_parts).strip()
-                            if len(full_prompt) > 50:
-                                prompts.append({
-                                    "analyst": current_analyst,
-                                    "analyst_name": analyst_mapping.get(current_analyst, current_analyst).replace("_", " ").title(),
-                                    "type": "extracted",
-                                    "content": full_prompt[:5000],
-                                    "timestamp": ""
-                                })
-                            current_prompt_parts = []
-                            current_analyst = None
+                    # 如果匹配到了分析师，将消息添加到对应的列表
+                    if matched_analysts:
+                        for analyst_key in matched_analysts:
+                            analyst_messages[analyst_key].append({
+                                'type': msg_type,
+                                'content': str(msg_content)
+                            })
 
                 except Exception as e:
+                    logger.warning(f"⚠️ 处理消息时出错: {e}")
                     continue
 
-            if current_prompt_parts and current_analyst:
-                full_prompt = '\n'.join(current_prompt_parts).strip()
-                if len(full_prompt) > 50:
+            # 为每个有消息的分析师创建prompt
+            for analyst_key, msg_list in analyst_messages.items():
+                if not msg_list:
+                    continue
+
+                # 合并所有消息
+                prompt_content = f"=== {analyst_mapping.get(analyst_key, analyst_key)} ===\n\n"
+                for msg in msg_list:
+                    prompt_content += f"\n[{msg['type'].upper()}]\n{msg['content'][:3000]}\n"
+
+                if len(prompt_content) > 100:  # 确保内容足够长
                     prompts.append({
-                        "analyst": current_analyst,
-                        "analyst_name": analyst_mapping.get(current_analyst, current_analyst).replace("_", " ").title(),
+                        "analyst": analyst_key,
+                        "analyst_name": analyst_mapping.get(analyst_key, analyst_key).replace("_", " ").title(),
                         "type": "extracted",
-                        "content": full_prompt[:5000],
+                        "content": prompt_content[:5000],
                         "timestamp": ""
                     })
+                    logger.info(f"✅ 提取到 {analyst_key} 的prompt，共 {len(msg_list)} 条消息")
 
             if prompts:
                 prompts_by_step = organize_prompts_by_step(prompts)
@@ -692,89 +756,63 @@ async def get_analysis_prompts(
                     "message": f"成功从messages中提取 {len(prompts)} 个prompt"
                 }
 
-        # 尝试从prompts字段获取
-        prompts_dict = doc.get("prompts", {})
+        # 如果没有prompts字段，也没有messages字段，尝试从reports中提取
+        reports = doc.get("reports", {})
+        prompts = []
 
-        if not prompts_dict:
-            reports = doc.get("reports", {})
-            prompts = []
+        report_analyst_names = {
+            'bull_researcher': 'Bull Researcher',
+            'bear_researcher': 'Bear Researcher',
+            'risky_analyst': 'Risky Analyst',
+            'safe_analyst': 'Safe Analyst',
+            'neutral_analyst': 'Neutral Analyst',
+            'market_report': 'Market Analyst',
+            'fundamentals_report': 'Fundamentals Analyst',
+            'news_report': 'News Analyst',
+            'sentiment_report': 'Sentiment Analyst',
+            'capital_flow_report': 'Capital Flow Analyst',
+        }
 
-            report_analyst_names = {
-                'bull_researcher': 'Bull Researcher',
-                'bear_researcher': 'Bear Researcher',
-                'risky_analyst': 'Risky Analyst',
-                'safe_analyst': 'Safe Analyst',
-                'neutral_analyst': 'Neutral Analyst',
-                'market_report': 'Market Analyst',
-                'fundamentals_report': 'Fundamentals Analyst',
-                'news_report': 'News Analyst',
-                'sentiment_report': 'Sentiment Analyst',
-            }
+        for key, value in reports.items():
+            if key in report_analyst_names and isinstance(value, str) and len(value) > 100:
+                prompts.append({
+                    "analyst": key,
+                    "analyst_name": report_analyst_names.get(key, key),
+                    "type": "report_content",
+                    "content": f"[注：该任务未保存原始prompt，以下为分析师生成的报告内容]\n\n{value[:4000]}",
+                    "timestamp": ""
+                })
 
-            for key, value in reports.items():
-                if key in report_analyst_names and isinstance(value, str) and len(value) > 100:
-                    prompts.append({
-                        "analyst": key,
-                        "analyst_name": report_analyst_names.get(key, key),
-                        "type": "report_content",
-                        "content": f"[注：该任务未保存原始prompt，以下为分析师生成的报告内容]\n\n{value[:4000]}",
-                        "timestamp": ""
-                    })
-
-            if prompts:
-                prompts_by_step = organize_prompts_by_step(prompts)
-                return {
-                    "success": True,
-                    "data": {
-                        "task_id": doc.get("task_id") or report_id,
-                        "prompts": prompts,
-                        "prompts_by_step": prompts_by_step,
-                        "count": len(prompts),
-                        "warning": "原始prompt未保存，已提取报告内容作为参考"
-                    },
-                    "message": "已提取报告内容作为参考"
-                }
-
+        if prompts:
+            prompts_by_step = organize_prompts_by_step(prompts)
             return {
                 "success": True,
                 "data": {
                     "task_id": doc.get("task_id") or report_id,
-                    "prompts": [],
-                    "prompts_by_step": {},
-                    "count": 0,
-                    "warning": "该分析任务的prompt数据未保存到数据库"
+                    "prompts": prompts,
+                    "prompts_by_step": prompts_by_step,
+                    "count": len(prompts),
+                    "warning": "原始prompt未保存，已提取报告内容作为参考"
                 },
-                "message": "Prompt获取成功，但该任务未保存prompt数据"
+                "message": "已提取报告内容作为参考"
             }
-
-        prompts = []
-        for analyst, content in prompts_dict.items():
-            prompts.append({
-                "analyst": analyst,
-                "analyst_name": analyst.replace("_", " ").title(),
-                "type": "stored",
-                "content": content[:5000] if isinstance(content, str) else str(content)[:5000],
-                "timestamp": ""
-            })
-
-        prompts_by_step = organize_prompts_by_step(prompts)
-        logger.info(f"✅ 从analysis_reports找到 {len(prompts)} 个prompt")
 
         return {
             "success": True,
             "data": {
                 "task_id": doc.get("task_id") or report_id,
-                "prompts": prompts,
-                "prompts_by_step": prompts_by_step,
-                "count": len(prompts)
+                "prompts": [],
+                "prompts_by_step": {},
+                "count": 0,
+                "warning": "该分析任务的prompt数据未保存到数据库"
             },
-            "message": "Prompt获取成功"
+            "message": "Prompt获取成功，但该任务未保存prompt数据"
         }
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 获取prompt失败: {e}")
+        logger.error(f"[X] 获取prompt失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{report_id}/download")
@@ -886,7 +924,7 @@ async def download_report(
                     headers={"Content-Disposition": f"attachment; filename={filename}"}
                 )
             except Exception as e:
-                logger.error(f"❌ Word 文档生成失败: {e}")
+                logger.error(f"[X] Word 文档生成失败: {e}")
                 raise HTTPException(status_code=500, detail=f"Word 文档生成失败: {str(e)}")
 
         elif format == "pdf":
@@ -914,7 +952,7 @@ async def download_report(
                     headers={"Content-Disposition": f"attachment; filename={filename}"}
                 )
             except Exception as e:
-                logger.error(f"❌ PDF 文档生成失败: {e}")
+                logger.error(f"[X] PDF 文档生成失败: {e}")
                 raise HTTPException(status_code=500, detail=f"PDF 文档生成失败: {str(e)}")
 
         else:
@@ -923,5 +961,5 @@ async def download_report(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 下载报告失败: {e}")
+        logger.error(f"[X] 下载报告失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))

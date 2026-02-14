@@ -70,16 +70,16 @@ def test_basic_tool_calling():
                         print(f"      工具{j+1}: {tool_call.get('name', 'unknown')}")
                     return True
                 else:
-                    print(f"   ❌ 策略{i}失败: 未触发工具调用")
+                    print(f"   [X] 策略{i}失败: 未触发工具调用")
                     print(f"   直接响应: {response.content[:100]}...")
                     
             except Exception as e:
-                print(f"   ❌ 策略{i}异常: {e}")
+                print(f"   [X] 策略{i}异常: {e}")
         
         return False
         
     except Exception as e:
-        print(f"❌ 基本工具调用测试失败: {e}")
+        print(f"[X] 基本工具调用测试失败: {e}")
         return False
 
 
@@ -150,16 +150,16 @@ def test_stock_analysis_tool_calling():
                         print(f"      工具{j+1}: {tool_name}({tool_args})")
                     return True
                 else:
-                    print(f"   ❌ 股票分析策略{i}失败")
+                    print(f"   [X] 股票分析策略{i}失败")
                     print(f"   直接响应: {response.content[:150]}...")
                     
             except Exception as e:
-                print(f"   ❌ 股票分析策略{i}异常: {e}")
+                print(f"   [X] 股票分析策略{i}异常: {e}")
         
         return False
         
     except Exception as e:
-        print(f"❌ 股票分析工具调用测试失败: {e}")
+        print(f"[X] 股票分析工具调用测试失败: {e}")
         return False
 
 
@@ -208,15 +208,15 @@ def test_parameter_optimization():
                     print(f"   ✅ {config['description']}配置成功")
                     return config
                 else:
-                    print(f"   ❌ {config['description']}配置失败")
+                    print(f"   [X] {config['description']}配置失败")
                     
             except Exception as e:
-                print(f"   ❌ {config['description']}配置异常: {e}")
+                print(f"   [X] {config['description']}配置异常: {e}")
         
         return None
         
     except Exception as e:
-        print(f"❌ 参数优化测试失败: {e}")
+        print(f"[X] 参数优化测试失败: {e}")
         return None
 
 
@@ -265,16 +265,16 @@ def test_model_comparison():
                 if len(tool_calls) > 0:
                     print(f"   ✅ {model}: 支持工具调用")
                 else:
-                    print(f"   ❌ {model}: 不支持工具调用")
+                    print(f"   [X] {model}: 不支持工具调用")
                     print(f"   响应: {response.content[:100]}...")
                     
             except Exception as e:
-                print(f"   ❌ {model}: 测试异常 - {e}")
+                print(f"   [X] {model}: 测试异常 - {e}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 模型比较测试失败: {e}")
+        print(f"[X] 模型比较测试失败: {e}")
         return False
 
 
@@ -287,7 +287,7 @@ def main():
     
     # 检查API密钥
     if not os.getenv("DASHSCOPE_API_KEY"):
-        print("❌ 未找到DASHSCOPE_API_KEY环境变量")
+        print("[X] 未找到DASHSCOPE_API_KEY环境变量")
         return
     
     # 运行测试
@@ -304,7 +304,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -317,7 +317,7 @@ def main():
             status = "✅ 通过"
             passed += 1
         else:
-            status = "❌ 失败"
+            status = "[X] 失败"
         print(f"{test_name}: {status}")
     
     total = len(results)

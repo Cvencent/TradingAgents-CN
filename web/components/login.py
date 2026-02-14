@@ -259,7 +259,7 @@ def render_login_form():
                         time.sleep(1)
                         st.rerun()
                     else:
-                        st.error("❌ 用户名或密码错误，请重试")
+                        st.error("[X] 用户名或密码错误，请重试")
                 else:
                     st.warning("⚠️ 请输入完整的登录信息")
         

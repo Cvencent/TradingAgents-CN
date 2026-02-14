@@ -19,7 +19,7 @@ def login():
         result = response.json()
         return result.get("data", {}).get("access_token")
     else:
-        print(f"❌ 登录失败: {response.status_code}")
+        print(f"[X] 登录失败: {response.status_code}")
         print(response.text)
         return None
 
@@ -33,7 +33,7 @@ def get_quote(token, code):
     if response.status_code == 200:
         return response.json()
     else:
-        print(f"❌ 获取行情失败: {response.status_code}")
+        print(f"[X] 获取行情失败: {response.status_code}")
         print(response.text)
         return None
 
@@ -109,7 +109,7 @@ def main():
         if abs(expected_amplitude - amplitude) < 0.01:
             print(f"  ✅ 振幅计算正确！")
         else:
-            print(f"  ❌ 振幅计算错误！")
+            print(f"  [X] 振幅计算错误！")
     else:
         print(f"  ⚠️ 数据不完整，无法验证")
 

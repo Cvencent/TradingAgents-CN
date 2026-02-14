@@ -32,7 +32,7 @@ def test_openai_adapter_import():
         return True
         
     except Exception as e:
-        print(f"❌ 导入失败: {e}")
+        print(f"[X] 导入失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -53,11 +53,11 @@ def test_openai_adapter_connection():
             print("✅ OpenAI 兼容适配器连接测试成功")
             return True
         else:
-            print("❌ OpenAI 兼容适配器连接测试失败")
+            print("[X] OpenAI 兼容适配器连接测试失败")
             return False
             
     except Exception as e:
-        print(f"❌ 连接测试异常: {e}")
+        print(f"[X] 连接测试异常: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -78,11 +78,11 @@ def test_openai_adapter_function_calling():
             print("✅ OpenAI 兼容适配器 Function Calling 测试成功")
             return True
         else:
-            print("❌ OpenAI 兼容适配器 Function Calling 测试失败")
+            print("[X] OpenAI 兼容适配器 Function Calling 测试失败")
             return False
             
     except Exception as e:
-        print(f"❌ Function Calling 测试异常: {e}")
+        print(f"[X] Function Calling 测试异常: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -170,19 +170,19 @@ def test_technical_analysis_with_new_adapter():
             # 但为了测试，我们只验证工具调用是否正常
             return True
         else:
-            print(f"❌ 没有工具调用")
+            print(f"[X] 没有工具调用")
             print(f"📋 直接响应: {response.content[:200]}...")
             
             # 检查响应长度
             if len(response.content) < 100:
-                print("❌ 响应过短，可能存在问题")
+                print("[X] 响应过短，可能存在问题")
                 return False
             else:
                 print("⚠️ 有响应但没有工具调用")
                 return False
         
     except Exception as e:
-        print(f"❌ 技术面分析测试失败: {e}")
+        print(f"[X] 技术面分析测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -222,7 +222,7 @@ def test_trading_graph_integration():
             return False
         
     except Exception as e:
-        print(f"❌ TradingGraph 集成测试失败: {e}")
+        print(f"[X] TradingGraph 集成测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -241,7 +241,7 @@ def main():
     
     # 检查环境变量
     if not os.getenv("DASHSCOPE_API_KEY"):
-        print("❌ 未找到 DASHSCOPE_API_KEY 环境变量")
+        print("[X] 未找到 DASHSCOPE_API_KEY 环境变量")
         print("请设置环境变量后重试")
         return
     
@@ -260,7 +260,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -269,7 +269,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

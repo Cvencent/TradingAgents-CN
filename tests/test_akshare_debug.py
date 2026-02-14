@@ -27,7 +27,7 @@ def test_akshare_financial_data():
     print(f"   连接状态: {provider.connected}")
     
     if not provider.connected:
-        print("❌ AKShare未连接，无法继续测试")
+        print("[X] AKShare未连接，无法继续测试")
         return
     
     # 2. 直接调用get_financial_data方法
@@ -47,10 +47,10 @@ def test_akshare_financial_data():
                 else:
                     print(f"   - {key}: {type(value)}")
         else:
-            print("❌ 未获取到财务数据")
+            print("[X] 未获取到财务数据")
             
     except Exception as e:
-        print(f"❌ 调用get_financial_data失败: {e}")
+        print(f"[X] 调用get_financial_data失败: {e}")
         import traceback
         traceback.print_exc()
     

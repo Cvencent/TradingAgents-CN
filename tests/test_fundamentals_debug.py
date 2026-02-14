@@ -59,7 +59,7 @@ def test_fundamentals_analyst_directly():
         return True
         
     except Exception as e:
-        print(f"❌ 直接测试失败: {e}")
+        print(f"[X] 直接测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -86,11 +86,11 @@ def test_stock_utils_import():
             print(f"  ✅ StockUtils正确识别港股")
             return True
         else:
-            print(f"  ❌ StockUtils未能识别港股")
+            print(f"  [X] StockUtils未能识别港股")
             return False
         
     except Exception as e:
-        print(f"❌ StockUtils测试失败: {e}")
+        print(f"[X] StockUtils测试失败: {e}")
         return False
 
 
@@ -115,7 +115,7 @@ def test_toolkit_hk_tools():
         
         for tool_name in hk_tools:
             has_tool = hasattr(toolkit, tool_name)
-            print(f"  {tool_name}: {'✅' if has_tool else '❌'}")
+            print(f"  {tool_name}: {'✅' if has_tool else '[X]'}")
             
             if has_tool:
                 tool = getattr(toolkit, tool_name)
@@ -125,7 +125,7 @@ def test_toolkit_hk_tools():
         return True
         
     except Exception as e:
-        print(f"❌ 工具包测试失败: {e}")
+        print(f"[X] 工具包测试失败: {e}")
         return False
 
 
@@ -145,7 +145,7 @@ def test_import_paths():
             __import__(import_path)
             print(f"  {import_path}: ✅")
         except Exception as e:
-            print(f"  {import_path}: ❌ - {e}")
+            print(f"  {import_path}: [X] - {e}")
             return False
     
     return True
@@ -171,9 +171,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

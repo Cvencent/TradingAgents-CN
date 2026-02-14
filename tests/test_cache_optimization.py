@@ -37,7 +37,7 @@ def test_cache_manager():
         return True
         
     except Exception as e:
-        print(f"❌ 缓存管理器测试失败: {e}")
+        print(f"[X] 缓存管理器测试失败: {e}")
         return False
 
 
@@ -83,7 +83,7 @@ def test_us_stock_cache():
         return True
         
     except Exception as e:
-        print(f"❌ 美股缓存测试失败: {e}")
+        print(f"[X] 美股缓存测试失败: {e}")
         return False
 
 
@@ -144,7 +144,7 @@ def test_china_stock_cache():
         return True
         
     except Exception as e:
-        print(f"❌ A股缓存测试失败: {e}")
+        print(f"[X] A股缓存测试失败: {e}")
         return False
 
 
@@ -167,7 +167,7 @@ def test_cache_ttl():
         
         if us_cache_key:
             is_valid = cache.is_cache_valid(us_cache_key, symbol="AAPL", data_type="stock_data")
-            print(f"📈 美股缓存有效性: {'✅ 有效' if is_valid else '❌ 过期'}")
+            print(f"📈 美股缓存有效性: {'✅ 有效' if is_valid else '[X] 过期'}")
         
         # 测试A股缓存TTL
         china_cache_key = cache.find_cached_stock_data(
@@ -179,12 +179,12 @@ def test_cache_ttl():
         
         if china_cache_key:
             is_valid = cache.is_cache_valid(china_cache_key, symbol="000001", data_type="stock_data")
-            print(f"📈 A股缓存有效性: {'✅ 有效' if is_valid else '❌ 过期'}")
+            print(f"📈 A股缓存有效性: {'✅ 有效' if is_valid else '[X] 过期'}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 缓存TTL测试失败: {e}")
+        print(f"[X] 缓存TTL测试失败: {e}")
         return False
 
 
@@ -218,7 +218,7 @@ def test_cache_cleanup():
         return True
         
     except Exception as e:
-        print(f"❌ 缓存清理测试失败: {e}")
+        print(f"[X] 缓存清理测试失败: {e}")
         return False
 
 
@@ -252,7 +252,7 @@ def main():
     total = len(test_results)
     
     for test_name, result in test_results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"  {test_name}: {status}")
         if result:
             passed += 1

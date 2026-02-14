@@ -70,14 +70,14 @@ def test_dashscope_technical_analysis():
         print(f"📋 复杂分析内容: {complex_response.content[:300]}...")
         
         if len(complex_response.content) < 100:
-            print("❌ 阿里百炼复杂分析响应过短")
+            print("[X] 阿里百炼复杂分析响应过短")
             return False
         else:
             print("✅ 阿里百炼复杂分析响应正常")
             return True
         
     except Exception as e:
-        print(f"❌ 阿里百炼测试失败: {e}")
+        print(f"[X] 阿里百炼测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -140,14 +140,14 @@ def test_deepseek_technical_analysis():
         print(f"📋 复杂分析内容: {complex_response.content[:300]}...")
         
         if len(complex_response.content) < 100:
-            print("❌ DeepSeek复杂分析响应过短")
+            print("[X] DeepSeek复杂分析响应过短")
             return False
         else:
             print("✅ DeepSeek复杂分析响应正常")
             return True
         
     except Exception as e:
-        print(f"❌ DeepSeek测试失败: {e}")
+        print(f"[X] DeepSeek测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -205,14 +205,14 @@ def test_message_sequence_handling():
         print(f"📋 复杂消息序列内容: {response.content[:300]}...")
         
         if len(response.content) < 100:
-            print("❌ 阿里百炼复杂消息序列响应过短")
+            print("[X] 阿里百炼复杂消息序列响应过短")
             return False
         else:
             print("✅ 阿里百炼复杂消息序列响应正常")
             return True
         
     except Exception as e:
-        print(f"❌ 复杂消息序列测试失败: {e}")
+        print(f"[X] 复杂消息序列测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -256,14 +256,14 @@ def test_max_tokens_impact():
             print(f"📊 max_tokens={max_tokens}, 响应长度: {len(response.content)}字符")
             
             if len(response.content) < 100:
-                print(f"❌ max_tokens={max_tokens}时响应过短")
+                print(f"[X] max_tokens={max_tokens}时响应过短")
             else:
                 print(f"✅ max_tokens={max_tokens}时响应正常")
         
         return True
         
     except Exception as e:
-        print(f"❌ max_tokens测试失败: {e}")
+        print(f"[X] max_tokens测试失败: {e}")
         return False
 
 
@@ -292,7 +292,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -301,7 +301,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

@@ -40,7 +40,7 @@ def main():
     st.markdown("---")
     
     if not DB_MANAGER_AVAILABLE:
-        st.error("❌ 数据库管理器不可用")
+        st.error("[X] 数据库管理器不可用")
         st.info("""
         请按以下步骤设置数据库环境：
         
@@ -70,8 +70,8 @@ def main():
         
         # 连接状态
         st.subheader("📡 连接状态")
-        mongodb_status = "✅ 已连接" if db_manager.is_mongodb_available() else "❌ 未连接"
-        redis_status = "✅ 已连接" if db_manager.is_redis_available() else "❌ 未连接"
+        mongodb_status = "✅ 已连接" if db_manager.is_mongodb_available() else "[X] 未连接"
+        redis_status = "✅ 已连接" if db_manager.is_redis_available() else "[X] 未连接"
         
         st.write(f"**MongoDB**: {mongodb_status}")
         st.write(f"**Redis**: {redis_status}")

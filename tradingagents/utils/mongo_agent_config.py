@@ -51,7 +51,7 @@ class MongoAgentConfig:
             logger.warning(f"⚠️ 未找到Agent配置: {agent_id}")
             return None
         except Exception as e:
-            logger.error(f"❌ 获取Agent配置失败: {e}")
+            logger.error(f"[X] 获取Agent配置失败: {e}")
             return None
     
     def get_all_agent_configs(self) -> List[Dict[str, Any]]:
@@ -80,7 +80,7 @@ class MongoAgentConfig:
             logger.info(f"✅ 成功获取所有Agent配置，共 {len(configs)} 个")
             return configs
         except Exception as e:
-            logger.error(f"❌ 获取所有Agent配置失败: {e}")
+            logger.error(f"[X] 获取所有Agent配置失败: {e}")
             return []
     
     def save_agent_config(self, agent_config: Dict[str, Any]) -> bool:
@@ -115,7 +115,7 @@ class MongoAgentConfig:
             
             return True
         except Exception as e:
-            logger.error(f"❌ 保存Agent配置失败: {e}")
+            logger.error(f"[X] 保存Agent配置失败: {e}")
             return False
     
     def delete_agent_config(self, agent_id: str) -> bool:
@@ -136,7 +136,7 @@ class MongoAgentConfig:
             logger.warning(f"⚠️ 未找到要删除的Agent配置: {agent_id}")
             return False
         except Exception as e:
-            logger.error(f"❌ 删除Agent配置失败: {e}")
+            logger.error(f"[X] 删除Agent配置失败: {e}")
             return False
     
     def initialize_default_configs(self) -> bool:
@@ -173,7 +173,7 @@ class MongoAgentConfig:
                     "name": "新闻分析师",
                     "description": "专注于新闻事件和市场情绪分析",
                     "system_message": "您是一位专业的财经新闻分析师，负责分析最新的市场新闻和事件对股票价格的潜在影响。\n\n您的主要职责包括：\n1. 获取和分析最新的实时新闻（优先15-30分钟内的新闻）\n2. 评估新闻事件的紧急程度和市场影响\n3. 识别可能影响股价的关键信息\n4. 分析新闻的时效性和可靠性\n5. 提供基于新闻的交易建议和价格影响评估\n\n重点关注的新闻类型：\n- 财报发布和业绩指导\n- 重大合作和并购消息\n- 政策变化和监管动态\n- 突发事件和危机管理\n- 行业趋势和技术突破\n- 管理层变动和战略调整\n\n分析要点：\n- 新闻的时效性（发布时间距离现在多久）\n- 新闻的可信度（来源权威性）\n- 市场影响程度（对股价的潜在影响）\n- 投资者情绪变化（正面/负面/中性）\n- 与历史类似事件的对比\n\n📊 新闻影响分析要求：\n- 评估新闻对股价的短期影响（1-3天）和市场情绪变化\n- 分析新闻的利好/利空程度和可能的市场反应\n- 评估新闻对公司基本面和长期投资价值的影响\n- 识别新闻中的关键信息点和潜在风险\n- 对比历史类似事件的市场反应\n- 不允许回复'无法评估影响'或'需要更多信息'\n\n请特别注意：\n⚠️ 如果新闻数据存在滞后（超过2小时），请在分析中明确说明时效性限制\n✅ 优先分析最新的、高相关性的新闻事件\n📊 提供新闻对市场情绪和投资者信心的影响评估\n💰 必须包含基于新闻的市场反应预期和投资建议\n🎯 聚焦新闻内容本身的解读，不涉及技术指标分析\n\n请撰写详细的中文分析报告，并在报告末尾附上Markdown表格总结关键发现。",
-                    "prompt_template": "您是一位专业的财经新闻分析师。\n\n🚨 CRITICAL REQUIREMENT - 绝对强制要求：\n\n❌ 禁止行为：\n- 绝对禁止在没有调用工具的情况下直接回答\n- 绝对禁止基于推测或假设生成任何分析内容\n- 绝对禁止跳过工具调用步骤\n- 绝对禁止说'我无法获取实时数据'等借口\n\n✅ 强制执行步骤：\n1. 您的第一个动作必须是调用 get_stock_news_unified 工具\n2. 该工具会自动识别股票类型（A股、港股、美股）并获取相应新闻\n3. 只有在成功获取新闻数据后，才能开始分析\n4. 您的回答必须基于工具返回的真实数据\n\n🔧 工具调用格式示例：\n调用: get_stock_news_unified(stock_code='{ticker}', max_news=10)\n\n⚠️ 如果您不调用工具，您的回答将被视为无效并被拒绝。\n⚠️ 您必须先调用工具获取数据，然后基于数据进行分析。\n⚠️ 没有例外，没有借口，必须调用工具。\n\n您可以访问以下工具：{tool_names}。\n{system_message}\n供您参考，当前日期是{current_date}。我们正在查看公司{ticker}。\n请按照上述要求执行，用中文撰写所有分析内容。",
+                    "prompt_template": "您是一位专业的财经新闻分析师。\n\n🚨 CRITICAL REQUIREMENT - 绝对强制要求：\n\n[X] 禁止行为：\n- 绝对禁止在没有调用工具的情况下直接回答\n- 绝对禁止基于推测或假设生成任何分析内容\n- 绝对禁止跳过工具调用步骤\n- 绝对禁止说'我无法获取实时数据'等借口\n\n✅ 强制执行步骤：\n1. 您的第一个动作必须是调用 get_stock_news_unified 工具\n2. 该工具会自动识别股票类型（A股、港股、美股）并获取相应新闻\n3. 只有在成功获取新闻数据后，才能开始分析\n4. 您的回答必须基于工具返回的真实数据\n\n🔧 工具调用格式示例：\n调用: get_stock_news_unified(stock_code='{ticker}', max_news=10)\n\n⚠️ 如果您不调用工具，您的回答将被视为无效并被拒绝。\n⚠️ 您必须先调用工具获取数据，然后基于数据进行分析。\n⚠️ 没有例外，没有借口，必须调用工具。\n\n您可以访问以下工具：{tool_names}。\n{system_message}\n供您参考，当前日期是{current_date}。我们正在查看公司{ticker}。\n请按照上述要求执行，用中文撰写所有分析内容。",
                     "tools": ["get_stock_news_unified"],
                     "enabled": True,
                     "version": 1
@@ -217,5 +217,5 @@ class MongoAgentConfig:
             logger.info(f"✅ 成功初始化默认Agent配置，共 {len(default_configs)} 个")
             return True
         except Exception as e:
-            logger.error(f"❌ 初始化默认Agent配置失败: {e}")
+            logger.error(f"[X] 初始化默认Agent配置失败: {e}")
             return False

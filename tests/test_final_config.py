@@ -16,7 +16,7 @@ def test_final_config():
     if os.path.exists('.env'):
         print("✅ .env文件存在")
     else:
-        print("❌ .env文件不存在")
+        print("[X] .env文件不存在")
         return False
     
     # 2. 读取启用开关
@@ -36,7 +36,7 @@ def test_final_config():
         print(f"  Port: {os.getenv('MONGODB_PORT', '27017')}")
         print(f"  Database: {os.getenv('MONGODB_DATABASE', 'tradingagents')}")
     else:
-        print("MongoDB: ❌ 禁用")
+        print("MongoDB: [X] 禁用")
     
     if redis_enabled:
         print("Redis: ✅ 启用")
@@ -44,7 +44,7 @@ def test_final_config():
         print(f"  Port: {os.getenv('REDIS_PORT', '6379')}")
         print(f"  DB: {os.getenv('REDIS_DB', '0')}")
     else:
-        print("Redis: ❌ 禁用")
+        print("Redis: [X] 禁用")
     
     # 4. 测试数据库管理器
     print("\n🔧 测试数据库管理器...")
@@ -58,18 +58,18 @@ def test_final_config():
         status = db_manager.get_status_report()
         
         print("📊 检测结果:")
-        print(f"  数据库可用: {'✅ 是' if status['database_available'] else '❌ 否'}")
+        print(f"  数据库可用: {'✅ 是' if status['database_available'] else '[X] 否'}")
         
         mongodb_info = status['mongodb']
-        print(f"  MongoDB: {'✅ 可用' if mongodb_info['available'] else '❌ 不可用'}")
+        print(f"  MongoDB: {'✅ 可用' if mongodb_info['available'] else '[X] 不可用'}")
         
         redis_info = status['redis']
-        print(f"  Redis: {'✅ 可用' if redis_info['available'] else '❌ 不可用'}")
+        print(f"  Redis: {'✅ 可用' if redis_info['available'] else '[X] 不可用'}")
         
         print(f"  缓存后端: {status['cache_backend']}")
         
     except Exception as e:
-        print(f"❌ 数据库管理器测试失败: {e}")
+        print(f"[X] 数据库管理器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -102,11 +102,11 @@ def test_final_config():
         if loaded_data == test_data:
             print("✅ 数据加载成功")
         else:
-            print("❌ 数据加载失败")
+            print("[X] 数据加载失败")
             return False
         
     except Exception as e:
-        print(f"❌ 缓存系统测试失败: {e}")
+        print(f"[X] 缓存系统测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -145,7 +145,7 @@ def main():
         return success
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False

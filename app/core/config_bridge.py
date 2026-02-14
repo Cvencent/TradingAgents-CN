@@ -97,7 +97,7 @@ def bridge_config_to_env():
             client.close()
 
         except Exception as e:
-            logger.error(f"❌ 从数据库读取厂家配置失败: {e}", exc_info=True)
+            logger.error(f"[X] 从数据库读取厂家配置失败: {e}", exc_info=True)
             logger.warning("⚠️  将尝试从 JSON 文件读取配置作为后备方案")
 
             # 后备方案：从 JSON 文件读取
@@ -173,7 +173,7 @@ def bridge_config_to_env():
             client.close()
 
         except Exception as e:
-            logger.error(f"❌ 从数据库读取数据源配置失败: {e}", exc_info=True)
+            logger.error(f"[X] 从数据库读取数据源配置失败: {e}", exc_info=True)
             logger.warning("⚠️  将尝试从 JSON 文件读取配置作为后备方案")
             data_source_configs = unified_config.get_data_source_configs()
 
@@ -258,14 +258,14 @@ def bridge_config_to_env():
                         logger.warning("⚠️ tradingagents MongoDB 连接失败，将使用 JSON 文件存储")
                         config_manager.mongodb_storage = None
                 except Exception as e:
-                    logger.error(f"❌ 创建 MongoDBStorage 实例失败: {e}")
+                    logger.error(f"[X] 创建 MongoDBStorage 实例失败: {e}")
                     import traceback
                     logger.error(traceback.format_exc())
                     config_manager.mongodb_storage = None
             else:
                 logger.info("ℹ️ USE_MONGODB_STORAGE 未启用，将使用 JSON 文件存储")
         except Exception as e:
-            logger.error(f"❌ 重新初始化 tradingagents MongoDB 存储失败: {e}")
+            logger.error(f"[X] 重新初始化 tradingagents MongoDB 存储失败: {e}")
             import traceback
             logger.error(traceback.format_exc())
 
@@ -287,7 +287,7 @@ def bridge_config_to_env():
         return True
 
     except Exception as e:
-        logger.error(f"❌ 配置桥接失败: {e}", exc_info=True)
+        logger.error(f"[X] 配置桥接失败: {e}", exc_info=True)
         logger.warning("⚠️  TradingAgents 将使用 .env 文件中的配置")
         return False
 
@@ -480,7 +480,7 @@ def _bridge_system_settings() -> int:
                 print(f"⚠️  [config_bridge] 系统设置同步返回 False")
         except Exception as e:
             logger.warning(f"  ⚠️  同步系统设置到文件系统失败: {e}")
-            print(f"❌ [config_bridge] 同步系统设置到文件系统失败: {e}")
+            print(f"[X] [config_bridge] 同步系统设置到文件系统失败: {e}")
             import traceback
             print(traceback.format_exc())
 
@@ -650,7 +650,7 @@ def sync_pricing_config_now():
             asyncio.run(_sync_pricing_config_from_db())
             return True
     except Exception as e:
-        logger.error(f"❌ 立即同步定价配置失败: {e}")
+        logger.error(f"[X] 立即同步定价配置失败: {e}")
         import traceback
         logger.error(traceback.format_exc())
         return False
@@ -661,7 +661,7 @@ def _handle_sync_task_result(task):
     try:
         task.result()
     except Exception as e:
-        logger.error(f"❌ 定价配置同步任务执行失败: {e}")
+        logger.error(f"[X] 定价配置同步任务执行失败: {e}")
         import traceback
         logger.error(traceback.format_exc())
 
@@ -720,7 +720,7 @@ async def _sync_pricing_config_from_db():
         logger.info(f"✅ 同步定价配置到 {pricing_file}: {len(pricing_configs)} 个模型")
 
     except Exception as e:
-        logger.error(f"❌ 从数据库同步定价配置失败: {e}")
+        logger.error(f"[X] 从数据库同步定价配置失败: {e}")
         import traceback
         logger.error(traceback.format_exc())
 

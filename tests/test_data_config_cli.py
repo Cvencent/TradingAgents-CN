@@ -58,9 +58,9 @@ def test_data_dir_configuration():
                 if os.path.exists(subdir_path):
                     print(f"  ✅ 子目录存在 | Subdirectory exists: {subdir}")
                 else:
-                    print(f"  ❌ 子目录缺失 | Subdirectory missing: {subdir}")
+                    print(f"  [X] 子目录缺失 | Subdirectory missing: {subdir}")
         else:
-            print("❌ 自定义数据目录创建失败 | Custom data directory creation failed")
+            print("[X] 自定义数据目录创建失败 | Custom data directory creation failed")
     
     # 3. 测试环境变量配置
     print("\n3. 测试环境变量配置 | Testing Environment Variable Configuration")
@@ -79,7 +79,7 @@ def test_data_dir_configuration():
         if env_current_data_dir == env_data_dir:
             print("✅ 环境变量配置生效 | Environment variable configuration effective")
         else:
-            print("❌ 环境变量配置未生效 | Environment variable configuration not effective")
+            print("[X] 环境变量配置未生效 | Environment variable configuration not effective")
         
         # 清理环境变量
         del os.environ["TRADINGAGENTS_DATA_DIR"]
@@ -149,7 +149,7 @@ def main():
         print("✅ 自动目录创建功能 | Auto directory creation feature")
         
     except Exception as e:
-        print(f"\n❌ 测试过程中出现错误 | Error during testing: {e}")
+        print(f"\n[X] 测试过程中出现错误 | Error during testing: {e}")
         import traceback
         traceback.print_exc()
         return 1

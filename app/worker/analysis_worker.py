@@ -168,7 +168,7 @@ class AnalysisWorker:
             logger.info(f"✅ 任务完成: {task_id} - 耗时: {result.execution_time:.2f}秒")
 
         except Exception as e:
-            logger.error(f"❌ 任务执行失败: {task_id} - {e}")
+            logger.error(f"[X] 任务执行失败: {task_id} - {e}")
             logger.error(traceback.format_exc())
 
         finally:

@@ -163,11 +163,11 @@ class BasicsSyncService:
                     logger.warning(f"⚠️ 批量写入超时 (第{retry_count}次重试)，等待{wait_time}秒后重试...")
                     await asyncio.sleep(wait_time)
                 else:
-                    logger.error(f"❌ 批量写入失败，已重试{max_retries}次: {e}")
+                    logger.error(f"[X] 批量写入失败，已重试{max_retries}次: {e}")
                     return 0, 0
 
             except Exception as e:
-                logger.error(f"❌ 批量写入失败: {e}")
+                logger.error(f"[X] 批量写入失败: {e}")
                 return 0, 0
 
         return inserted, updated
@@ -194,7 +194,7 @@ class BasicsSyncService:
             # Step 0: Check if Tushare is enabled
             if not settings.TUSHARE_ENABLED:
                 error_msg = (
-                    "❌ Tushare 数据源已禁用 (TUSHARE_ENABLED=false)\n"
+                    "[X] Tushare 数据源已禁用 (TUSHARE_ENABLED=false)\n"
                     "💡 此服务仅支持 Tushare 数据源\n"
                     "📋 解决方案：\n"
                     "   1. 在 .env 文件中设置 TUSHARE_ENABLED=true 并配置 TUSHARE_TOKEN\n"

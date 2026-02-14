@@ -161,12 +161,12 @@ def test_news_analyst_integration():
                         else:
                             print("⚠️ 可能需要进一步优化")
                     else:
-                        print("❌ 消息内容为空")
+                        print("[X] 消息内容为空")
                 else:
-                    print("❌ 未获取到分析结果")
+                    print("[X] 未获取到分析结果")
                     
             except Exception as e:
-                print(f"❌ 测试股票 {stock_code} 时出错: {e}")
+                print(f"[X] 测试股票 {stock_code} 时出错: {e}")
                 import traceback
                 traceback.print_exc()
         
@@ -175,7 +175,7 @@ def test_news_analyst_integration():
         print(f"{'='*60}")
         
     except Exception as e:
-        print(f"❌ 测试过程中出现错误: {e}")
+        print(f"[X] 测试过程中出现错误: {e}")
         import traceback
         traceback.print_exc()
 

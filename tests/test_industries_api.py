@@ -22,7 +22,7 @@ def test_industries_api():
     })
 
     if auth_response.status_code != 200:
-        print(f"❌ 登录失败: {auth_response.status_code}")
+        print(f"[X] 登录失败: {auth_response.status_code}")
         print(f"   响应内容: {auth_response.text}")
         return False
 
@@ -48,7 +48,7 @@ def test_industries_api():
                 break
 
     if not token:
-        print(f"❌ 无法找到访问令牌，响应数据: {auth_data}")
+        print(f"[X] 无法找到访问令牌，响应数据: {auth_data}")
         return False
 
     headers = {"Authorization": f"Bearer {token}"}
@@ -80,11 +80,11 @@ def test_industries_api():
             if found:
                 print(f"  ✅ {fin_industry}: {found['count']}只股票")
             else:
-                print(f"  ❌ {fin_industry}: 未找到")
+                print(f"  [X] {fin_industry}: 未找到")
         
         return True
     else:
-        print(f"❌ 行业API失败: {response.status_code}")
+        print(f"[X] 行业API失败: {response.status_code}")
         print(f"   响应内容: {response.text}")
         return False
 
@@ -95,5 +95,5 @@ if __name__ == "__main__":
         print("\n🎉 行业API测试成功！")
         print("前端现在可以动态加载真实的行业数据了。")
     else:
-        print("\n❌ 行业API测试失败！")
+        print("\n[X] 行业API测试失败！")
         print("需要检查后端API实现。")

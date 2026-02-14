@@ -24,7 +24,7 @@ async def test_non_blocking_analysis():
         print("🔐 正在登录...")
         async with session.post(f"{base_url}/api/auth/login", json=login_data) as resp:
             if resp.status != 200:
-                print(f"❌ 登录失败: {resp.status}")
+                print(f"[X] 登录失败: {resp.status}")
                 return
             
             login_result = await resp.json()
@@ -56,7 +56,7 @@ async def test_non_blocking_analysis():
             print(f"⏱️ 任务提交耗时: {submit_time:.2f}秒")
             
             if resp.status != 200:
-                print(f"❌ 任务提交失败: {resp.status}")
+                print(f"[X] 任务提交失败: {resp.status}")
                 text = await resp.text()
                 print(f"错误信息: {text}")
                 return
@@ -102,7 +102,7 @@ async def test_non_blocking_analysis():
                 print(f"📊 5秒后任务状态: {status_result['data']['status']}")
                 print(f"📈 任务进度: {status_result['data'].get('progress', 0)}%")
             else:
-                print(f"❌ 状态查询失败: {resp.status}")
+                print(f"[X] 状态查询失败: {resp.status}")
 
 async def test_concurrent_requests():
     """测试并发请求"""

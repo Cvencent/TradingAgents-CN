@@ -34,14 +34,14 @@ def test_unified_tools_availability():
                 print(f"  ✅ {tool_name}: 可用")
                 print(f"    工具描述: {getattr(tool, 'description', 'N/A')[:100]}...")
             else:
-                print(f"  ❌ {tool_name}: 不可用")
+                print(f"  [X] {tool_name}: 不可用")
                 return False
         
         print("✅ 统一工具可用性测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 统一工具可用性测试失败: {e}")
+        print(f"[X] 统一工具可用性测试失败: {e}")
         return False
 
 
@@ -71,7 +71,7 @@ def test_market_analyst_unified():
                     print(f"  ✅ 正确绑定统一市场数据工具")
                     return self
                 else:
-                    print(f"  ❌ 绑定了错误的工具: {[tool.name for tool in tools]}")
+                    print(f"  [X] 绑定了错误的工具: {[tool.name for tool in tools]}")
                     return self
             
             def invoke(self, messages):
@@ -102,7 +102,7 @@ def test_market_analyst_unified():
         return True
         
     except Exception as e:
-        print(f"❌ 市场分析师统一工具测试失败: {e}")
+        print(f"[X] 市场分析师统一工具测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -134,7 +134,7 @@ def test_fundamentals_analyst_unified():
                     print(f"  ✅ 正确绑定统一基本面分析工具")
                     return self
                 else:
-                    print(f"  ❌ 绑定了错误的工具: {[tool.name for tool in tools]}")
+                    print(f"  [X] 绑定了错误的工具: {[tool.name for tool in tools]}")
                     return self
             
             def invoke(self, messages):
@@ -165,7 +165,7 @@ def test_fundamentals_analyst_unified():
         return True
         
     except Exception as e:
-        print(f"❌ 基本面分析师统一工具测试失败: {e}")
+        print(f"[X] 基本面分析师统一工具测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -209,7 +209,7 @@ def test_stock_type_routing():
                     print(f"  ⚠️ 基本面工具路由可能有问题")
                     
             except Exception as e:
-                print(f"  ❌ 基本面工具调用失败: {e}")
+                print(f"  [X] 基本面工具调用失败: {e}")
                 return False
             
             # 测试市场数据工具
@@ -226,14 +226,14 @@ def test_stock_type_routing():
                     print(f"  ⚠️ 市场数据工具路由可能有问题")
                     
             except Exception as e:
-                print(f"  ❌ 市场数据工具调用失败: {e}")
+                print(f"  [X] 市场数据工具调用失败: {e}")
                 return False
         
         print("✅ 股票类型路由测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 股票类型路由测试失败: {e}")
+        print(f"[X] 股票类型路由测试失败: {e}")
         return False
 
 
@@ -257,9 +257,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

@@ -37,7 +37,7 @@ class SmartSessionManager:
             from .file_session_manager import file_session_manager
             self.file_manager = file_session_manager
         except Exception as e:
-            st.error(f"❌ 文件会话管理器初始化失败: {e}")
+            st.error(f"[X] 文件会话管理器初始化失败: {e}")
     
     def save_analysis_state(self, analysis_id: str, status: str = "running",
                            stock_symbol: str = "", market_type: str = "",
@@ -61,7 +61,7 @@ class SmartSessionManager:
                 success = self.file_manager.save_analysis_state(analysis_id, status, stock_symbol, market_type, form_config)
                 return success
             except Exception as e:
-                st.error(f"❌ 文件存储也失败了: {e}")
+                st.error(f"[X] 文件存储也失败了: {e}")
                 return False
         
         return False
@@ -83,7 +83,7 @@ class SmartSessionManager:
             try:
                 return self.file_manager.load_analysis_state()
             except Exception as e:
-                st.error(f"❌ 文件存储加载失败: {e}")
+                st.error(f"[X] 文件存储加载失败: {e}")
                 return None
         
         return None

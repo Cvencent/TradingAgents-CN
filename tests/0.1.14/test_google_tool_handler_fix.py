@@ -40,7 +40,7 @@ def test_tool_call_validation():
     }
     
     result = GoogleToolCallHandler._validate_tool_call(invalid_tool_call_1, 1, "测试分析师")
-    print(f"❌ 无效工具调用1验证结果: {result}")
+    print(f"[X] 无效工具调用1验证结果: {result}")
     assert result == False, "缺少字段的工具调用应该验证失败"
     
     # 测试无效的工具调用 - 错误类型
@@ -51,7 +51,7 @@ def test_tool_call_validation():
     }
     
     result = GoogleToolCallHandler._validate_tool_call(invalid_tool_call_2, 2, "测试分析师")
-    print(f"❌ 无效工具调用2验证结果: {result}")
+    print(f"[X] 无效工具调用2验证结果: {result}")
     assert result == False, "错误类型的工具调用应该验证失败"
     
     print("✅ 工具调用验证功能测试通过")
@@ -81,13 +81,13 @@ def test_tool_call_fixing():
         assert isinstance(fixed_tool_call['args'], dict), "args应该是字典类型"
         print("✅ OpenAI格式工具调用修复成功")
     else:
-        print("❌ OpenAI格式工具调用修复失败")
+        print("[X] OpenAI格式工具调用修复失败")
     
     # 测试无法修复的工具调用
     unfixable_tool_call = "not_a_dict"
     
     fixed_tool_call = GoogleToolCallHandler._fix_tool_call(unfixable_tool_call, 1, "测试分析师")
-    print(f"❌ 无法修复的工具调用结果: {fixed_tool_call}")
+    print(f"[X] 无法修复的工具调用结果: {fixed_tool_call}")
     assert fixed_tool_call is None, "无法修复的工具调用应该返回None"
     
     print("✅ 工具调用修复功能测试通过")
@@ -164,7 +164,7 @@ def main():
         print("- 增强的错误处理和调试信息")
         
     except Exception as e:
-        print(f"\n❌ 测试失败: {e}")
+        print(f"\n[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False

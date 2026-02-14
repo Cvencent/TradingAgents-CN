@@ -285,13 +285,86 @@
         </template>
       </el-result>
     </div>
+
+    <!-- Prompt 详情对话框 -->
+    <el-dialog
+      v-model="promptDialogVisible"
+      :title="promptDialogTitle"
+      width="85%"
+      :close-on-click-modal="false"
+      class="prompt-dialog"
+    >
+      <!-- 警告信息 -->
+      <el-alert
+        v-if="promptWarning"
+        :title="promptWarning"
+        type="warning"
+        :closable="false"
+        show-icon
+        style="margin-bottom: 16px;"
+      />
+
+      <!-- Tab 切换区域 -->
+      <div class="prompt-tabs-container">
+        <!-- 方式1: 按步骤分组显示 -->
+        <template v-if="Object.keys(promptsByStep).length > 0">
+          <el-tabs v-model="activePromptTab" type="border-card" class="prompt-tabs">
+            <el-tab-pane
+              v-for="(stepData, stepKey) in promptsByStep"
+              :key="stepKey"
+              :name="stepKey"
+              :label="`${stepData.icon || '📋'} ${stepData.name}`"
+            >
+              <!-- 步骤内的分析师列表 -->
+              <div class="analyst-list">
+                <el-collapse v-if="stepData.prompts && stepData.prompts.length > 0">
+                  <el-collapse-item
+                    v-for="(prompt, index) in stepData.prompts"
+                    :key="index"
+                    :title="`${getAnalystIcon(prompt.analyst)} ${prompt.analyst_name || prompt.analyst}`"
+                    :name="index"
+                  >
+                    <div class="prompt-content markdown-content" v-html="renderMarkdown(prompt.content)"></div>
+                  </el-collapse-item>
+                </el-collapse>
+                <el-empty v-else description="该步骤暂无 Prompt 数据" />
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </template>
+
+        <!-- 方式2: 直接按分析师显示 -->
+        <template v-else-if="promptsData.length > 0">
+          <el-tabs v-model="activePromptTab" type="border-card" class="prompt-tabs">
+            <el-tab-pane
+              v-for="(prompt, index) in promptsData"
+              :key="index"
+              :name="prompt.analyst"
+              :label="`${getAnalystIcon(prompt.analyst)} ${prompt.analyst_name || prompt.analyst}`"
+            >
+              <div class="prompt-content markdown-content" v-html="renderMarkdown(prompt.content)"></div>
+            </el-tab-pane>
+          </el-tabs>
+        </template>
+
+        <!-- 无数据 -->
+        <el-empty v-else description="暂无 Prompt 数据" />
+      </div>
+
+      <!-- 底部操作栏 -->
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="closePromptDialog">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, h, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox, ElInput, ElInputNumber, ElForm, ElFormItem } from 'element-plus'
+import { ElMessage, ElMessageBox, ElInput, ElInputNumber, ElForm, ElFormItem, ElDialog } from 'element-plus'
 import { paperApi } from '@/api/paper'
 import { stocksApi } from '@/api/stocks'
 import { configApi, type LLMConfig } from '@/api/config'
@@ -335,6 +408,14 @@ const report = ref(null)
 const activeModule = ref('')
 const activeDebateRound = ref(0)
 const llmConfigs = ref<LLMConfig[]>([]) // 存储所有模型配置
+
+// Prompt 对话框相关
+const promptDialogVisible = ref(false)
+const promptDialogTitle = ref('分析 Prompt 详情')
+const promptsData = ref<any[]>([])
+const promptsByStep = ref<Record<string, any>>({})
+const activePromptTab = ref('')
+const promptWarning = ref('')
 
 // 扩展的模块列表（左侧列表显示所有模块，辩论模块在右侧用横向Tab展示多轮）
 const extendedModuleList = computed(() => {
@@ -822,79 +903,25 @@ const viewPrompts = async () => {
     const result = await response.json()
 
     if (result.success && result.data?.prompts?.length > 0) {
-      // 🔥 新增：按步骤分组显示
-      const promptsByStep = result.data.prompts_by_step || {}
-      const steps = Object.keys(promptsByStep)
+      // 设置数据
+      promptsData.value = result.data.prompts
+      promptsByStep.value = result.data.prompts_by_step || {}
+      promptWarning.value = result.data.warning || ''
+      promptDialogTitle.value = `分析 Prompt 详情 (${result.data.prompts.length} 个分析师)`
 
+      // 设置默认选中的 tab
+      const steps = Object.keys(promptsByStep.value)
       if (steps.length > 0) {
-        // 有步骤分组，按步骤显示
-        let dialogContent = ''
-
-        for (const step of steps) {
-          const stepData = promptsByStep[step]
-          dialogContent += `## ${stepData.icon || '📋'} ${stepData.name}\n\n`
-
-          for (const p of stepData.prompts) {
-            dialogContent += `### ${p.analyst_name || p.analyst}\n\n`
-            dialogContent += p.content || ''
-            dialogContent += '\n\n---\n\n'
-          }
-        }
-
-        // 显示警告信息
-        let warningMsg = ''
-        if (result.data.warning) {
-          warningMsg = `<div style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
-            <strong>⚠️ 注意：</strong>${result.data.warning}
-          </div>`
-        }
-
-        await ElMessageBox.alert(
-          `${warningMsg}<div style="max-height: 50vh; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-size: 12px; line-height: 1.5;">${dialogContent}</div>`,
-          '分析Prompt详情',
-          {
-            confirmButtonText: '关闭',
-            dangerouslyUseHTMLString: true,
-            customClass: 'prompt-dialog',
-            callback: () => {}
-          }
-        )
-      } else {
-        // 没有步骤分组，按原来的方式显示
-        const prompts = result.data.prompts
-        let promptContent = ''
-
-        for (const p of prompts) {
-          const analystType = p.type === 'report_content' ? '[报告内容参考]' : ''
-          promptContent += `### ${p.analyst_name || p.analyst} ${analystType}\n\n`
-          promptContent += p.content || ''
-          promptContent += '\n\n---\n\n'
-        }
-
-        // 显示警告信息
-        let warningMsg = ''
-        if (result.data.warning) {
-          warningMsg = `<div style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
-            <strong>⚠️ 注意：</strong>${result.data.warning}
-          </div>`
-        }
-
-        await ElMessageBox.alert(
-          `${warningMsg}<div style="max-height: 50vh; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-size: 12px; line-height: 1.5;">${promptContent}</div>`,
-          '分析Prompt详情',
-          {
-            confirmButtonText: '关闭',
-            dangerouslyUseHTMLString: true,
-            customClass: 'prompt-dialog',
-            callback: () => {}
-          }
-        )
+        activePromptTab.value = steps[0]
+      } else if (result.data.prompts.length > 0) {
+        activePromptTab.value = result.data.prompts[0].analyst
       }
-    } else if (result.success && result.data?.prompts_by_step && Object.keys(result.data.prompts_by_step).length > 0) {
-      // 🔥 新增：有步骤分组但没有prompts的情况
-      const promptsByStep = result.data.prompts_by_step
 
-      await ElMessageBox.alert(
+      // 打开对话框
+      promptDialogVisible.value = true
+    } else if (result.success && result.data?.prompts_by_step && Object.keys(result.data.prompts_by_step).length > 0) {
+      // 有步骤分组但没有prompts的情况
+      ElMessageBox.alert(
         `<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 16px; border-radius: 4px;">
           <strong>❌ 未找到Prompt记录</strong>
           <p style="margin: 12px 0 0 0;">${result.data.warning || '该分析任务未保存prompt数据'}</p>
@@ -928,6 +955,29 @@ const viewPrompts = async () => {
     console.error('获取Prompt失败:', error)
     ElMessage.error(error.message || '获取Prompt失败')
   }
+}
+
+// 关闭 Prompt 对话框
+const closePromptDialog = () => {
+  promptDialogVisible.value = false
+}
+
+// 获取分析师图标
+const getAnalystIcon = (analystKey: string): string => {
+  const iconMap: Record<string, string> = {
+    'market_report': '📊',
+    'fundamentals_report': '📈',
+    'sentiment_report': '😊',
+    'news_report': '📰',
+    'bull_researcher': '🐂',
+    'bear_researcher': '🐻',
+    'risky_analyst': '⚡',
+    'safe_analyst': '🛡️',
+    'neutral_analyst': '⚖️',
+    'trader_investment_plan': '💼',
+    'final_trade_decision': '🎯',
+  }
+  return iconMap[analystKey] || '📋'
 }
 
 // 工具函数
@@ -1754,6 +1804,82 @@ onMounted(() => {
 
   .error-container {
     padding: 48px 24px;
+  }
+}
+
+// Prompt 对话框样式
+:deep(.prompt-dialog) {
+  .el-dialog__body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow: hidden;
+  }
+
+  .prompt-tabs-container {
+    .prompt-tabs {
+      .el-tabs__header {
+        margin-bottom: 16px;
+      }
+
+      .el-tabs__item {
+        font-size: 14px;
+        padding: 0 20px;
+
+        .el-icon {
+          margin-right: 6px;
+        }
+      }
+    }
+
+    .analyst-list {
+      .el-collapse {
+        border: 1px solid var(--el-border-color-light);
+        border-radius: 8px;
+        overflow: hidden;
+
+        .el-collapse-item__header {
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 500;
+          background-color: var(--el-fill-color-light);
+
+          &:hover {
+            background-color: var(--el-fill-color);
+          }
+        }
+
+        .el-collapse-item__content {
+          padding: 16px;
+        }
+      }
+    }
+
+    .prompt-content {
+      background-color: var(--el-fill-color-light);
+      border-radius: 8px;
+      padding: 16px;
+      max-height: 50vh;
+      overflow-y: auto;
+
+      pre {
+        background-color: var(--el-bg-color);
+        border: 1px solid var(--el-border-color);
+        border-radius: 4px;
+        padding: 12px;
+        overflow-x: auto;
+      }
+
+      code {
+        font-family: 'Fira Code', 'Consolas', monospace;
+        font-size: 13px;
+      }
+    }
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
   }
 }
 </style>

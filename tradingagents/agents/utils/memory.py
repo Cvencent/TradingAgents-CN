@@ -50,7 +50,7 @@ class ChromaDBManager:
 
                 self._initialized = True
             except Exception as e:
-                logger.error(f"❌ [ChromaDB] 初始化失败: {e}")
+                logger.error(f"[X] [ChromaDB] 初始化失败: {e}")
                 # 使用最简单的配置作为备用
                 try:
                     settings = Settings(
@@ -88,7 +88,7 @@ class ChromaDBManager:
                         collection = self._client.get_collection(name=name)
                         logger.info(f"📚 [ChromaDB] 并发创建后获取集合: {name}")
                     except Exception as final_error:
-                        logger.error(f"❌ [ChromaDB] 集合操作失败: {name}, 错误: {final_error}")
+                        logger.error(f"[X] [ChromaDB] 集合操作失败: {name}, 错误: {final_error}")
                         raise final_error
 
             # 缓存集合
@@ -133,13 +133,13 @@ class FinancialSituationMemory:
 
                 except ImportError as e:
                     # DashScope包未安装
-                    logger.error(f"❌ DashScope包未安装: {e}")
+                    logger.error(f"[X] DashScope包未安装: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ 记忆功能已禁用")
 
                 except Exception as e:
                     # 其他初始化错误
-                    logger.error(f"❌ DashScope初始化失败: {e}")
+                    logger.error(f"[X] DashScope初始化失败: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ 记忆功能已禁用")
             else:
@@ -163,11 +163,11 @@ class FinancialSituationMemory:
                     self.client = None
                     logger.info(f"💡 千帆使用阿里百炼嵌入服务")
                 except ImportError as e:
-                    logger.error(f"❌ DashScope包未安装: {e}")
+                    logger.error(f"[X] DashScope包未安装: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ 千帆记忆功能已禁用")
                 except Exception as e:
-                    logger.error(f"❌ 千帆嵌入初始化失败: {e}")
+                    logger.error(f"[X] 千帆嵌入初始化失败: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ 千帆记忆功能已禁用")
             else:
@@ -225,7 +225,7 @@ class FinancialSituationMemory:
                             )
                             logger.info(f"💡 DeepSeek使用自己的嵌入服务")
                         except Exception as e:
-                            logger.error(f"❌ DeepSeek嵌入服务不可用: {e}")
+                            logger.error(f"[X] DeepSeek嵌入服务不可用: {e}")
                             # 禁用内存功能
                             self.client = "DISABLED"
                             logger.info(f"🚨 内存功能已禁用，系统将继续运行但不保存历史记忆")
@@ -260,11 +260,11 @@ class FinancialSituationMemory:
                         self.fallback_available = False
                         
                 except ImportError as e:
-                    logger.error(f"❌ DashScope包未安装: {e}")
+                    logger.error(f"[X] DashScope包未安装: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ Google AI记忆功能已禁用")
                 except Exception as e:
-                    logger.error(f"❌ DashScope初始化失败: {e}")
+                    logger.error(f"[X] DashScope初始化失败: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ Google AI记忆功能已禁用")
             else:
@@ -288,11 +288,11 @@ class FinancialSituationMemory:
                     dashscope.api_key = dashscope_key
                     logger.info(f"💡 OpenRouter使用阿里百炼嵌入服务")
                 except ImportError as e:
-                    logger.error(f"❌ DashScope包未安装: {e}")
+                    logger.error(f"[X] DashScope包未安装: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ OpenRouter记忆功能已禁用")
                 except Exception as e:
-                    logger.error(f"❌ DashScope初始化失败: {e}")
+                    logger.error(f"[X] DashScope初始化失败: {e}")
                     self.client = "DISABLED"
                     logger.warning(f"⚠️ OpenRouter记忆功能已禁用")
             else:
@@ -491,14 +491,14 @@ class FinancialSituationMemory:
                                 logger.info(f"✅ OpenAI降级成功，维度: {len(embedding)}")
                                 return embedding
                             except Exception as fallback_error:
-                                logger.error(f"❌ OpenAI降级失败: {str(fallback_error)}")
+                                logger.error(f"[X] OpenAI降级失败: {str(fallback_error)}")
                                 logger.info(f"💡 所有降级选项失败，记忆功能降级")
                                 return [0.0] * 1024
                         else:
                             logger.info(f"💡 无可用降级选项，记忆功能降级")
                             return [0.0] * 1024
                     else:
-                        logger.error(f"❌ DashScope API错误: {error_msg}")
+                        logger.error(f"[X] DashScope API错误: {error_msg}")
                         return [0.0] * 1024  # 返回空向量而不是抛出异常
 
             except Exception as e:
@@ -520,20 +520,20 @@ class FinancialSituationMemory:
                             logger.info(f"✅ OpenAI降级成功，维度: {len(embedding)}")
                             return embedding
                         except Exception as fallback_error:
-                            logger.error(f"❌ OpenAI降级失败: {str(fallback_error)}")
+                            logger.error(f"[X] OpenAI降级失败: {str(fallback_error)}")
                             logger.info(f"💡 所有降级选项失败，记忆功能降级")
                             return [0.0] * 1024
                     else:
                         logger.info(f"💡 无可用降级选项，记忆功能降级")
                         return [0.0] * 1024
                 elif 'import' in error_str:
-                    logger.error(f"❌ DashScope包未安装: {str(e)}")
+                    logger.error(f"[X] DashScope包未安装: {str(e)}")
                 elif 'connection' in error_str:
-                    logger.error(f"❌ DashScope网络连接错误: {str(e)}")
+                    logger.error(f"[X] DashScope网络连接错误: {str(e)}")
                 elif 'timeout' in error_str:
-                    logger.error(f"❌ DashScope请求超时: {str(e)}")
+                    logger.error(f"[X] DashScope请求超时: {str(e)}")
                 else:
-                    logger.error(f"❌ DashScope embedding异常: {str(e)}")
+                    logger.error(f"[X] DashScope embedding异常: {str(e)}")
                 
                 logger.warning(f"⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
@@ -575,15 +575,15 @@ class FinancialSituationMemory:
                 else:
                     # 其他类型的错误
                     if 'attributeerror' in error_str:
-                        logger.error(f"❌ {self.llm_provider} API调用错误: {str(e)}")
+                        logger.error(f"[X] {self.llm_provider} API调用错误: {str(e)}")
                     elif 'connectionerror' in error_str or 'connection' in error_str:
-                        logger.error(f"❌ {self.llm_provider}网络连接错误: {str(e)}")
+                        logger.error(f"[X] {self.llm_provider}网络连接错误: {str(e)}")
                     elif 'timeout' in error_str:
-                        logger.error(f"❌ {self.llm_provider}请求超时: {str(e)}")
+                        logger.error(f"[X] {self.llm_provider}请求超时: {str(e)}")
                     elif 'keyerror' in error_str:
-                        logger.error(f"❌ {self.llm_provider}响应格式错误: {str(e)}")
+                        logger.error(f"[X] {self.llm_provider}响应格式错误: {str(e)}")
                     else:
-                        logger.error(f"❌ {self.llm_provider} embedding异常: {str(e)}")
+                        logger.error(f"[X] {self.llm_provider} embedding异常: {str(e)}")
                 
                 logger.warning(f"⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
@@ -682,7 +682,7 @@ class FinancialSituationMemory:
             return memories
             
         except Exception as e:
-            logger.error(f"❌ 记忆查询失败: {str(e)}")
+            logger.error(f"[X] 记忆查询失败: {str(e)}")
             return []
 
     def get_cache_info(self):

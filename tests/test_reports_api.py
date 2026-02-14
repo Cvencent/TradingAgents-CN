@@ -27,10 +27,10 @@ def login_and_get_token(base_url):
             print(f"✅ 登录成功，获取到token")
             return token
         else:
-            print(f"❌ 登录失败: {result.get('message', '未知错误')}")
+            print(f"[X] 登录失败: {result.get('message', '未知错误')}")
             return None
     else:
-        print(f"❌ 登录请求失败: {response.status_code}")
+        print(f"[X] 登录请求失败: {response.status_code}")
         print(f"   错误信息: {response.text}")
         return None
 
@@ -42,7 +42,7 @@ def test_reports_api():
     print("0. 登录获取token...")
     token = login_and_get_token(base_url)
     if not token:
-        print("❌ 无法获取token，测试终止")
+        print("[X] 无法获取token，测试终止")
         return False
 
     # 使用真实token
@@ -61,7 +61,7 @@ def test_reports_api():
         if health_response.status_code == 200:
             print("✅ API服务正常运行")
         else:
-            print(f"❌ API服务异常: {health_response.status_code}")
+            print(f"[X] API服务异常: {health_response.status_code}")
             return False
         
         # 2. 获取报告列表
@@ -137,7 +137,7 @@ def test_reports_api():
                                 f.write(download_response.content)
                             print(f"   已保存到: {filename}")
                         else:
-                            print(f"❌ 报告下载失败: {download_response.status_code}")
+                            print(f"[X] 报告下载失败: {download_response.status_code}")
                             print(f"   错误信息: {download_response.text}")
                         
                         # 5. 测试获取特定模块内容
@@ -158,14 +158,14 @@ def test_reports_api():
                                 print(f"   内容类型: {module_data['data']['content_type']}")
                                 print(f"   内容长度: {len(str(module_data['data']['content']))}")
                             else:
-                                print(f"❌ 模块内容获取失败: {module_response.status_code}")
+                                print(f"[X] 模块内容获取失败: {module_response.status_code}")
                     else:
-                        print(f"❌ 报告详情获取失败: {detail_response.status_code}")
+                        print(f"[X] 报告详情获取失败: {detail_response.status_code}")
                         print(f"   错误信息: {detail_response.text}")
             else:
                 print("⚠️ 没有找到报告，可能需要先运行一些分析任务")
         else:
-            print(f"❌ 报告列表获取失败: {reports_response.status_code}")
+            print(f"[X] 报告列表获取失败: {reports_response.status_code}")
             print(f"   错误信息: {reports_response.text}")
             return False
         
@@ -181,13 +181,13 @@ def test_reports_api():
             print(f"✅ 搜索功能正常")
             print(f"   搜索结果数量: {len(search_data['data']['reports'])}")
         else:
-            print(f"❌ 搜索功能失败: {search_response.status_code}")
+            print(f"[X] 搜索功能失败: {search_response.status_code}")
         
         print(f"\n🎉 报告API测试完成!")
         return True
         
     except Exception as e:
-        print(f"❌ 测试过程中出现异常: {e}")
+        print(f"[X] 测试过程中出现异常: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -199,7 +199,7 @@ def test_reports_with_filters():
     # 获取token
     token = login_and_get_token(base_url)
     if not token:
-        print("❌ 无法获取token，跳过筛选测试")
+        print("[X] 无法获取token，跳过筛选测试")
         return
 
     headers = {
@@ -230,7 +230,7 @@ def test_reports_with_filters():
             data = response.json()
             print(f"   ✅ 筛选成功，结果数量: {len(data['data']['reports'])}")
         else:
-            print(f"   ❌ 筛选失败: {response.status_code}")
+            print(f"   [X] 筛选失败: {response.status_code}")
 
 if __name__ == "__main__":
     print(f"开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

@@ -10,7 +10,7 @@ def check_akshare_import():
         print(f"✅ AKShare导入成功，版本: {ak.__version__}")
         return True
     except ImportError as e:
-        print(f"❌ AKShare导入失败: {e}")
+        print(f"[X] AKShare导入失败: {e}")
         print("💡 请安装AKShare: pip install akshare")
         return False
 
@@ -22,7 +22,7 @@ def check_akshare_utils():
         print(f"✅ AKShare工具模块正常，连接状态: {provider.connected}")
         return True, provider
     except Exception as e:
-        print(f"❌ AKShare工具模块异常: {e}")
+        print(f"[X] AKShare工具模块异常: {e}")
         return False, None
 
 def check_data_source_manager():
@@ -39,7 +39,7 @@ def check_data_source_manager():
         
         return True
     except Exception as e:
-        print(f"❌ 数据源管理器检查失败: {e}")
+        print(f"[X] 数据源管理器检查失败: {e}")
         return False
 
 def test_basic_akshare():
@@ -59,7 +59,7 @@ def test_basic_akshare():
         
         return True
     except Exception as e:
-        print(f"❌ AKShare基本功能测试失败: {e}")
+        print(f"[X] AKShare基本功能测试失败: {e}")
         return False
 
 def main():

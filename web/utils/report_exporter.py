@@ -71,7 +71,7 @@ try:
             PANDOC_AVAILABLE = True
             logger.info(f"✅ pandoc下载成功！")
         except Exception as download_error:
-            logger.error(f"❌ pandoc下载失败: {download_error}")
+            logger.error(f"[X] pandoc下载失败: {download_error}")
             PANDOC_AVAILABLE = False
 
     EXPORT_AVAILABLE = True
@@ -374,7 +374,7 @@ class ReportExporter:
         logger.info("📄 开始生成Word文档...")
 
         if not self.pandoc_available:
-            logger.error("❌ Pandoc不可用")
+            logger.error("[X] Pandoc不可用")
             raise Exception("Pandoc不可用，无法生成Word文档。请安装pandoc或使用Markdown格式导出。")
 
         # 首先生成markdown内容
@@ -438,7 +438,7 @@ class ReportExporter:
 
             return docx_content
         except Exception as e:
-            logger.error(f"❌ Word文档生成失败: {e}", exc_info=True)
+            logger.error(f"[X] Word文档生成失败: {e}", exc_info=True)
             raise Exception(f"生成Word文档失败: {e}")
     
     
@@ -448,7 +448,7 @@ class ReportExporter:
         logger.info("📊 开始生成PDF文档...")
 
         if not self.pandoc_available:
-            logger.error("❌ Pandoc不可用")
+            logger.error("[X] Pandoc不可用")
             raise Exception("Pandoc不可用，无法生成PDF文档。请安装pandoc或使用Markdown格式导出。")
 
         # 首先生成markdown内容
@@ -551,8 +551,8 @@ class ReportExporter:
         logger.info(f"  - is_docker: {self.is_docker}")
 
         if not self.export_available:
-            logger.error("❌ 导出功能不可用")
-            st.error("❌ 导出功能不可用，请安装必要的依赖包")
+            logger.error("[X] 导出功能不可用")
+            st.error("[X] 导出功能不可用，请安装必要的依赖包")
             return None
 
         try:
@@ -567,8 +567,8 @@ class ReportExporter:
             elif format_type == 'docx':
                 logger.info("📄 生成Word文档...")
                 if not self.pandoc_available:
-                    logger.error("❌ pandoc不可用，无法生成Word文档")
-                    st.error("❌ pandoc不可用，无法生成Word文档")
+                    logger.error("[X] pandoc不可用，无法生成Word文档")
+                    st.error("[X] pandoc不可用，无法生成Word文档")
                     return None
                 content = self.generate_docx_report(results)
                 logger.info(f"✅ Word文档生成成功，大小: {len(content)} 字节")
@@ -577,21 +577,21 @@ class ReportExporter:
             elif format_type == 'pdf':
                 logger.info("📊 生成PDF文档...")
                 if not self.pandoc_available:
-                    logger.error("❌ pandoc不可用，无法生成PDF文档")
-                    st.error("❌ pandoc不可用，无法生成PDF文档")
+                    logger.error("[X] pandoc不可用，无法生成PDF文档")
+                    st.error("[X] pandoc不可用，无法生成PDF文档")
                     return None
                 content = self.generate_pdf_report(results)
                 logger.info(f"✅ PDF文档生成成功，大小: {len(content)} 字节")
                 return content
 
             else:
-                logger.error(f"❌ 不支持的导出格式: {format_type}")
-                st.error(f"❌ 不支持的导出格式: {format_type}")
+                logger.error(f"[X] 不支持的导出格式: {format_type}")
+                st.error(f"[X] 不支持的导出格式: {format_type}")
                 return None
 
         except Exception as e:
-            logger.error(f"❌ 导出失败: {str(e)}", exc_info=True)
-            st.error(f"❌ 导出失败: {str(e)}")
+            logger.error(f"[X] 导出失败: {str(e)}", exc_info=True)
+            st.error(f"[X] 导出失败: {str(e)}")
             return None
 
 
@@ -835,9 +835,9 @@ def save_modular_reports_to_results_dir(results: Dict[str, Any], stock_symbol: s
                     logger.warning(f"⚠️ 没有报告内容可保存到MongoDB")
 
             except Exception as e:
-                logger.error(f"❌ MongoDB保存过程出错: {e}")
+                logger.error(f"[X] MongoDB保存过程出错: {e}")
                 import traceback
-                logger.error(f"❌ MongoDB保存详细错误: {traceback.format_exc()}")
+                logger.error(f"[X] MongoDB保存详细错误: {traceback.format_exc()}")
                 # 不影响文件保存的成功返回
         else:
             logger.warning(f"⚠️ MongoDB保存跳过 - AVAILABLE: {MONGODB_REPORT_AVAILABLE}, Manager: {mongodb_report_manager is not None}")
@@ -845,9 +845,9 @@ def save_modular_reports_to_results_dir(results: Dict[str, Any], stock_symbol: s
         return saved_files
 
     except Exception as e:
-        logger.error(f"❌ 保存分模块报告失败: {e}")
+        logger.error(f"[X] 保存分模块报告失败: {e}")
         import traceback
-        logger.error(f"❌ 详细错误: {traceback.format_exc()}")
+        logger.error(f"[X] 详细错误: {traceback.format_exc()}")
         return {}
 
 
@@ -891,9 +891,9 @@ def save_report_to_results_dir(content: bytes, filename: str, stock_symbol: str)
         return str(file_path)
 
     except Exception as e:
-        logger.error(f"❌ 保存报告到results目录失败: {e}")
+        logger.error(f"[X] 保存报告到results目录失败: {e}")
         import traceback
-        logger.error(f"❌ 详细错误: {traceback.format_exc()}")
+        logger.error(f"[X] 详细错误: {traceback.format_exc()}")
         return ""
 
 
@@ -993,8 +993,8 @@ def render_export_buttons(results: Dict[str, Any]):
                     mime="text/markdown"
                 )
             else:
-                logger.error(f"❌ [EXPORT] Markdown导出失败，content为空")
-                logger.error("❌ Markdown导出失败，content为空")
+                logger.error(f"[X] [EXPORT] Markdown导出失败，content为空")
+                logger.error("[X] Markdown导出失败，content为空")
     
     with col2:
         if st.button("📝 导出 Word", help="导出为Word文档格式"):
@@ -1040,13 +1040,13 @@ def render_export_buttons(results: Dict[str, Any]):
                             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         )
                     else:
-                        logger.error(f"❌ [EXPORT] Word导出失败，content为空")
-                        logger.error("❌ Word导出失败，content为空")
-                        st.error("❌ Word文档生成失败")
+                        logger.error(f"[X] [EXPORT] Word导出失败，content为空")
+                        logger.error("[X] Word导出失败，content为空")
+                        st.error("[X] Word文档生成失败")
                 except Exception as e:
-                    logger.error(f"❌ [EXPORT] Word导出异常: {str(e)}")
-                    logger.error(f"❌ Word导出异常: {str(e)}", exc_info=True)
-                    st.error(f"❌ Word文档生成失败: {str(e)}")
+                    logger.error(f"[X] [EXPORT] Word导出异常: {str(e)}")
+                    logger.error(f"[X] Word导出异常: {str(e)}", exc_info=True)
+                    st.error(f"[X] Word文档生成失败: {str(e)}")
 
                     # 显示详细错误信息
                     with st.expander("🔍 查看详细错误信息"):
@@ -1114,11 +1114,11 @@ def render_export_buttons(results: Dict[str, Any]):
                             mime="application/pdf"
                         )
                     else:
-                        logger.error("❌ PDF导出失败，content为空")
-                        st.error("❌ PDF生成失败")
+                        logger.error("[X] PDF导出失败，content为空")
+                        st.error("[X] PDF生成失败")
                 except Exception as e:
-                    logger.error(f"❌ PDF导出异常: {str(e)}", exc_info=True)
-                    st.error(f"❌ PDF生成失败")
+                    logger.error(f"[X] PDF导出异常: {str(e)}", exc_info=True)
+                    st.error(f"[X] PDF生成失败")
 
                     # 显示详细错误信息
                     with st.expander("🔍 查看详细错误信息"):
@@ -1236,12 +1236,12 @@ def save_analysis_report(stock_symbol: str, analysis_results: Dict[str, Any],
         if success:
             logger.info(f"✅ 分析报告已成功保存到MongoDB - 股票: {stock_symbol}")
         else:
-            logger.error(f"❌ 分析报告保存到MongoDB失败 - 股票: {stock_symbol}")
+            logger.error(f"[X] 分析报告保存到MongoDB失败 - 股票: {stock_symbol}")
         
         return success
         
     except Exception as e:
-        logger.error(f"❌ 保存分析报告到MongoDB时发生异常 - 股票: {stock_symbol}, 错误: {str(e)}")
+        logger.error(f"[X] 保存分析报告到MongoDB时发生异常 - 股票: {stock_symbol}, 错误: {str(e)}")
         import traceback
         logger.error(f"异常堆栈: {traceback.format_exc()}")
         return False

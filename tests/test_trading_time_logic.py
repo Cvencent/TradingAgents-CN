@@ -70,7 +70,7 @@ def test_trading_time_logic():
             test_time = test_time.replace(day=test_time.day + days_to_monday)
         
         result = service._is_trading_time(test_time)
-        status = "✅ 通过" if result == expected else "❌ 失败"
+        status = "✅ 通过" if result == expected else "[X] 失败"
         
         if result != expected:
             all_passed = False
@@ -87,7 +87,7 @@ def test_trading_time_logic():
     if all_passed:
         print("\n✅ 所有测试用例通过！")
     else:
-        print("\n❌ 部分测试用例失败")
+        print("\n[X] 部分测试用例失败")
     
     # 缓冲期测试总结
     print("\n" + "=" * 80)
@@ -99,7 +99,7 @@ def test_trading_time_logic():
     
     print("\n缓冲期内的同步机会：")
     for i, (time_str, result, expected) in enumerate(buffer_period_tests, 1):
-        status = "✅" if result == expected else "❌"
+        status = "✅" if result == expected else "[X]"
         print(f"  {status} 第{i}次机会: {time_str} - {'可以同步' if result else '不能同步'}")
     
     print("\n💡 说明：")

@@ -52,7 +52,7 @@ def test_error_logging_toml_config():
             print(f"  最大大小: {handler.maxBytes} 字节")
             print(f"  备份数: {handler.backupCount}")
     else:
-        print("\n❌ 错误日志处理器未找到！")
+        print("\n[X] 错误日志处理器未找到！")
         return False
     
     return True
@@ -107,7 +107,7 @@ def test_error_logging_functionality():
             print("\n⚠️ error.log 文件存在但内容不符合预期")
             return False
     else:
-        print(f"\n❌ error.log 文件未创建: {error_log_path.absolute()}")
+        print(f"\n[X] error.log 文件未创建: {error_log_path.absolute()}")
         return False
 
 
@@ -135,7 +135,7 @@ def test_webapi_and_worker_loggers():
         if error_handlers:
             print(f"✅ {logger_name:10s} - 有错误日志处理器")
         else:
-            print(f"❌ {logger_name:10s} - 缺少错误日志处理器")
+            print(f"[X] {logger_name:10s} - 缺少错误日志处理器")
             all_ok = False
     
     return all_ok
@@ -151,19 +151,19 @@ if __name__ == "__main__":
     try:
         results.append(("TOML 配置测试", test_error_logging_toml_config()))
     except Exception as e:
-        print(f"\n❌ TOML 配置测试失败: {e}")
+        print(f"\n[X] TOML 配置测试失败: {e}")
         results.append(("TOML 配置测试", False))
     
     try:
         results.append(("错误日志功能测试", test_error_logging_functionality()))
     except Exception as e:
-        print(f"\n❌ 错误日志功能测试失败: {e}")
+        print(f"\n[X] 错误日志功能测试失败: {e}")
         results.append(("错误日志功能测试", False))
     
     try:
         results.append(("日志器验证测试", test_webapi_and_worker_loggers()))
     except Exception as e:
-        print(f"\n❌ 日志器验证测试失败: {e}")
+        print(f"\n[X] 日志器验证测试失败: {e}")
         results.append(("日志器验证测试", False))
     
     # 总结
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     print("=" * 60)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name:20s} - {status}")
     
     all_passed = all(result for _, result in results)
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     if all_passed:
         print("\n✅ 所有测试通过！app 目录的错误日志配置已正确修复。")
     else:
-        print("\n❌ 部分测试失败，请检查配置。")
+        print("\n[X] 部分测试失败，请检查配置。")
     
     sys.exit(0 if all_passed else 1)
 

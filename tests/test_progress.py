@@ -82,7 +82,7 @@ def test_progress_tracker():
         return True
         
     except Exception as e:
-        print(f"❌ 进度跟踪器测试失败: {e}")
+        print(f"[X] 进度跟踪器测试失败: {e}")
         return False
 
 def main():

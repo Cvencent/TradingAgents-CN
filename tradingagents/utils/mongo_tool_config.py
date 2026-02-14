@@ -40,7 +40,7 @@ class MongoToolConfig:
                 return config
             return None
         except Exception as e:
-            logger.error(f"❌ 获取工具配置失败: {tool_id}, 错误: {e}")
+            logger.error(f"[X] 获取工具配置失败: {tool_id}, 错误: {e}")
             return None
     
     def get_all_tool_configs(self) -> List[Dict[str, Any]]:
@@ -56,7 +56,7 @@ class MongoToolConfig:
                 config["_id"] = str(config["_id"])
             return configs
         except Exception as e:
-            logger.error(f"❌ 获取所有工具配置失败: {e}")
+            logger.error(f"[X] 获取所有工具配置失败: {e}")
             return []
     
     def get_all_tools_by_category(self, category: str) -> List[Dict[str, Any]]:
@@ -75,7 +75,7 @@ class MongoToolConfig:
                 config["_id"] = str(config["_id"])
             return configs
         except Exception as e:
-            logger.error(f"❌ 获取指定分类工具配置失败: {category}, 错误: {e}")
+            logger.error(f"[X] 获取指定分类工具配置失败: {category}, 错误: {e}")
             return []
     
     def save_tool_config(self, config: Dict[str, Any]) -> bool:
@@ -112,10 +112,10 @@ class MongoToolConfig:
                 
                 return True
             else:
-                logger.error(f"❌ 工具配置缺少tool_id: {config}")
+                logger.error(f"[X] 工具配置缺少tool_id: {config}")
                 return False
         except Exception as e:
-            logger.error(f"❌ 保存工具配置失败: {e}")
+            logger.error(f"[X] 保存工具配置失败: {e}")
             return False
     
     def delete_tool_config(self, tool_id: str) -> bool:
@@ -137,7 +137,7 @@ class MongoToolConfig:
                 logger.warning(f"⚠️ 工具配置不存在: {tool_id}")
                 return False
         except Exception as e:
-            logger.error(f"❌ 删除工具配置失败: {tool_id}, 错误: {e}")
+            logger.error(f"[X] 删除工具配置失败: {tool_id}, 错误: {e}")
             return False
     
     def initialize_default_tools(self, tool_registry) -> bool:
@@ -181,7 +181,7 @@ class MongoToolConfig:
             
             return True
         except Exception as e:
-            logger.error(f"❌ 初始化默认工具配置失败: {e}")
+            logger.error(f"[X] 初始化默认工具配置失败: {e}")
             return False
     
     def batch_save_tool_configs(self, configs: List[Dict[str, Any]]) -> bool:
@@ -216,5 +216,5 @@ class MongoToolConfig:
             logger.info(f"✅ 成功批量保存工具配置: {len(configs)} 条")
             return True
         except Exception as e:
-            logger.error(f"❌ 批量保存工具配置失败: {e}")
+            logger.error(f"[X] 批量保存工具配置失败: {e}")
             return False

@@ -116,4 +116,4 @@ class DatabaseConfig:
         elif validation['redis_valid']:
             return "⚠️ Redis配置正常，MongoDB配置缺失"
         else:
-            return "❌ 数据库配置缺失，请检查环境变量"
+            return "[X] 数据库配置缺失，请检查环境变量"

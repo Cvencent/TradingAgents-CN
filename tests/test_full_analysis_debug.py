@@ -22,7 +22,7 @@ def test_full_stock_analysis():
     
     # 检查API密钥
     if not os.getenv("DEEPSEEK_API_KEY"):
-        print("❌ 未找到DEEPSEEK_API_KEY，无法测试")
+        print("[X] 未找到DEEPSEEK_API_KEY，无法测试")
         return False
     
     try:
@@ -91,7 +91,7 @@ def test_full_stock_analysis():
         return True
         
     except Exception as e:
-        print(f"❌ 完整分析测试失败: {e}")
+        print(f"[X] 完整分析测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -111,7 +111,7 @@ def main():
         print("\n🎉 完整分析测试完成！")
         print("请查看上面的详细日志，分析成本计算的完整流程。")
     else:
-        print("\n❌ 完整分析测试失败")
+        print("\n[X] 完整分析测试失败")
     
     return success
 

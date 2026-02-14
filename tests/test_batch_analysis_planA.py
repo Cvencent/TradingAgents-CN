@@ -68,7 +68,7 @@ def poll_status(token: str, task_id: str, timeout_sec: int = 300):
             if status == "completed":
                 return True
             elif status == "failed":
-                print(f"❌ 任务失败: {task_id}")
+                print(f"[X] 任务失败: {task_id}")
                 return False
         time.sleep(3)
     print(f"⏰ 任务超时: {task_id}")
@@ -110,7 +110,7 @@ def main():
             assert "reports" in res and isinstance(res["reports"], dict), f"missing reports for {stock}"
             print(f"🎉 {stock} 结果OK：summary={len(res['summary'])} chars, rec={len(res['recommendation'])} chars")
         else:
-            print(f"❌ 任务未完成: {stock} ({task_id})")
+            print(f"[X] 任务未完成: {stock} ({task_id})")
 
     with open('batch_results_sample.json', 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)

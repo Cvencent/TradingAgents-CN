@@ -191,12 +191,12 @@ class Toolkit:
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            logger.error(f"❌ [DEBUG] ===== agent_utils.get_china_stock_data 异常 =====")
-            logger.error(f"❌ [DEBUG] 错误类型: {type(e).__name__}")
-            logger.error(f"❌ [DEBUG] 错误信息: {str(e)}")
-            logger.error(f"❌ [DEBUG] 详细堆栈:")
+            logger.error(f"[X] [DEBUG] ===== agent_utils.get_china_stock_data 异常 =====")
+            logger.error(f"[X] [DEBUG] 错误类型: {type(e).__name__}")
+            logger.error(f"[X] [DEBUG] 错误信息: {str(e)}")
+            logger.error(f"[X] [DEBUG] 详细堆栈:")
             print(error_details)
-            logger.error(f"❌ [DEBUG] ===== 异常处理结束 =====")
+            logger.error(f"[X] [DEBUG] ===== 异常处理结束 =====")
             return f"中国股票数据获取失败: {str(e)}。请检查网络连接或稍后重试。"
 
     @staticmethod
@@ -590,7 +590,7 @@ class Toolkit:
             logger.debug(f"📊 [DEBUG] OpenAI基本面分析结果长度: {len(openai_fundamentals_results) if openai_fundamentals_results else 0}")
             return openai_fundamentals_results
         except Exception as e:
-            logger.error(f"❌ [DEBUG] OpenAI基本面分析失败: {str(e)}")
+            logger.error(f"[X] [DEBUG] OpenAI基本面分析失败: {str(e)}")
             return f"基本面分析失败: {str(e)}"
 
     @staticmethod
@@ -632,7 +632,7 @@ class Toolkit:
 
             logger.debug(f"📊 [DEBUG] 股票数据获取完成，长度: {len(stock_data) if stock_data else 0}")
 
-            if not stock_data or "获取失败" in stock_data or "❌" in stock_data:
+            if not stock_data or "获取失败" in stock_data or "[X]" in stock_data:
                 return f"无法获取股票 {ticker} 的基本面数据：{stock_data}"
 
             # 调用真正的基本面分析
@@ -652,9 +652,9 @@ class Toolkit:
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            logger.error(f"❌ [DEBUG] get_china_fundamentals 失败:")
-            logger.error(f"❌ [DEBUG] 错误: {str(e)}")
-            logger.error(f"❌ [DEBUG] 堆栈: {error_details}")
+            logger.error(f"[X] [DEBUG] get_china_fundamentals 失败:")
+            logger.error(f"[X] [DEBUG] 错误: {str(e)}")
+            logger.error(f"[X] [DEBUG] 堆栈: {error_details}")
             return f"中国股票基本面分析失败: {str(e)}"
 
     @staticmethod
@@ -689,9 +689,9 @@ class Toolkit:
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            logger.error(f"❌ [DEBUG] get_hk_stock_data_unified 失败:")
-            logger.error(f"❌ [DEBUG] 错误: {str(e)}")
-            logger.error(f"❌ [DEBUG] 堆栈: {error_details}")
+            logger.error(f"[X] [DEBUG] get_hk_stock_data_unified 失败:")
+            logger.error(f"[X] [DEBUG] 错误: {str(e)}")
+            logger.error(f"[X] [DEBUG] 堆栈: {error_details}")
             return f"港股数据获取失败: {str(e)}"
 
     @staticmethod
@@ -879,7 +879,7 @@ class Toolkit:
 
                     result_data.append(f"## A股当前价格信息\n{current_price_data}")
                 except Exception as e:
-                    logger.error(f"❌ [基本面工具调试] A股价格数据获取失败: {e}")
+                    logger.error(f"[X] [基本面工具调试] A股价格数据获取失败: {e}")
                     result_data.append(f"## A股当前价格信息\n获取失败: {e}")
                     current_price_data = ""
 
@@ -898,7 +898,7 @@ class Toolkit:
 
                     result_data.append(f"## A股基本面财务数据\n{fundamentals_data}")
                 except Exception as e:
-                    logger.error(f"❌ [基本面工具调试] A股基本面数据获取失败: {e}")
+                    logger.error(f"[X] [基本面工具调试] A股基本面数据获取失败: {e}")
                     result_data.append(f"## A股基本面财务数据\n获取失败: {e}")
 
             elif is_hk:
@@ -921,7 +921,7 @@ class Toolkit:
                     logger.info(f"🔍 [基本面工具调试] 港股数据前500字符:\n{hk_data[:500]}")
 
                     # 检查数据质量
-                    if hk_data and len(hk_data) > 100 and "❌" not in hk_data:
+                    if hk_data and len(hk_data) > 100 and "[X]" not in hk_data:
                         result_data.append(f"## 港股数据\n{hk_data}")
                         hk_data_success = True
                         logger.info(f"✅ [统一基本面工具] 港股主要数据源成功")
@@ -929,7 +929,7 @@ class Toolkit:
                         logger.warning(f"⚠️ [统一基本面工具] 港股主要数据源质量不佳")
 
                 except Exception as e:
-                    logger.error(f"❌ [基本面工具调试] 港股数据获取失败: {e}")
+                    logger.error(f"[X] [基本面工具调试] 港股数据获取失败: {e}")
 
                 # 备用方案：基础港股信息
                 if not hk_data_success:
@@ -964,7 +964,7 @@ class Toolkit:
 **交易货币**: 港币 (HK$)
 **交易所**: 香港交易所 (HKG)
 
-❌ 数据获取遇到问题: {str(e2)}
+[X] 数据获取遇到问题: {str(e2)}
 
 **建议**：
 - 请稍后重试
@@ -972,7 +972,7 @@ class Toolkit:
 - 检查股票代码格式是否正确
 """
                         result_data.append(fallback_info)
-                        logger.error(f"❌ [统一基本面工具] 港股所有数据源都失败: {e2}")
+                        logger.error(f"[X] [统一基本面工具] 港股所有数据源都失败: {e2}")
 
             else:
                 # 美股：使用OpenAI/Finnhub数据源
@@ -989,7 +989,7 @@ class Toolkit:
                     logger.info(f"✅ [统一基本面工具] 美股数据获取成功")
                 except Exception as e:
                     result_data.append(f"## 美股基本面数据\n获取失败: {e}")
-                    logger.error(f"❌ [统一基本面工具] 美股数据获取失败: {e}")
+                    logger.error(f"[X] [统一基本面工具] 美股数据获取失败: {e}")
 
             # 组合所有数据
             combined_result = f"""# {ticker} 基本面分析数据
@@ -1021,7 +1021,7 @@ class Toolkit:
                 logger.info(f"📊 [统一基本面工具] 数据模块 {i}: {section_title} ({section_length} 字符)")
                 
                 # 如果数据包含错误信息，特别标记
-                if "获取失败" in data_section or "❌" in data_section:
+                if "获取失败" in data_section or "[X]" in data_section:
                     logger.warning(f"⚠️ [统一基本面工具] 数据模块 {i} 包含错误信息")
                 else:
                     logger.info(f"✅ [统一基本面工具] 数据模块 {i} 获取成功")
@@ -1040,7 +1040,7 @@ class Toolkit:
 
         except Exception as e:
             error_msg = f"统一基本面分析工具执行失败: {str(e)}"
-            logger.error(f"❌ [统一基本面工具] {error_msg}")
+            logger.error(f"[X] [统一基本面工具] {error_msg}")
             return error_msg
 
     @staticmethod
@@ -1103,7 +1103,7 @@ class Toolkit:
 
                     result_data.append(f"## A股市场数据\n{stock_data}")
                 except Exception as e:
-                    logger.error(f"❌ [市场工具调试] A股数据获取失败: {e}")
+                    logger.error(f"[X] [市场工具调试] A股数据获取失败: {e}")
                     result_data.append(f"## A股市场数据\n获取失败: {e}")
 
             elif is_hk:
@@ -1120,7 +1120,7 @@ class Toolkit:
 
                     result_data.append(f"## 港股市场数据\n{hk_data}")
                 except Exception as e:
-                    logger.error(f"❌ [市场工具调试] 港股数据获取失败: {e}")
+                    logger.error(f"[X] [市场工具调试] 港股数据获取失败: {e}")
                     result_data.append(f"## 港股市场数据\n获取失败: {e}")
 
             else:
@@ -1152,7 +1152,7 @@ class Toolkit:
 
         except Exception as e:
             error_msg = f"统一市场数据工具执行失败: {str(e)}"
-            logger.error(f"❌ [统一市场工具] {error_msg}")
+            logger.error(f"[X] [统一市场工具] {error_msg}")
             return error_msg
 
     @staticmethod
@@ -1232,7 +1232,7 @@ class Toolkit:
                             result_data.append(f"## 东方财富新闻\n{em_news_text}")
                             logger.info(f"🇨🇳🇭🇰 [统一新闻工具] 成功获取{len(em_news_items)}条东方财富新闻")
                 except Exception as em_e:
-                    logger.error(f"❌ [统一新闻工具] 东方财富新闻获取失败: {em_e}")
+                    logger.error(f"[X] [统一新闻工具] 东方财富新闻获取失败: {em_e}")
                     result_data.append(f"## 东方财富新闻\n获取失败: {em_e}")
 
                 # 2. 获取同花顺财经新闻作为补充
@@ -1280,7 +1280,7 @@ class Toolkit:
 
         except Exception as e:
             error_msg = f"统一新闻工具执行失败: {str(e)}"
-            logger.error(f"❌ [统一新闻工具] {error_msg}")
+            logger.error(f"[X] [统一新闻工具] {error_msg}")
             return error_msg
 
     @staticmethod
@@ -1349,7 +1349,7 @@ class Toolkit:
                         else:
                             result_data.append(f"## {ticker} 中文市场情绪\n\n⚠️ 无法获取情绪数据")
                     except Exception as e2:
-                        result_data.append(f"## {ticker} 中文市场情绪\n\n❌ 获取失败: {e2}")
+                        result_data.append(f"## {ticker} 中文市场情绪\n\n[X] 获取失败: {e2}")
                         
             elif is_hk:
                 # 港股：使用原来的社交媒体情绪分析
@@ -1364,7 +1364,7 @@ class Toolkit:
                     else:
                         result_data.append(f"## {ticker} 港股市场情绪\n\n⚠️ 无法获取情绪数据")
                 except Exception as e:
-                    result_data.append(f"## {ticker} 港股市场情绪\n\n❌ 获取失败: {e}")
+                    result_data.append(f"## {ticker} 港股市场情绪\n\n[X] 获取失败: {e}")
             else:
                 # 美股：使用Reddit情绪分析
                 logger.info(f"🇺🇸 [统一情绪工具] 处理美股情绪...")
@@ -1394,7 +1394,7 @@ class Toolkit:
 
         except Exception as e:
             error_msg = f"统一情绪分析工具执行失败: {str(e)}"
-            logger.error(f"❌ [统一情绪工具] {error_msg}")
+            logger.error(f"[X] [统一情绪工具] {error_msg}")
             return error_msg
 
     @staticmethod
@@ -1479,7 +1479,7 @@ class Toolkit:
 
         except Exception as e:
             error_msg = f"大盘走势和行业数据获取失败: {str(e)}"
-            logger.error(f"❌ [大盘走势工具] {error_msg}")
+            logger.error(f"[X] [大盘走势工具] {error_msg}")
             return error_msg
 
     @staticmethod
@@ -1514,11 +1514,17 @@ class Toolkit:
 
             if not token:
                 error_msg = "Tushare Token未配置，请在设置中配置TUSHARE_TOKEN"
-                logger.error(f"❌ [资金面工具] {error_msg}")
+                logger.error(f"[X] [资金面工具] {error_msg}")
                 return error_msg
 
             # 初始化tushare
-            ts.set_token(token)
+            try:
+                ts.set_token(token)
+            except Exception as e:
+                if "Permission" in str(e) or "restricted" in str(e) or "tk.csv" in str(e):
+                    logger.warning(f"⚠️ [资金面工具] Tushare 文件访问受限: {e}")
+                    return "Tushare 文件访问受限，无法获取资金面数据"
+                raise
 
             # 获取资金流向数据
             money_flow_report = f"## 资金流向数据\n"
@@ -1581,5 +1587,5 @@ class Toolkit:
 
         except Exception as e:
             error_msg = f"资金面数据获取失败: {str(e)}"
-            logger.error(f"❌ [资金面工具] {error_msg}")
+            logger.error(f"[X] [资金面工具] {error_msg}")
             return error_msg

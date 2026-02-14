@@ -55,7 +55,7 @@ def render_results(results):
 
     # 如果分析失败，显示错误信息
     if not success and error:
-        st.error(f"❌ **分析失败**: {error}")
+        st.error(f"[X] **分析失败**: {error}")
         st.info("💡 **解决方案**: 请检查API密钥配置，确保网络连接正常，然后重新运行分析。")
         return
 

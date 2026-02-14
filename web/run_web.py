@@ -32,7 +32,7 @@ def check_dependencies():
             missing_packages.append(package)
 
     if missing_packages:
-        logger.error(f"❌ 缺少必要的依赖包: {', '.join(missing_packages)}")
+        logger.error(f"[X] 缺少必要的依赖包: {', '.join(missing_packages)}")
         logger.info(f"请运行以下命令安装:")
         logger.info(f"pip install {' '.join(missing_packages)}")
         return False
@@ -216,7 +216,7 @@ def main():
     app_file = web_dir / "app.py"
     
     if not app_file.exists():
-        logger.error(f"❌ 找不到应用文件: {app_file}")
+        logger.error(f"[X] 找不到应用文件: {app_file}")
         return
     
     # 构建Streamlit命令
@@ -276,7 +276,7 @@ def main():
     except KeyboardInterrupt:
         signal_handler(signal.SIGINT, None)
     except Exception as e:
-        logger.error(f"\n❌ 启动失败: {e}")
+        logger.error(f"\n[X] 启动失败: {e}")
 
 if __name__ == "__main__":
     import sys

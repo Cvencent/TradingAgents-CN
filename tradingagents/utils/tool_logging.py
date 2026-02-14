@@ -98,7 +98,7 @@ def log_tool_call(tool_name: Optional[str] = None, log_args: bool = True, log_re
 
                 # 记录工具调用失败
                 tool_logger.error(
-                    f"❌ [工具调用] {name} - 失败 (耗时: {duration:.2f}s): {str(e)}",
+                    f"[X] [工具调用] {name} - 失败 (耗时: {duration:.2f}s): {str(e)}",
                     extra={
                         'tool_name': name,
                         'event_type': 'tool_call_error',
@@ -147,7 +147,7 @@ def log_data_source_call(source_name: str):
                 duration = time.time() - start_time
 
                 # 检查结果是否成功
-                success = result and "❌" not in str(result) and "错误" not in str(result)
+                success = result and "[X]" not in str(result) and "错误" not in str(result)
 
                 if success:
                     tool_logger.info(
@@ -179,7 +179,7 @@ def log_data_source_call(source_name: str):
                 duration = time.time() - start_time
 
                 tool_logger.error(
-                    f"❌ [数据源] {source_name} - {symbol} 数据获取异常 (耗时: {duration:.2f}s): {str(e)}",
+                    f"[X] [数据源] {source_name} - {symbol} 数据获取异常 (耗时: {duration:.2f}s): {str(e)}",
                     extra={
                         'data_source': source_name,
                         'symbol': symbol,
@@ -242,7 +242,7 @@ def log_llm_call(provider: str, model: str):
                 duration = time.time() - start_time
 
                 tool_logger.error(
-                    f"❌ [LLM调用] {provider}/{model} - 失败 (耗时: {duration:.2f}s): {str(e)}",
+                    f"[X] [LLM调用] {provider}/{model} - 失败 (耗时: {duration:.2f}s): {str(e)}",
                     extra={
                         'llm_provider': provider,
                         'llm_model': model,

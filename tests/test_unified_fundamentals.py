@@ -56,14 +56,14 @@ def test_unified_tool_directly():
                     print(f"  ⚠️ 结果未包含货币信息")
                     
             except Exception as e:
-                print(f"  ❌ 工具调用失败: {e}")
+                print(f"  [X] 工具调用失败: {e}")
                 return False
         
         print("✅ 统一工具直接测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 统一工具直接测试失败: {e}")
+        print(f"[X] 统一工具直接测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -134,14 +134,14 @@ def test_fundamentals_analyst_with_unified_tool():
             else:
                 print(f"  ⚠️ 报告未包含港币计价")
         else:
-            print(f"  ❌ 未找到基本面报告")
+            print(f"  [X] 未找到基本面报告")
             return False
         
         print("✅ 基本面分析师统一工具测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 基本面分析师统一工具测试失败: {e}")
+        print(f"[X] 基本面分析师统一工具测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -175,14 +175,14 @@ def test_stock_type_detection():
                 market_info['currency_symbol'] == expected_symbol):
                 print(f"    ✅ 识别正确")
             else:
-                print(f"    ❌ 识别错误")
+                print(f"    [X] 识别错误")
                 return False
         
         print("✅ 股票类型检测测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 股票类型检测测试失败: {e}")
+        print(f"[X] 股票类型检测测试失败: {e}")
         return False
 
 
@@ -205,9 +205,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

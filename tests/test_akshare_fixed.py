@@ -27,7 +27,7 @@ def test_akshare_adapter_fixed():
         adapter = AKShareAdapter()
         
         if not adapter.is_available():
-            print("❌ AKShare适配器不可用")
+            print("[X] AKShare适配器不可用")
             return
         
         print("✅ AKShare适配器可用")
@@ -43,7 +43,7 @@ def test_akshare_adapter_fixed():
             for i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:
-            print("❌ 股票列表获取失败")
+            print("[X] 股票列表获取失败")
             return
         
         # 2. 测试daily_basic获取
@@ -83,10 +83,10 @@ def test_akshare_adapter_fixed():
             print(f"     有换手率数据的股票: {turnover_count}只")
             
         else:
-            print("❌ daily_basic数据获取失败")
+            print("[X] daily_basic数据获取失败")
         
     except Exception as e:
-        print(f"❌ 适配器测试失败: {e}")
+        print(f"[X] 适配器测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -135,12 +135,12 @@ def test_data_source_manager_akshare():
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
             else:
-                print(f"❌ Fallback获取失败")
+                print(f"[X] Fallback获取失败")
         else:
-            print(f"❌ 未找到AKShare适配器")
+            print(f"[X] 未找到AKShare适配器")
         
     except Exception as e:
-        print(f"❌ 数据源管理器测试失败: {e}")
+        print(f"[X] 数据源管理器测试失败: {e}")
         import traceback
         traceback.print_exc()
 

@@ -23,12 +23,12 @@ def test_analysis_result():
     )
     
     if response.status_code != 200:
-        print(f"❌ 登录失败: {response.status_code}")
+        print(f"[X] 登录失败: {response.status_code}")
         return
     
     result = response.json()
     if not result.get("success"):
-        print(f"❌ 登录失败: {result.get('message')}")
+        print(f"[X] 登录失败: {result.get('message')}")
         return
     
     token = result["data"]["access_token"]
@@ -48,12 +48,12 @@ def test_analysis_result():
         )
         
         if reports_response.status_code != 200:
-            print(f"❌ 获取报告列表失败: {reports_response.status_code}")
+            print(f"[X] 获取报告列表失败: {reports_response.status_code}")
             return
         
         reports_data = reports_response.json()
         if not reports_data.get("success") or not reports_data["data"]["reports"]:
-            print("❌ 没有找到报告")
+            print("[X] 没有找到报告")
             return
         
         # 获取第一个报告的详情
@@ -67,12 +67,12 @@ def test_analysis_result():
         )
         
         if detail_response.status_code != 200:
-            print(f"❌ 获取报告详情失败: {detail_response.status_code}")
+            print(f"[X] 获取报告详情失败: {detail_response.status_code}")
             return
         
         detail_data = detail_response.json()
         if not detail_data.get("success"):
-            print(f"❌ 获取报告详情失败: {detail_data.get('message')}")
+            print(f"[X] 获取报告详情失败: {detail_data.get('message')}")
             return
         
         report_detail = detail_data["data"]
@@ -166,7 +166,7 @@ def test_analysis_result():
             print(f"   实际的键: {list(reports_data.keys())}")
         
     except Exception as e:
-        print(f"❌ 测试过程中出现异常: {e}")
+        print(f"[X] 测试过程中出现异常: {e}")
         import traceback
         traceback.print_exc()
 

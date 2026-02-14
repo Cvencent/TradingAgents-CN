@@ -183,7 +183,7 @@ async def test_enhanced_screening():
         print("\n🎉 所有测试完成！")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 

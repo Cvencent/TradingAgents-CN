@@ -27,7 +27,7 @@ def test_gemini_tradingagents():
         # 检查API密钥
         google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
-            print("❌ Google API密钥未配置")
+            print("[X] Google API密钥未配置")
             return False
         
         print(f"✅ Google API密钥已配置: {google_api_key[:20]}...")
@@ -83,17 +83,17 @@ def test_gemini_tradingagents():
                 
                 return True
             else:
-                print("❌ 分析完成但结果为空")
+                print("[X] 分析完成但结果为空")
                 return False
                 
         except Exception as e:
-            print(f"❌ 股票分析失败: {e}")
+            print(f"[X] 股票分析失败: {e}")
             import traceback
             print(traceback.format_exc())
             return False
             
     except Exception as e:
-        print(f"❌ TradingAgents集成测试失败: {e}")
+        print(f"[X] TradingAgents集成测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -126,11 +126,11 @@ def test_gemini_basic():
             print(f"   响应预览: {response.content[:200]}...")
             return True
         else:
-            print("❌ 中文对话测试失败")
+            print("[X] 中文对话测试失败")
             return False
             
     except Exception as e:
-        print(f"❌ 基础功能测试失败: {e}")
+        print(f"[X] 基础功能测试失败: {e}")
         return False
 
 def main():
@@ -141,7 +141,7 @@ def main():
     # 检查环境变量
     google_api_key = os.getenv('GOOGLE_API_KEY')
     if not google_api_key:
-        print("❌ Google API密钥未配置")
+        print("[X] Google API密钥未配置")
         print("💡 请在.env文件中设置 GOOGLE_API_KEY")
         return
     
@@ -161,7 +161,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())
@@ -183,7 +183,7 @@ def main():
             print("💡 基础功能正常，但TradingAgents集成有问题")
             print("   建议检查配置和依赖")
     else:
-        print("❌ Gemini模型不可用")
+        print("[X] Gemini模型不可用")
         print("💡 请检查API密钥、网络连接和依赖安装")
 
 if __name__ == "__main__":

@@ -72,7 +72,7 @@ def test_news_analyst_with_google():
             return False
             
     except Exception as e:
-        print(f"❌ 新闻分析师测试失败: {e}")
+        print(f"[X] 新闻分析师测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -133,7 +133,7 @@ def test_social_analyst_with_reddit():
             return False
             
     except Exception as e:
-        print(f"❌ 社交媒体分析师测试失败: {e}")
+        print(f"[X] 社交媒体分析师测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -149,13 +149,13 @@ def main():
     reddit_id = os.getenv("REDDIT_CLIENT_ID")
     
     if not dashscope_key:
-        print("❌ DASHSCOPE_API_KEY 未配置，无法进行测试")
+        print("[X] DASHSCOPE_API_KEY 未配置，无法进行测试")
         return
     
     print("🔑 API密钥状态:")
     print(f"   阿里百炼: ✅ 已配置")
-    print(f"   Google: {'✅ 已配置' if google_key else '❌ 未配置'}")
-    print(f"   Reddit: {'✅ 已配置' if reddit_id else '❌ 未配置'}")
+    print(f"   Google: {'✅ 已配置' if google_key else '[X] 未配置'}")
+    print(f"   Reddit: {'✅ 已配置' if reddit_id else '[X] 未配置'}")
     
     # 运行测试
     results = {}
@@ -171,7 +171,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())

@@ -130,11 +130,11 @@ def test_docker_pdf_generation() -> bool:
             logger.info(f"✅ Docker PDF生成测试成功")
             return True
         else:
-            logger.error(f"❌ Docker PDF生成测试失败")
+            logger.error(f"[X] Docker PDF生成测试失败")
             return False
             
     except Exception as e:
-        logger.error(f"❌ Docker PDF测试失败: {e}")
+        logger.error(f"[X] Docker PDF测试失败: {e}")
         return False
 
 def get_docker_pdf_extra_args():
@@ -227,8 +227,8 @@ if __name__ == "__main__":
     status = get_docker_status_info()
     
     logger.info(f"Docker环境: {'是' if status['is_docker'] else '否'}")
-    logger.error(f"依赖检查: {'✅' if status['dependencies_ok'] else '❌'} {status['dependency_message']}")
-    logger.error(f"PDF测试: {'✅' if status['pdf_test_ok'] else '❌'}")
+    logger.error(f"依赖检查: {'✅' if status['dependencies_ok'] else '[X]'} {status['dependency_message']}")
+    logger.error(f"PDF测试: {'✅' if status['pdf_test_ok'] else '[X]'}")
     
     if status['is_docker'] and status['dependencies_ok'] and status['pdf_test_ok']:
         logger.info(f"\n🎉 Docker PDF功能完全正常！")

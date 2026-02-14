@@ -159,10 +159,10 @@ class AKShareProvider(BaseStockDataProvider):
 
             logger.info("✅ AKShare连接成功")
         except ImportError as e:
-            logger.error(f"❌ AKShare未安装: {e}")
+            logger.error(f"[X] AKShare未安装: {e}")
             self.connected = False
         except Exception as e:
-            logger.error(f"❌ AKShare初始化失败: {e}")
+            logger.error(f"[X] AKShare初始化失败: {e}")
             self.connected = False
 
     def _get_stock_news_direct(self, symbol: str, limit: int = 10) -> Optional[pd.DataFrame]:
@@ -222,7 +222,7 @@ class AKShareProvider(BaseStockDataProvider):
             )
 
             if response.status_code != 200:
-                self.logger.error(f"❌ {symbol} 东方财富网 API 返回错误: {response.status_code}")
+                self.logger.error(f"[X] {symbol} 东方财富网 API 返回错误: {response.status_code}")
                 return None
 
             # 解析 JSONP 响应
@@ -234,7 +234,7 @@ class AKShareProvider(BaseStockDataProvider):
 
             # 检查返回数据
             if "result" not in data or "cmsArticleWebOld" not in data["result"]:
-                self.logger.error(f"❌ {symbol} 东方财富网 API 返回数据结构异常")
+                self.logger.error(f"[X] {symbol} 东方财富网 API 返回数据结构异常")
                 return None
 
             articles = data["result"]["cmsArticleWebOld"]
@@ -261,7 +261,7 @@ class AKShareProvider(BaseStockDataProvider):
             return df
 
         except Exception as e:
-            self.logger.error(f"❌ {symbol} 直接调用 API 失败: {e}")
+            self.logger.error(f"[X] {symbol} 直接调用 API 失败: {e}")
             return None
 
     def _configure_timeout(self):
@@ -305,7 +305,7 @@ class AKShareProvider(BaseStockDataProvider):
             return stock_df
 
         except Exception as e:
-            logger.error(f"❌ AKShare获取股票列表失败: {e}")
+            logger.error(f"[X] AKShare获取股票列表失败: {e}")
             return None
 
     async def get_stock_list(self) -> List[Dict[str, Any]]:
@@ -344,7 +344,7 @@ class AKShareProvider(BaseStockDataProvider):
             return stock_list
 
         except Exception as e:
-            logger.error(f"❌ AKShare获取股票列表失败: {e}")
+            logger.error(f"[X] AKShare获取股票列表失败: {e}")
             return []
     
     async def get_stock_basic_info(self, code: str) -> Optional[Dict[str, Any]]:
@@ -390,7 +390,7 @@ class AKShareProvider(BaseStockDataProvider):
             return basic_info
             
         except Exception as e:
-            logger.error(f"❌ 获取{code}基础信息失败: {e}")
+            logger.error(f"[X] 获取{code}基础信息失败: {e}")
             return None
     
     async def _get_stock_list_cached(self):
@@ -414,7 +414,7 @@ class AKShareProvider(BaseStockDataProvider):
                 logger.info(f"✅ 股票列表缓存更新: {len(stock_list)} 只股票")
                 return stock_list
         except Exception as e:
-            logger.error(f"❌ 获取股票列表失败: {e}")
+            logger.error(f"[X] 获取股票列表失败: {e}")
 
         return None
 
@@ -696,7 +696,7 @@ class AKShareProvider(BaseStockDataProvider):
                 if attempt < max_retries - 1:
                     await asyncio.sleep(retry_delay)
                 else:
-                    logger.error(f"❌ 批量获取实时行情失败，已达最大重试次数: {e}")
+                    logger.error(f"[X] 批量获取实时行情失败，已达最大重试次数: {e}")
                     return {}
 
     async def get_stock_quotes(self, code: str) -> Optional[Dict[str, Any]]:
@@ -793,7 +793,7 @@ class AKShareProvider(BaseStockDataProvider):
             return quotes
 
         except Exception as e:
-            logger.error(f"❌ 获取{code}实时行情失败: {e}", exc_info=True)
+            logger.error(f"[X] 获取{code}实时行情失败: {e}", exc_info=True)
             return None
     
     async def _get_realtime_quotes_data(self, code: str) -> Dict[str, Any]:
@@ -953,7 +953,7 @@ class AKShareProvider(BaseStockDataProvider):
             return hist_df
 
         except Exception as e:
-            logger.error(f"❌ 获取{code}历史数据失败: {e}")
+            logger.error(f"[X] 获取{code}历史数据失败: {e}")
             return None
 
     def _standardize_historical_columns(self, df: pd.DataFrame, code: str) -> pd.DataFrame:
@@ -1071,7 +1071,7 @@ class AKShareProvider(BaseStockDataProvider):
             return financial_data
 
         except Exception as e:
-            logger.error(f"❌ 获取{code}财务数据失败: {e}")
+            logger.error(f"[X] 获取{code}财务数据失败: {e}")
             return {}
 
     async def get_market_status(self) -> Dict[str, Any]:
@@ -1099,7 +1099,7 @@ class AKShareProvider(BaseStockDataProvider):
             }
 
         except Exception as e:
-            logger.error(f"❌ 获取市场状态失败: {e}")
+            logger.error(f"[X] 获取市场状态失败: {e}")
             return {
                 "market_status": "unknown",
                 "current_time": datetime.now().isoformat(),
@@ -1148,7 +1148,7 @@ class AKShareProvider(BaseStockDataProvider):
                             time.sleep(retry_delay)
                             retry_delay *= 2  # 指数退避
                         else:
-                            self.logger.error(f"❌ {symbol} 获取新闻失败(JSON解析错误): {e}")
+                            self.logger.error(f"[X] {symbol} 获取新闻失败(JSON解析错误): {e}")
                             return None
                     except Exception as e:
                         if attempt < max_retries - 1:
@@ -1177,7 +1177,7 @@ class AKShareProvider(BaseStockDataProvider):
                     return None
 
         except Exception as e:
-            self.logger.error(f"❌ AKShare新闻获取失败: {e}")
+            self.logger.error(f"[X] AKShare新闻获取失败: {e}")
             return None
 
     async def get_stock_news(self, symbol: str = None, limit: int = 10) -> Optional[List[Dict[str, Any]]]:
@@ -1251,12 +1251,12 @@ class AKShareProvider(BaseStockDataProvider):
                                 await asyncio.sleep(retry_delay)
                                 retry_delay *= 2  # 指数退避
                             else:
-                                self.logger.error(f"❌ {symbol} 获取新闻失败(JSON解析错误): {e}")
+                                self.logger.error(f"[X] {symbol} 获取新闻失败(JSON解析错误): {e}")
                                 return []
                         except KeyError as e:
                             # 东方财富网接口变更或反爬虫拦截，返回的字段结构改变
                             if str(e) == "'cmsArticleWebOld'":
-                                self.logger.error(f"❌ {symbol} AKShare新闻接口返回数据结构异常: 缺少 'cmsArticleWebOld' 字段")
+                                self.logger.error(f"[X] {symbol} AKShare新闻接口返回数据结构异常: 缺少 'cmsArticleWebOld' 字段")
                                 self.logger.error(f"   这通常是因为：1) 反爬虫拦截 2) 接口变更 3) 网络问题")
                                 self.logger.error(f"   建议：检查 AKShare 版本是否为最新 (当前要求 >=1.17.86)")
                                 # 返回空列表，避免程序崩溃
@@ -1267,7 +1267,7 @@ class AKShareProvider(BaseStockDataProvider):
                                     await asyncio.sleep(retry_delay)
                                     retry_delay *= 2
                                 else:
-                                    self.logger.error(f"❌ {symbol} 获取新闻失败(字段错误): {e}")
+                                    self.logger.error(f"[X] {symbol} 获取新闻失败(字段错误): {e}")
                                     return []
                         except Exception as e:
                             if attempt < max_retries - 1:
@@ -1358,7 +1358,7 @@ class AKShareProvider(BaseStockDataProvider):
                 return []
 
         except Exception as e:
-            self.logger.error(f"❌ 获取AKShare新闻失败 symbol={symbol}: {e}")
+            self.logger.error(f"[X] 获取AKShare新闻失败 symbol={symbol}: {e}")
             return None
 
     def _parse_news_time(self, time_str: str) -> Optional[datetime]:

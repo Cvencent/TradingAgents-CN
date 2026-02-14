@@ -151,7 +151,7 @@ class MongoDBCacheAdapter:
                     logger.warning(f"⚠️ [数据源优先级] 数据库中没有找到数据源配置")
 
         except Exception as e:
-            logger.error(f"❌ 获取数据源优先级失败: {e}", exc_info=True)
+            logger.error(f"[X] 获取数据源优先级失败: {e}", exc_info=True)
 
         # 默认顺序：Tushare > AKShare > BaoStock
         logger.info(f"📊 [数据源优先级] 使用默认顺序: ['tushare', 'akshare', 'baostock']")

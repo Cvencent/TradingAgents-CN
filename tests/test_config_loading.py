@@ -64,7 +64,7 @@ def test_pricing_config_loading():
         return True
         
     except Exception as e:
-        print(f"❌ 配置加载测试失败: {e}")
+        print(f"[X] 配置加载测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -110,7 +110,7 @@ def test_cost_calculation():
         return True
         
     except Exception as e:
-        print(f"❌ 成本计算测试失败: {e}")
+        print(f"[X] 成本计算测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -130,8 +130,8 @@ def main():
     print("\n📋 测试总结")
     print("=" * 60)
     
-    print(f"配置加载: {'✅ 正常' if loading_success else '❌ 有问题'}")
-    print(f"成本计算: {'✅ 正常' if calc_success else '❌ 有问题'}")
+    print(f"配置加载: {'✅ 正常' if loading_success else '[X] 有问题'}")
+    print(f"成本计算: {'✅ 正常' if calc_success else '[X] 有问题'}")
     
     overall_success = loading_success and calc_success
     
@@ -142,7 +142,7 @@ def main():
         print("   2. 配置被缓存了")
         print("   3. 模型名称在某个地方被修改了")
     else:
-        print("\n❌ 配置系统有问题，需要修复")
+        print("\n[X] 配置系统有问题，需要修复")
     
     print("\n🎯 测试完成！")
     return overall_success

@@ -84,7 +84,7 @@ class MongoDBReportManager:
             logger.info(f"✅ MongoDB连接成功: {mongodb_database}.analysis_reports")
 
         except Exception as e:
-            logger.error(f"❌ MongoDB连接失败: {e}")
+            logger.error(f"[X] MongoDB连接失败: {e}")
             self.connected = False
 
     def _serialize_message(self, msg: Any) -> Dict[str, Any]:
@@ -136,7 +136,7 @@ class MongoDBReportManager:
             logger.info("✅ MongoDB索引创建成功")
             
         except Exception as e:
-            logger.error(f"❌ MongoDB索引创建失败: {e}")
+            logger.error(f"[X] MongoDB索引创建失败: {e}")
     
     def save_analysis_report(self, stock_symbol: str, analysis_results: Dict[str, Any], 
                            reports: Dict[str, str], task_id: str = None) -> bool:
@@ -254,11 +254,11 @@ class MongoDBReportManager:
                 logger.info(f"✅ 分析报告已保存到MongoDB: analysis_id={analysis_id}, task_id={task_id}, _id={result.inserted_id}")
                 return True
             else:
-                logger.error("❌ MongoDB插入失败")
+                logger.error("[X] MongoDB插入失败")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ 保存分析报告到MongoDB失败: {e}")
+            logger.error(f"[X] 保存分析报告到MongoDB失败: {e}")
             return False
     
     def get_analysis_reports(self, limit: int = 100, stock_symbol: str = None,
@@ -320,7 +320,7 @@ class MongoDBReportManager:
             return results
             
         except Exception as e:
-            logger.error(f"❌ 从MongoDB获取分析报告失败: {e}")
+            logger.error(f"[X] 从MongoDB获取分析报告失败: {e}")
             return []
     
     def get_report_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
@@ -352,7 +352,7 @@ class MongoDBReportManager:
             return None
             
         except Exception as e:
-            logger.error(f"❌ 从MongoDB获取报告失败: {e}")
+            logger.error(f"[X] 从MongoDB获取报告失败: {e}")
             return None
     
     def delete_report(self, analysis_id: str) -> bool:
@@ -371,7 +371,7 @@ class MongoDBReportManager:
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ 删除分析报告失败: {e}")
+            logger.error(f"[X] 删除分析报告失败: {e}")
             return False
 
     def get_all_reports(self, limit: int = 1000) -> List[Dict[str, Any]]:
@@ -393,7 +393,7 @@ class MongoDBReportManager:
             return reports
 
         except Exception as e:
-            logger.error(f"❌ 从MongoDB获取所有报告失败: {e}")
+            logger.error(f"[X] 从MongoDB获取所有报告失败: {e}")
             return []
 
     def fix_inconsistent_reports(self) -> bool:
@@ -442,13 +442,13 @@ class MongoDBReportManager:
                         logger.info(f"✅ 修复报告: {doc.get('analysis_id', 'unknown')}")
 
                 except Exception as e:
-                    logger.error(f"❌ 修复报告失败 {doc.get('analysis_id', 'unknown')}: {e}")
+                    logger.error(f"[X] 修复报告失败 {doc.get('analysis_id', 'unknown')}: {e}")
 
             logger.info(f"✅ 修复完成，共修复 {fixed_count} 个报告")
             return True
 
         except Exception as e:
-            logger.error(f"❌ 修复不一致报告失败: {e}")
+            logger.error(f"[X] 修复不一致报告失败: {e}")
             return False
 
     def save_report(self, report_data: Dict[str, Any]) -> bool:
@@ -481,7 +481,7 @@ class MongoDBReportManager:
                 return True
 
         except Exception as e:
-            logger.error(f"❌ 保存报告到MongoDB失败: {e}")
+            logger.error(f"[X] 保存报告到MongoDB失败: {e}")
             return False
 
 

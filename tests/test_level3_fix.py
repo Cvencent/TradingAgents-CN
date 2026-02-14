@@ -90,14 +90,14 @@ def test_level3_analysis():
             
             return True
         else:
-            print("❌ 分析结果异常")
+            print("[X] 分析结果异常")
             return False
             
     except Exception as e:
         end_time = time.time()
         elapsed = end_time - start_time
         
-        print(f"❌ 分析异常: {e}")
+        print(f"[X] 分析异常: {e}")
         print(f"⏱️ 异常前耗时: {elapsed:.1f}秒")
         
         if elapsed > 60:
@@ -110,4 +110,4 @@ if __name__ == "__main__":
     if success:
         print("\n🎉 级别3死循环修复测试通过！")
     else:
-        print("\n❌ 级别3死循环修复测试失败！")
+        print("\n[X] 级别3死循环修复测试失败！")

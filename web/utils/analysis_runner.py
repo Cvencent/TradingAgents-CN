@@ -135,7 +135,7 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         )
 
         if not preparation_result.is_valid:
-            error_msg = f"❌ 股票数据验证失败: {preparation_result.error_message}"
+            error_msg = f"[X] 股票数据验证失败: {preparation_result.error_message}"
             update_progress(error_msg)
             logger.error(f"[{session_id}] {error_msg}")
 
@@ -155,7 +155,7 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         logger.info(f"[{session_id}] 缓存状态: {preparation_result.cache_status}")
 
     except Exception as e:
-        error_msg = f"❌ 数据预获取过程中发生错误: {str(e)}"
+        error_msg = f"[X] 数据预获取过程中发生错误: {str(e)}"
         update_progress(error_msg)
         logger.error(f"[{session_id}] {error_msg}")
 
@@ -596,7 +596,7 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
                     update_progress("⚠️ 报告保存失败，但分析已完成")
                 
         except Exception as save_error:
-            logger.error(f"❌ [报告保存] 保存分析报告时发生错误: {str(save_error)}")
+            logger.error(f"[X] [报告保存] 保存分析报告时发生错误: {str(save_error)}")
             update_progress("⚠️ 报告保存出错，但分析已完成")
 
         update_progress("✅ 分析成功完成！")
@@ -611,7 +611,7 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             analysis_duration, str(e)
         )
 
-        logger.error(f"❌ [分析失败] 股票分析执行失败",
+        logger.error(f"[X] [分析失败] 股票分析执行失败",
                     extra={
                         'stock_symbol': stock_symbol,
                         'session_id': session_id,

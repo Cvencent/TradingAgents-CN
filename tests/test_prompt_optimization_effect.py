@@ -109,7 +109,7 @@ def test_fundamentals_analyst_prompt():
                         code_count = report.count(ticker)
                         print(f"      出现次数: {code_count}")
                     else:
-                        print(f"   ❌ 报告不包含股票代码: {ticker}")
+                        print(f"   [X] 报告不包含股票代码: {ticker}")
                     
                     # 检查公司名称
                     if company_name in report and not company_name.startswith('股票'):
@@ -130,7 +130,7 @@ def test_fundamentals_analyst_prompt():
                     error_codes = ["002021"] if ticker == "002027" else []
                     for error_code in error_codes:
                         if error_code in report:
-                            print(f"   ❌ 报告包含错误的股票代码: {error_code}")
+                            print(f"   [X] 报告包含错误的股票代码: {error_code}")
                         else:
                             print(f"   ✅ 报告不包含错误的股票代码: {error_code}")
                     
@@ -143,17 +143,17 @@ def test_fundamentals_analyst_prompt():
                     print("-" * 40)
                     
                 else:
-                    print(f"❌ 基本面分析返回格式异常: {type(result)}")
+                    print(f"[X] 基本面分析返回格式异常: {type(result)}")
                     
             except Exception as e:
-                print(f"❌ 基本面分析执行失败: {e}")
+                print(f"[X] 基本面分析执行失败: {e}")
                 import traceback
                 traceback.print_exc()
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -238,7 +238,7 @@ def test_market_analyst_prompt():
                 if test_ticker in report:
                     print(f"   ✅ 报告包含正确的股票代码: {test_ticker}")
                 else:
-                    print(f"   ❌ 报告不包含股票代码: {test_ticker}")
+                    print(f"   [X] 报告不包含股票代码: {test_ticker}")
                 
                 # 检查公司名称
                 if company_name in report and company_name != f"股票{test_ticker}":
@@ -255,17 +255,17 @@ def test_market_analyst_prompt():
                 print("-" * 40)
                 
             else:
-                print(f"❌ 市场分析返回格式异常: {type(result)}")
+                print(f"[X] 市场分析返回格式异常: {type(result)}")
                 
         except Exception as e:
-            print(f"❌ 市场分析执行失败: {e}")
+            print(f"[X] 市场分析执行失败: {e}")
             import traceback
             traceback.print_exc()
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -321,7 +321,7 @@ def test_prompt_elements():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -357,7 +357,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
@@ -372,10 +372,10 @@ def main():
         print("5. ✅ 用户体验显著改善")
         
         print("\n🎯 解决的问题:")
-        print("- ❌ 股票代码被当作公司名称使用")
-        print("- ❌ 提示词信息不完整")
-        print("- ❌ 分析报告专业性不足")
-        print("- ❌ 多市场支持不统一")
+        print("- [X] 股票代码被当作公司名称使用")
+        print("- [X] 提示词信息不完整")
+        print("- [X] 分析报告专业性不足")
+        print("- [X] 多市场支持不统一")
     else:
         print("⚠️ 部分测试失败，需要进一步优化")
     

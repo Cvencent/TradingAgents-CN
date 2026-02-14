@@ -21,7 +21,7 @@ def test_basic_imports():
         import akshare as ak
         print(f"✅ AKShare导入成功: {ak.__version__}")
     except Exception as e:
-        print(f"❌ AKShare导入失败: {e}")
+        print(f"[X] AKShare导入失败: {e}")
         return False
     
     try:
@@ -29,7 +29,7 @@ def test_basic_imports():
         from tradingagents.dataflows import akshare_utils
         print("✅ akshare_utils模块导入成功")
     except Exception as e:
-        print(f"❌ akshare_utils模块导入失败: {e}")
+        print(f"[X] akshare_utils模块导入失败: {e}")
         return False
     
     try:
@@ -37,7 +37,7 @@ def test_basic_imports():
         from tradingagents.dataflows.data_source_manager import DataSourceManager
         print("✅ DataSourceManager导入成功")
     except Exception as e:
-        print(f"❌ DataSourceManager导入失败: {e}")
+        print(f"[X] DataSourceManager导入失败: {e}")
         return False
     
     return True
@@ -58,12 +58,12 @@ def test_akshare_provider():
             if data is not None and not data.empty:
                 print(f"✅ 获取股票数据成功: {len(data)}条记录")
             else:
-                print("❌ 获取股票数据失败")
+                print("[X] 获取股票数据失败")
                 return False
         
         return True
     except Exception as e:
-        print(f"❌ AKShare提供器测试失败: {e}")
+        print(f"[X] AKShare提供器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -95,7 +95,7 @@ def test_data_source_manager():
         
         return True
     except Exception as e:
-        print(f"❌ 数据源管理器测试失败: {e}")
+        print(f"[X] 数据源管理器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -131,7 +131,7 @@ def main():
         print("✅ 可以考虑删除重复的AKShare分支")
         return True
     else:
-        print("❌ AKShare功能存在问题")
+        print("[X] AKShare功能存在问题")
         return False
 
 if __name__ == "__main__":

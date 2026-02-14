@@ -185,7 +185,7 @@ class DatabaseScreeningService:
             return results, total_count
             
         except Exception as e:
-            logger.error(f"❌ 数据库筛选失败: {e}")
+            logger.error(f"[X] 数据库筛选失败: {e}")
             raise Exception(f"数据库筛选失败: {str(e)}")
     
     async def _build_query(self, conditions: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -549,7 +549,7 @@ class DatabaseScreeningService:
             return filtered_results
 
         except Exception as e:
-            logger.error(f"❌ 实时行情筛选失败: {e}")
+            logger.error(f"[X] 实时行情筛选失败: {e}")
             # 如果失败，返回原始结果
             return results
 

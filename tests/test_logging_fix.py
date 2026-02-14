@@ -71,12 +71,12 @@ def test_logging_fix():
                 else:
                     print(f"⚠️ 日志文件为空")
         else:
-            print(f"❌ 日志文件不存在: {log_file}")
+            print(f"[X] 日志文件不存在: {log_file}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False

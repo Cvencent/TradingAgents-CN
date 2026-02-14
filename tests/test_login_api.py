@@ -42,4 +42,4 @@ if __name__ == "__main__":
     if success:
         print("✅ 登录API测试成功")
     else:
-        print("❌ 登录API测试失败")
+        print("[X] 登录API测试失败")

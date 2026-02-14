@@ -32,7 +32,7 @@ def test_api(api_name, api_func, *args, **kwargs):
             return True, result
             
     except Exception as e:
-        print(f"   ❌ 失败: {e}")
+        print(f"   [X] 失败: {e}")
         return False, None
 
 def main():
@@ -119,7 +119,7 @@ def main():
     except AttributeError:
         print(f"   ⚠️ 接口 stock_individual_basic_info_hk_xq 不存在")
     except Exception as e:
-        print(f"   ❌ 调用失败: {e}")
+        print(f"   [X] 调用失败: {e}")
     
     # ========================================
     # 4. 股票列表接口
@@ -145,7 +145,7 @@ def main():
             print(f"\n   前10只股票:")
             print(df.head(10)[['代码', '名称', '最新价', '涨跌幅']].to_string())
     except Exception as e:
-        print(f"   ❌ 失败: {e}")
+        print(f"   [X] 失败: {e}")
     
     # ========================================
     # 5. 其他可能的接口

@@ -247,7 +247,7 @@ def print_data_directory_status():
     status = check_data_directory_config()
     
     for var, info in status.items():
-        status_icon = "✅" if info['set'] else "❌"
+        status_icon = "✅" if info['set'] else "[X]"
         exists_icon = "📁" if info['exists'] else "❓"
         
         print(f"{status_icon} {var}")

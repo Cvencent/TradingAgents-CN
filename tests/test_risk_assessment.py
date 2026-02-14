@@ -106,11 +106,11 @@ def test_risk_assessment_extraction():
                 print("✅ 风险评估报告包含所有必需部分")
                 return True
         else:
-            print("❌ 风险评估数据提取失败")
+            print("[X] 风险评估数据提取失败")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -132,20 +132,20 @@ def test_web_interface_risk_display():
         if 'extract_risk_assessment' in source:
             print("✅ Web界面已集成风险评估提取功能")
         else:
-            print("❌ Web界面缺少风险评估提取功能")
+            print("[X] Web界面缺少风险评估提取功能")
             return False
         
         if 'risk_assessment' in source:
             print("✅ Web界面支持风险评估数据传递")
         else:
-            print("❌ Web界面缺少风险评估数据传递")
+            print("[X] Web界面缺少风险评估数据传递")
             return False
         
         print("✅ Web界面风险评估功能检查通过")
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_risk_assessment_integration():
@@ -215,7 +215,7 @@ def test_risk_assessment_integration():
                 if component in risk_debate and risk_debate[component]:
                     print(f"   ✅ {component}: 有数据")
                 else:
-                    print(f"   ❌ {component}: 无数据")
+                    print(f"   [X] {component}: 无数据")
             
             # 测试提取功能
             from web.utils.analysis_runner import extract_risk_assessment
@@ -226,14 +226,14 @@ def test_risk_assessment_integration():
                 print(f"   报告长度: {len(risk_assessment)} 字符")
                 return True
             else:
-                print("❌ 风险评估报告生成失败")
+                print("[X] 风险评估报告生成失败")
                 return False
         else:
-            print("❌ 未发现风险评估数据")
+            print("[X] 未发现风险评估数据")
             return False
             
     except Exception as e:
-        print(f"❌ 集成测试失败: {e}")
+        print(f"[X] 集成测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -255,7 +255,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())

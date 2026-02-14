@@ -14,7 +14,7 @@ try:
     MONGODB_AVAILABLE = True
 except ImportError:
     MONGODB_AVAILABLE = False
-    print("❌ pymongo未安装，请运行: pip install pymongo")
+    print("[X] pymongo未安装，请运行: pip install pymongo")
 
 try:
     from dotenv import load_dotenv
@@ -63,7 +63,7 @@ def connect_mongodb():
         return client, db
         
     except Exception as e:
-        print(f"❌ MongoDB连接失败: {e}")
+        print(f"[X] MongoDB连接失败: {e}")
         return None, None
 
 def verify_stock_data(db):
@@ -172,7 +172,7 @@ def main():
     client, db = connect_mongodb()
     
     if client is None or db is None:
-        print("❌ 无法连接到MongoDB，验证失败")
+        print("[X] 无法连接到MongoDB，验证失败")
         return
     
     try:
@@ -182,7 +182,7 @@ def main():
         print("\n✅ 数据验证完成")
         
     except Exception as e:
-        print(f"❌ 验证过程中发生错误: {e}")
+        print(f"[X] 验证过程中发生错误: {e}")
         import traceback
         traceback.print_exc()
     

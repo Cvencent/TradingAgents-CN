@@ -29,11 +29,11 @@ def test_google_memory_fixed():
         dashscope_key = os.getenv('DASHSCOPE_API_KEY')
         
         print(f"🔑 API密钥状态:")
-        print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
-        print(f"   阿里百炼API: {'✅ 已配置' if dashscope_key else '❌ 未配置'}")
+        print(f"   Google API: {'✅ 已配置' if google_key else '[X] 未配置'}")
+        print(f"   阿里百炼API: {'✅ 已配置' if dashscope_key else '[X] 未配置'}")
         
         if not google_key:
-            print("❌ Google API密钥未配置，无法测试")
+            print("[X] Google API密钥未配置，无法测试")
             return False
         
         # 创建Google AI配置
@@ -83,11 +83,11 @@ def test_google_memory_fixed():
             return True
             
         except Exception as e:
-            print(f"❌ 嵌入功能测试失败: {e}")
+            print(f"[X] 嵌入功能测试失败: {e}")
             return False
             
     except Exception as e:
-        print(f"❌ Google AI内存测试失败: {e}")
+        print(f"[X] Google AI内存测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -106,7 +106,7 @@ def test_google_tradingagents_with_memory():
         dashscope_key = os.getenv('DASHSCOPE_API_KEY')
         
         if not google_key:
-            print("❌ Google API密钥未配置")
+            print("[X] Google API密钥未配置")
             return False
         
         if not dashscope_key:
@@ -161,17 +161,17 @@ def test_google_tradingagents_with_memory():
                 
                 return True
             else:
-                print("❌ 分析完成但结果为空")
+                print("[X] 分析完成但结果为空")
                 return False
                 
         except Exception as e:
-            print(f"❌ 带内存的股票分析失败: {e}")
+            print(f"[X] 带内存的股票分析失败: {e}")
             import traceback
             print(traceback.format_exc())
             return False
             
     except Exception as e:
-        print(f"❌ 带内存的TradingAgents测试失败: {e}")
+        print(f"[X] 带内存的TradingAgents测试失败: {e}")
         return False
 
 def main():
@@ -190,7 +190,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())
@@ -211,7 +211,7 @@ def main():
         if results['内存功能'] and not results['完整TradingAgents']:
             print("💡 内存功能正常，但完整流程有其他问题")
     else:
-        print("❌ 修复失败，请检查API密钥配置")
+        print("[X] 修复失败，请检查API密钥配置")
 
 if __name__ == "__main__":
     main()

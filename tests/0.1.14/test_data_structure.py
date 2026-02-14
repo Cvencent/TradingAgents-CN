@@ -38,13 +38,13 @@ def test_data_structure():
                     print(f"   {first_report_key} 内容预览:")
                     print(f"   {first_report_content[:200]}...")
             else:
-                print("   ❌ reports字段不存在")
+                print("   [X] reports字段不存在")
                 print(f"   可用字段: {list(result.keys())}")
         
         return results
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None

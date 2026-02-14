@@ -22,7 +22,7 @@ def test_real_deepseek_analysis():
     
     # 检查API密钥
     if not os.getenv("DEEPSEEK_API_KEY"):
-        print("❌ 未找到DEEPSEEK_API_KEY，无法测试")
+        print("[X] 未找到DEEPSEEK_API_KEY，无法测试")
         return False
     
     try:
@@ -73,11 +73,11 @@ def test_real_deepseek_analysis():
             print(f"📄 报告前200字符: {market_report[:200]}...")
             return True
         else:
-            print("❌ 分析报告过短，可能有问题")
+            print("[X] 分析报告过短，可能有问题")
             return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -89,7 +89,7 @@ def test_simple_deepseek_call():
     
     # 检查API密钥
     if not os.getenv("DEEPSEEK_API_KEY"):
-        print("❌ 未找到DEEPSEEK_API_KEY，无法测试")
+        print("[X] 未找到DEEPSEEK_API_KEY，无法测试")
         return False
     
     try:
@@ -119,7 +119,7 @@ def test_simple_deepseek_call():
         return True
         
     except Exception as e:
-        print(f"❌ 简单调用测试失败: {e}")
+        print(f"[X] 简单调用测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -131,7 +131,7 @@ def test_multiple_calls():
     
     # 检查API密钥
     if not os.getenv("DEEPSEEK_API_KEY"):
-        print("❌ 未找到DEEPSEEK_API_KEY，无法测试")
+        print("[X] 未找到DEEPSEEK_API_KEY，无法测试")
         return False
     
     try:
@@ -167,7 +167,7 @@ def test_multiple_calls():
         return True
         
     except Exception as e:
-        print(f"❌ 多次调用测试失败: {e}")
+        print(f"[X] 多次调用测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -198,9 +198,9 @@ def main():
     print("\n📋 测试总结")
     print("=" * 60)
     
-    print(f"简单调用: {'✅ 成功' if simple_success else '❌ 失败'}")
-    print(f"多次调用: {'✅ 成功' if multiple_success else '❌ 失败'}")
-    print(f"完整分析: {'⏭️ 跳过' if analysis_success else '❌ 失败'}")
+    print(f"简单调用: {'✅ 成功' if simple_success else '[X] 失败'}")
+    print(f"多次调用: {'✅ 成功' if multiple_success else '[X] 失败'}")
+    print(f"完整分析: {'⏭️ 跳过' if analysis_success else '[X] 失败'}")
     
     overall_success = simple_success and multiple_success
     
@@ -210,7 +210,7 @@ def main():
         print("   （如¥0.004537而不是¥0.000000），")
         print("   那么成本计算修复就是成功的！")
     else:
-        print("\n❌ DeepSeek成本计算测试失败")
+        print("\n[X] DeepSeek成本计算测试失败")
         print("   请检查API密钥配置和网络连接")
     
     print("\n🎯 测试完成！")

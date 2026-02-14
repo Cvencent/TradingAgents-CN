@@ -83,3 +83,24 @@ class AgentState(MessagesState):
         RiskDebateState, "Current state of the debate on evaluating risk"
     ]
     final_trade_decision: Annotated[str, "Final decision made by the Risk Analysts"]
+
+    # 🔥 关键修复：添加所有分析师的原始 prompt 字段
+    # 这些字段用于保存调用 LLM 时的完整 prompt（包含系统指令、工具定义等）
+    market_request_prompt: Annotated[str, "Market analyst request prompt"] = ""
+    fundamentals_prompt: Annotated[str, "Fundamentals analyst request prompt"] = ""
+    sentiment_request_prompt: Annotated[str, "Sentiment analyst request prompt"] = ""
+    news_request_prompt: Annotated[str, "News analyst request prompt"] = ""
+    capital_flow_request_prompt: Annotated[str, "Capital flow analyst request prompt"] = ""
+
+    # 研究团队辩论的 prompts
+    bull_request_prompt: Annotated[str, "Bull researcher request prompt"] = ""
+    bear_request_prompt: Annotated[str, "Bear researcher request prompt"] = ""
+
+    # 风险管理团队辩论的 prompts
+    risky_request_prompt: Annotated[str, "Risky analyst request prompt"] = ""
+    safe_request_prompt: Annotated[str, "Safe analyst request prompt"] = ""
+    neutral_request_prompt: Annotated[str, "Neutral analyst request prompt"] = ""
+
+    # 交易员和最终决策的 prompts
+    trader_request_prompt: Annotated[str, "Trader request prompt"] = ""
+    final_request_prompt: Annotated[str, "Final decision request prompt"] = ""

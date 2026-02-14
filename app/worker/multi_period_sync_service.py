@@ -60,7 +60,7 @@ class MultiPeriodSyncService:
             logger.info("✅ 多周期同步服务初始化完成")
             
         except Exception as e:
-            logger.error(f"❌ 多周期同步服务初始化失败: {e}")
+            logger.error(f"[X] 多周期同步服务初始化失败: {e}")
             raise
     
     async def sync_multi_period_data(
@@ -136,7 +136,7 @@ class MultiPeriodSyncService:
             return stats
             
         except Exception as e:
-            logger.error(f"❌ 多周期数据同步失败: {e}")
+            logger.error(f"[X] 多周期数据同步失败: {e}")
             stats.errors.append(str(e))
             return stats
     
@@ -162,7 +162,7 @@ class MultiPeriodSyncService:
             elif data_source == "baostock":
                 service = self.baostock_service
             else:
-                logger.error(f"❌ 不支持的数据源: {data_source}")
+                logger.error(f"[X] 不支持的数据源: {data_source}")
                 return stats
             
             # 批量处理
@@ -187,7 +187,7 @@ class MultiPeriodSyncService:
             return stats
             
         except Exception as e:
-            logger.error(f"❌ {data_source}-{period}同步失败: {e}")
+            logger.error(f"[X] {data_source}-{period}同步失败: {e}")
             stats["errors"] += 1
             return stats
     
@@ -237,7 +237,7 @@ class MultiPeriodSyncService:
                     stats["errors"] += 1
                     
             except Exception as e:
-                logger.error(f"❌ {symbol}-{period}同步失败: {e}")
+                logger.error(f"[X] {symbol}-{period}同步失败: {e}")
                 stats["errors"] += 1
         
         return stats
@@ -257,7 +257,7 @@ class MultiPeriodSyncService:
             return symbols
 
         except Exception as e:
-            logger.error(f"❌ 获取股票列表失败: {e}")
+            logger.error(f"[X] 获取股票列表失败: {e}")
             return []
 
     async def _get_full_history_date_range(self) -> tuple[str, str]:
@@ -279,7 +279,7 @@ class MultiPeriodSyncService:
             return start_date, end_date
 
         except Exception as e:
-            logger.error(f"❌ 获取全历史日期范围失败: {e}")
+            logger.error(f"[X] 获取全历史日期范围失败: {e}")
             # 默认返回最近5年的数据
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=365*5)).strftime('%Y-%m-%d')
@@ -329,7 +329,7 @@ class MultiPeriodSyncService:
             }
             
         except Exception as e:
-            logger.error(f"❌ 获取同步统计失败: {e}")
+            logger.error(f"[X] 获取同步统计失败: {e}")
             return {}
 
 
@@ -355,7 +355,7 @@ async def run_multi_period_sync(periods: List[str] = None):
         logger.info(f"✅ 多周期数据同步完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ 多周期数据同步失败: {e}")
+        logger.error(f"[X] 多周期数据同步失败: {e}")
         raise
 
 

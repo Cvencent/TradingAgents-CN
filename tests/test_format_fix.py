@@ -41,7 +41,7 @@ def test_format_analysis_results():
         print(f"  决策: {formatted1['decision']['action']}")
         print(f"  推理: {formatted1['decision']['reasoning']}")
     except Exception as e:
-        print(f"❌ 字符串decision格式化失败: {e}")
+        print(f"[X] 字符串decision格式化失败: {e}")
     
     print()
     
@@ -75,7 +75,7 @@ def test_format_analysis_results():
         print(f"  置信度: {formatted2['decision']['confidence']}")
         print(f"  推理: {formatted2['decision']['reasoning']}")
     except Exception as e:
-        print(f"❌ 字典decision格式化失败: {e}")
+        print(f"[X] 字典decision格式化失败: {e}")
     
     print()
     
@@ -102,7 +102,7 @@ def test_format_analysis_results():
         print(f"  决策: {formatted3['decision']['action']}")
         print(f"  推理: {formatted3['decision']['reasoning']}")
     except Exception as e:
-        print(f"❌ 其他类型decision格式化失败: {e}")
+        print(f"[X] 其他类型decision格式化失败: {e}")
     
     print()
     
@@ -120,7 +120,7 @@ def test_format_analysis_results():
         print(f"  成功: {formatted4['success']}")
         print(f"  错误: {formatted4['error']}")
     except Exception as e:
-        print(f"❌ 失败结果格式化失败: {e}")
+        print(f"[X] 失败结果格式化失败: {e}")
 
 def main():
     """主测试函数"""

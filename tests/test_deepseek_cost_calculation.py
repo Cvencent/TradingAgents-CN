@@ -46,7 +46,7 @@ def test_deepseek_pricing_config():
         return len(deepseek_configs) > 0
         
     except Exception as e:
-        print(f"❌ 定价配置测试失败: {e}")
+        print(f"[X] 定价配置测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -89,17 +89,17 @@ def test_deepseek_cost_calculation():
             # 手动验证计算
             expected_cost = (input_tokens / 1000) * 0.0014 + (output_tokens / 1000) * 0.0028
             print(f"   预期成本: ¥{expected_cost:.6f}")
-            print(f"   计算正确: {'✅' if abs(cost - expected_cost) < 0.000001 else '❌'}")
+            print(f"   计算正确: {'✅' if abs(cost - expected_cost) < 0.000001 else '[X]'}")
             print()
             
             if cost == 0.0:
-                print(f"❌ 成本计算返回0，说明配置有问题")
+                print(f"[X] 成本计算返回0，说明配置有问题")
                 return False
         
         return True
         
     except Exception as e:
-        print(f"❌ 成本计算测试失败: {e}")
+        print(f"[X] 成本计算测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -139,14 +139,14 @@ def test_token_tracker():
                 print(f"✅ 成本计算正确")
                 return True
             else:
-                print(f"❌ 成本计算仍为0")
+                print(f"[X] 成本计算仍为0")
                 return False
         else:
-            print(f"❌ Token跟踪失败")
+            print(f"[X] Token跟踪失败")
             return False
         
     except Exception as e:
-        print(f"❌ Token跟踪器测试失败: {e}")
+        print(f"[X] Token跟踪器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -184,7 +184,7 @@ def test_deepseek_adapter_integration():
         return True
         
     except Exception as e:
-        print(f"❌ DeepSeek适配器集成测试失败: {e}")
+        print(f"[X] DeepSeek适配器集成测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -210,10 +210,10 @@ def main():
     print("\n📋 测试总结")
     print("=" * 60)
     
-    print(f"定价配置: {'✅ 正确' if config_success else '❌ 有问题'}")
-    print(f"成本计算: {'✅ 正确' if calc_success else '❌ 有问题'}")
-    print(f"Token跟踪: {'✅ 正确' if tracker_success else '❌ 有问题'}")
-    print(f"适配器集成: {'✅ 正确' if adapter_success else '❌ 有问题'}")
+    print(f"定价配置: {'✅ 正确' if config_success else '[X] 有问题'}")
+    print(f"成本计算: {'✅ 正确' if calc_success else '[X] 有问题'}")
+    print(f"Token跟踪: {'✅ 正确' if tracker_success else '[X] 有问题'}")
+    print(f"适配器集成: {'✅ 正确' if adapter_success else '[X] 有问题'}")
     
     overall_success = config_success and calc_success and tracker_success and adapter_success
     

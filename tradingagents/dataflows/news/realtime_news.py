@@ -964,7 +964,7 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
 实时新闻获取失败 - {ticker}
 分析日期: {curr_date}
 
-❌ 错误信息: 所有可用的新闻源都未能获取到相关新闻
+[X] 错误信息: 所有可用的新闻源都未能获取到相关新闻
 
 💡 备用建议:
 1. 检查网络连接和API密钥配置

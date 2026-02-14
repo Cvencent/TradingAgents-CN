@@ -78,7 +78,7 @@ async def submit_single_analysis(
                 )
                 logger.info(f"✅ [BackgroundTask] 分析任务完成: {task_id}")
             except Exception as e:
-                logger.error(f"❌ [BackgroundTask] 分析任务失败: {task_id}, 错误: {e}", exc_info=True)
+                logger.error(f"[X] [BackgroundTask] 分析任务失败: {task_id}, 错误: {e}", exc_info=True)
 
         # 使用 BackgroundTasks 执行异步任务
         background_tasks.add_task(run_analysis_task)
@@ -91,7 +91,7 @@ async def submit_single_analysis(
             "message": "分析任务已在后台启动"
         }
     except Exception as e:
-        logger.error(f"❌ 提交单股分析任务失败: {e}")
+        logger.error(f"[X] 提交单股分析任务失败: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -209,13 +209,13 @@ async def get_task_status_new(
                     "message": "任务状态获取成功（从历史记录恢复）"
                 }
             else:
-                logger.warning(f"❌ [STATUS] MongoDB中也未找到: {task_id} trace={task_id}")
+                logger.warning(f"[X] [STATUS] MongoDB中也未找到: {task_id} trace={task_id}")
                 raise HTTPException(status_code=404, detail="任务不存在")
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 获取任务状态失败: {e}")
+        logger.error(f"[X] 获取任务状态失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/tasks/{task_id}/result", response_model=Dict[str, Any])
@@ -339,7 +339,7 @@ async def get_task_result(
                     }
 
         if not result_data:
-            logger.warning(f"❌ [RESULT] 所有数据源都未找到结果: {task_id}")
+            logger.warning(f"[X] [RESULT] 所有数据源都未找到结果: {task_id}")
             raise HTTPException(status_code=404, detail="分析结果不存在")
 
         if not result_data:
@@ -700,7 +700,7 @@ async def get_task_result(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ [RESULT] 获取任务结果失败: {e}")
+        logger.error(f"[X] [RESULT] 获取任务结果失败: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/tasks/all", response_model=Dict[str, Any])
@@ -732,7 +732,7 @@ async def list_all_tasks(
         }
 
     except Exception as e:
-        logger.error(f"❌ 获取任务列表失败: {e}")
+        logger.error(f"[X] 获取任务列表失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/tasks", response_model=Dict[str, Any])
@@ -765,7 +765,7 @@ async def list_user_tasks(
         }
 
     except Exception as e:
-        logger.error(f"❌ 获取任务列表失败: {e}")
+        logger.error(f"[X] 获取任务列表失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/batch", response_model=Dict[str, Any])
@@ -818,7 +818,7 @@ async def submit_batch_analysis(
                 mapping.append({"symbol": symbol, "stock_code": symbol, "task_id": task_id})
                 logger.info(f"✅ [批量分析] 已创建任务: {task_id} - {symbol}")
             except Exception as create_error:
-                logger.error(f"❌ [批量分析] 创建任务失败: {symbol}, 错误: {create_error}", exc_info=True)
+                logger.error(f"[X] [批量分析] 创建任务失败: {symbol}, 错误: {create_error}", exc_info=True)
                 raise
 
         # 🔧 使用 asyncio.create_task 实现真正的并发执行
@@ -841,7 +841,7 @@ async def submit_batch_analysis(
                         await simple_service.execute_analysis_background(tid, uid, req)
                         logger.info(f"✅ [并发任务] 执行完成: {tid}")
                     except Exception as e:
-                        logger.error(f"❌ [并发任务] 执行失败: {tid}, 错误: {e}", exc_info=True)
+                        logger.error(f"[X] [并发任务] 执行失败: {tid}, 错误: {e}", exc_info=True)
 
                 # 添加到任务列表
                 task = asyncio.create_task(run_single_analysis(task_id, single_req, user["id"]))
@@ -868,7 +868,7 @@ async def submit_batch_analysis(
             "message": f"批量分析任务已提交，共{len(task_ids)}个股票，正在并发执行"
         }
     except Exception as e:
-        logger.error(f"❌ [批量分析] 提交失败: {e}", exc_info=True)
+        logger.error(f"[X] [批量分析] 提交失败: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail=str(e))
 
 # 兼容性：保留原有端点
@@ -1091,7 +1091,7 @@ async def websocket_task_progress(websocket: WebSocket, task_id: str):
     except WebSocketDisconnect:
         logger.info(f"🔌 WebSocket 客户端断开连接: {task_id}")
     except Exception as e:
-        logger.error(f"❌ WebSocket 连接错误: {e}")
+        logger.error(f"[X] WebSocket 连接错误: {e}")
     finally:
         await websocket_manager.disconnect(websocket, task_id)
 
@@ -1135,7 +1135,7 @@ async def get_zombie_tasks(
             "max_running_hours": max_running_hours
         }
     except Exception as e:
-        logger.error(f"❌ 获取僵尸任务失败: {e}")
+        logger.error(f"[X] 获取僵尸任务失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取僵尸任务失败: {str(e)}")
 
 
@@ -1162,7 +1162,7 @@ async def cleanup_zombie_tasks(
             "message": f"已清理 {result.get('total_cleaned', 0)} 个僵尸任务"
         }
     except Exception as e:
-        logger.error(f"❌ 清理僵尸任务失败: {e}")
+        logger.error(f"[X] 清理僵尸任务失败: {e}")
         raise HTTPException(status_code=500, detail=f"清理僵尸任务失败: {str(e)}")
 
 
@@ -1217,7 +1217,7 @@ async def mark_task_as_failed(
                 "message": "任务未找到或已是失败状态"
             }
     except Exception as e:
-        logger.error(f"❌ 标记任务失败: {e}")
+        logger.error(f"[X] 标记任务失败: {e}")
         raise HTTPException(status_code=500, detail=f"标记任务失败: {str(e)}")
 
 
@@ -1255,5 +1255,5 @@ async def delete_task(
                 "message": "任务未找到"
             }
     except Exception as e:
-        logger.error(f"❌ 删除任务失败: {e}")
+        logger.error(f"[X] 删除任务失败: {e}")
         raise HTTPException(status_code=500, detail=f"删除任务失败: {str(e)}")

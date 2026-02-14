@@ -64,9 +64,9 @@ class IntegratedCacheManager:
             
             self.logger.info(f"📊 缓存配置:")
             self.logger.info(f"  主要后端: {backend}")
-            self.logger.info(f"  MongoDB: {'✅ 可用' if mongodb_available else '❌ 不可用'}")
-            self.logger.info(f"  Redis: {'✅ 可用' if redis_available else '❌ 不可用'}")
-            self.logger.info(f"  降级支持: {'✅ 启用' if self.adaptive_cache.fallback_enabled else '❌ 禁用'}")
+            self.logger.info(f"  MongoDB: {'✅ 可用' if mongodb_available else '[X] 不可用'}")
+            self.logger.info(f"  Redis: {'✅ 可用' if redis_available else '[X] 不可用'}")
+            self.logger.info(f"  降级支持: {'✅ 启用' if self.adaptive_cache.fallback_enabled else '[X] 禁用'}")
         else:
             self.logger.info("📁 使用传统文件缓存系统")
     

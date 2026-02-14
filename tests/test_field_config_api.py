@@ -50,7 +50,7 @@ async def test_field_config_api():
                     print(f"     描述: {field_info.description}")
                     print(f"     支持操作: {field_info.supported_operators}")
                 else:
-                    print(f"  ❌ {field}: 字段信息缺失")
+                    print(f"  [X] {field}: 字段信息缺失")
         
         # 测试API响应格式
         response_data = {
@@ -71,7 +71,7 @@ async def test_field_config_api():
         print("\n🎉 字段配置API测试完成！")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 

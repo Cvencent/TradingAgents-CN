@@ -46,12 +46,12 @@ async def task_progress_generator(task_id: str, user_id: str):
             yield f"event: connected\ndata: {{\"task_id\": \"{task_id}\", \"message\": \"已连接进度流\"}}\n\n"
         except Exception as subscribe_error:
             # 🔥 订阅失败时立即清理 pubsub 连接
-            logger.error(f"❌ [SSE-Task] 订阅频道失败: {subscribe_error}")
+            logger.error(f"[X] [SSE-Task] 订阅频道失败: {subscribe_error}")
             try:
                 await pubsub.close()
                 logger.info(f"🧹 [SSE-Task] 订阅失败后已关闭 PubSub 连接")
             except Exception as close_error:
-                logger.error(f"❌ [SSE-Task] 关闭 PubSub 连接失败: {close_error}")
+                logger.error(f"[X] [SSE-Task] 关闭 PubSub 连接失败: {close_error}")
             # 重新抛出异常，让外层 except 处理
             raise
 
@@ -101,13 +101,13 @@ async def task_progress_generator(task_id: str, user_id: str):
                 await pubsub.close()
                 logger.info(f"✅ [SSE-Task] PubSub 连接已关闭: task={task_id}")
             except Exception as e:
-                logger.error(f"❌ [SSE-Task] 关闭 PubSub 连接失败: {e}", exc_info=True)
+                logger.error(f"[X] [SSE-Task] 关闭 PubSub 连接失败: {e}", exc_info=True)
                 # 即使关闭失败，也尝试重置连接
                 try:
                     await pubsub.reset()
                     logger.info(f"🔄 [SSE-Task] PubSub 连接已重置: task={task_id}")
                 except Exception as reset_error:
-                    logger.error(f"❌ [SSE-Task] 重置 PubSub 连接也失败: {reset_error}")
+                    logger.error(f"[X] [SSE-Task] 重置 PubSub 连接也失败: {reset_error}")
 
 
 async def batch_progress_generator(batch_id: str, user_id: str):

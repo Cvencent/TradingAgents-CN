@@ -1000,7 +1000,7 @@ def render_sidebar():
         elif level == "warning":
             st.warning(f"⚠️ 阿里百炼: {status}")
         else:
-            st.error("❌ 阿里百炼: 未配置")
+            st.error("[X] 阿里百炼: 未配置")
 
         # FinnHub
         finnhub_key = os.getenv("FINNHUB_API_KEY")
@@ -1010,7 +1010,7 @@ def render_sidebar():
         elif level == "warning":
             st.warning(f"⚠️ FinnHub: {status}")
         else:
-            st.error("❌ FinnHub: 未配置")
+            st.error("[X] FinnHub: 未配置")
 
         # 可选的API密钥
         st.markdown("*可选配置:*")

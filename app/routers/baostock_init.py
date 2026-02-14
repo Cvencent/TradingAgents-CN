@@ -275,7 +275,7 @@ async def _run_full_initialization_task(historical_days: int, force: bool, task_
             logger.warning(f"⚠️ BaoStock完整初始化任务部分完成: {task_id}")
         
     except Exception as e:
-        logger.error(f"❌ BaoStock完整初始化任务失败: {task_id}, 错误: {e}")
+        logger.error(f"[X] BaoStock完整初始化任务失败: {task_id}, 错误: {e}")
         _initialization_status.update({
             "is_running": False,
             "last_update": datetime.now()
@@ -305,7 +305,7 @@ async def _run_basic_initialization_task(task_id: str):
             logger.warning(f"⚠️ BaoStock基础初始化任务部分完成: {task_id}")
         
     except Exception as e:
-        logger.error(f"❌ BaoStock基础初始化任务失败: {task_id}, 错误: {e}")
+        logger.error(f"[X] BaoStock基础初始化任务失败: {task_id}, 错误: {e}")
         _initialization_status.update({
             "is_running": False,
             "last_update": datetime.now()

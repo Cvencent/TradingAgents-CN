@@ -27,7 +27,7 @@ def test_baostock_stock_types():
         # 登录BaoStock
         lg = bs.login()
         if lg.error_code != '0':
-            print(f"❌ BaoStock登录失败: {lg.error_msg}")
+            print(f"[X] BaoStock登录失败: {lg.error_msg}")
             return
         
         print("✅ BaoStock登录成功")
@@ -94,7 +94,7 @@ def test_baostock_stock_types():
         print("✅ BaoStock登出成功")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -110,7 +110,7 @@ def test_baostock_adapter_stock_filter():
         adapter = BaoStockAdapter()
         
         if not adapter.is_available():
-            print("❌ BaoStock适配器不可用")
+            print("[X] BaoStock适配器不可用")
             return
         
         print("✅ BaoStock适配器可用")
@@ -140,7 +140,7 @@ def test_baostock_adapter_stock_filter():
                 for prefix, count in prefixes.head(10).items():
                     print(f"       {prefix}xxx: {count}只")
         else:
-            print("❌ 股票列表获取失败")
+            print("[X] 股票列表获取失败")
             return
         
         # 2. 测试daily_basic获取
@@ -180,10 +180,10 @@ def test_baostock_adapter_stock_filter():
             print(f"     有收盘价数据的股票: {close_count}只")
             
         else:
-            print("❌ daily_basic数据获取失败")
+            print("[X] daily_basic数据获取失败")
         
     except Exception as e:
-        print(f"❌ 适配器测试失败: {e}")
+        print(f"[X] 适配器测试失败: {e}")
         import traceback
         traceback.print_exc()
 

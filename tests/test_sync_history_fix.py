@@ -79,7 +79,7 @@ async def test_multiple_sync_records():
         if total_records >= 3:
             print("   ✅ 成功！每次同步都创建了新记录")
         else:
-            print("   ❌ 失败！记录数量不正确")
+            print("   [X] 失败！记录数量不正确")
         
         # 6. 检查时间戳
         print("\n6. 🕐 检查时间戳...")
@@ -140,10 +140,10 @@ async def test_multiple_sync_records():
                     if time_diff < 300:  # 5分钟内
                         print("   ✅ 时区正确！")
                     else:
-                        print("   ❌ 时区可能有问题")
+                        print("   [X] 时区可能有问题")
                         
                 except Exception as e:
-                    print(f"   ❌ 时间解析失败: {e}")
+                    print(f"   [X] 时间解析失败: {e}")
         
         return {
             'total_records': total_records,
@@ -152,7 +152,7 @@ async def test_multiple_sync_records():
         }
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -183,10 +183,10 @@ async def test_api_response():
                 print(f"   总数: {latest.get('total')}")
                 print(f"   数据源: {latest.get('data_sources_used', [])}")
         else:
-            print(f"❌ API调用失败: {response.message}")
+            print(f"[X] API调用失败: {response.message}")
             
     except Exception as e:
-        print(f"❌ API测试失败: {e}")
+        print(f"[X] API测试失败: {e}")
 
 if __name__ == "__main__":
     print("🧪 开始同步历史修复测试")
@@ -197,8 +197,8 @@ if __name__ == "__main__":
     if result:
         print(f"\n📊 测试结果摘要:")
         print(f"   历史记录总数: {result['total_records']}")
-        print(f"   记录创建正确: {'✅' if result['records_created'] else '❌'}")
-        print(f"   时区显示正确: {'✅' if result['timezone_correct'] else '❌'}")
+        print(f"   记录创建正确: {'✅' if result['records_created'] else '[X]'}")
+        print(f"   时区显示正确: {'✅' if result['timezone_correct'] else '[X]'}")
         
         if result['records_created'] and result['timezone_correct']:
             print(f"\n🎉 所有测试通过！修复成功！")

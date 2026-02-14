@@ -39,7 +39,7 @@ def test_stock_type_detection():
                 market_info['currency_symbol'] == expected_symbol):
                 print(f"    ✅ 识别正确")
             else:
-                print(f"    ❌ 识别错误")
+                print(f"    [X] 识别错误")
                 print(f"       期望: {expected_market}, {expected_currency}, {expected_symbol}")
                 print(f"       实际: {market_info['market_name']}, {market_info['currency_name']}, {market_info['currency_symbol']}")
                 return False
@@ -48,7 +48,7 @@ def test_stock_type_detection():
         return True
         
     except Exception as e:
-        print(f"❌ 股票类型检测测试失败: {e}")
+        print(f"[X] 股票类型检测测试失败: {e}")
         return False
 
 
@@ -79,7 +79,7 @@ def test_fundamentals_analyst_tool_selection():
         if hasattr(toolkit, 'get_hk_stock_data_unified'):
             print(f"    ✅ 港股专用工具存在: get_hk_stock_data_unified")
         else:
-            print(f"    ❌ 港股专用工具不存在")
+            print(f"    [X] 港股专用工具不存在")
             return False
         
         # 测试A股工具选择
@@ -95,14 +95,14 @@ def test_fundamentals_analyst_tool_selection():
         if hasattr(toolkit, 'get_china_stock_data'):
             print(f"    ✅ A股专用工具存在: get_china_stock_data")
         else:
-            print(f"    ❌ A股专用工具不存在")
+            print(f"    [X] A股专用工具不存在")
             return False
         
         print("✅ 基本面分析师工具选择测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 基本面分析师工具选择测试失败: {e}")
+        print(f"[X] 基本面分析师工具选择测试失败: {e}")
         return False
 
 
@@ -131,14 +131,14 @@ def test_trader_currency_detection():
                 market_info['currency_symbol'] == expected_symbol):
                 print(f"    ✅ 货币检测正确")
             else:
-                print(f"    ❌ 货币检测错误")
+                print(f"    [X] 货币检测错误")
                 return False
         
         print("✅ 交易员货币检测测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 交易员货币检测测试失败: {e}")
+        print(f"[X] 交易员货币检测测试失败: {e}")
         return False
 
 
@@ -158,7 +158,7 @@ def test_hk_data_source():
         print(f"  数据获取结果长度: {len(result)}")
         print(f"  结果前100字符: {result[:100]}...")
         
-        if "❌" in result:
+        if "[X]" in result:
             print(f"  ⚠️ 数据获取失败，但这可能是正常的（网络问题或API限制）")
             print(f"  失败信息: {result}")
         else:
@@ -168,7 +168,7 @@ def test_hk_data_source():
         return True
         
     except Exception as e:
-        print(f"❌ 港股数据源测试失败: {e}")
+        print(f"[X] 港股数据源测试失败: {e}")
         return False
 
 
@@ -192,9 +192,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

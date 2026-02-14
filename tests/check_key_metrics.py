@@ -23,19 +23,19 @@ def check_key_metrics():
     
     provider = AKShareProvider()
     if not provider.connected:
-        print("❌ AKShare未连接")
+        print("[X] AKShare未连接")
         return
     
     symbol = "600519"
     financial_data = provider.get_financial_data(symbol)
     
     if not financial_data:
-        print("❌ 未获取到财务数据")
+        print("[X] 未获取到财务数据")
         return
     
     main_indicators = financial_data.get('main_indicators')
     if main_indicators is None:
-        print("❌ 未获取到主要财务指标")
+        print("[X] 未获取到主要财务指标")
         return
     
     # 获取最新数据列
@@ -48,7 +48,7 @@ def check_key_metrics():
         roe_value = roe_row.iloc[0][latest_col]
         print(f"📈 净资产收益率(ROE): {roe_value}")
     else:
-        print("❌ 未找到ROE指标")
+        print("[X] 未找到ROE指标")
     
     # 查找每股收益（用于计算PE）
     eps_row = main_indicators[main_indicators['指标'] == '每股收益']
@@ -56,7 +56,7 @@ def check_key_metrics():
         eps_value = eps_row.iloc[0][latest_col]
         print(f"💰 每股收益(EPS): {eps_value}")
     else:
-        print("❌ 未找到每股收益指标")
+        print("[X] 未找到每股收益指标")
     
     # 查找每股净资产（用于计算PB）
     bps_row = main_indicators[main_indicators['指标'] == '每股净资产_最新股数']
@@ -64,7 +64,7 @@ def check_key_metrics():
         bps_value = bps_row.iloc[0][latest_col]
         print(f"📊 每股净资产(BPS): {bps_value}")
     else:
-        print("❌ 未找到每股净资产指标")
+        print("[X] 未找到每股净资产指标")
     
     # 显示所有包含"每股"的指标
     print(f"\n📋 所有每股相关指标:")

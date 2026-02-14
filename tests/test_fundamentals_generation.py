@@ -54,7 +54,7 @@ def test_fundamentals_generation():
                 count_002027 = fundamentals_report.count("002027")
                 print(f"   002027 出现次数: {count_002027}")
             else:
-                print("❌ 报告中不包含正确的股票代码 002027")
+                print("[X] 报告中不包含正确的股票代码 002027")
                 
             if "002021" in fundamentals_report:
                 print("⚠️ 报告中包含错误的股票代码 002021")
@@ -85,7 +85,7 @@ def test_fundamentals_generation():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -112,7 +112,7 @@ def test_industry_info():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -129,4 +129,4 @@ if __name__ == "__main__":
     if success1 and success2:
         print("\n✅ 所有测试通过")
     else:
-        print("\n❌ 部分测试失败")
+        print("\n[X] 部分测试失败")

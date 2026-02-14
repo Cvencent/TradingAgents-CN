@@ -36,11 +36,11 @@ def test_react_fundamentals_hk_config():
             print("  ✅ ReAct模式基本面分析师港股配置正确")
             return True
         else:
-            print("  ❌ ReAct模式基本面分析师港股配置不完整")
+            print("  [X] ReAct模式基本面分析师港股配置不完整")
             return False
         
     except Exception as e:
-        print(f"❌ ReAct模式基本面分析师港股配置测试失败: {e}")
+        print(f"[X] ReAct模式基本面分析师港股配置测试失败: {e}")
         return False
 
 def test_us_stock_separation():
@@ -63,11 +63,11 @@ def test_us_stock_separation():
             print("  ✅ 美股和港股分离正确")
             return True
         else:
-            print("  ❌ 美股和港股分离不完整")
+            print("  [X] 美股和港股分离不完整")
             return False
         
     except Exception as e:
-        print(f"❌ 美股和港股分离测试失败: {e}")
+        print(f"[X] 美股和港股分离测试失败: {e}")
         return False
 
 def test_hk_query_format():
@@ -94,11 +94,11 @@ def test_hk_query_format():
             print("  ✅ 港股查询格式正确")
             return True
         else:
-            print("  ❌ 港股查询格式不完整")
+            print("  [X] 港股查询格式不完整")
             return False
         
     except Exception as e:
-        print(f"❌ 港股查询格式测试失败: {e}")
+        print(f"[X] 港股查询格式测试失败: {e}")
         return False
 
 def test_toolkit_method_usage():
@@ -129,14 +129,14 @@ def test_toolkit_method_usage():
                 print("  ✅ 工具包方法使用正确")
                 return True
             else:
-                print("  ❌ 工具包方法不可调用")
+                print("  [X] 工具包方法不可调用")
                 return False
         else:
-            print("  ❌ 工具包港股方法不存在")
+            print("  [X] 工具包港股方法不存在")
             return False
         
     except Exception as e:
-        print(f"❌ 工具包方法使用测试失败: {e}")
+        print(f"[X] 工具包方法使用测试失败: {e}")
         return False
 
 def test_stock_type_detection():
@@ -155,7 +155,7 @@ def test_stock_type_detection():
         for stock in hk_stocks:
             market_info = StockUtils.get_market_info(stock)
             is_hk = market_info['is_hk']
-            print(f"    {stock}: {is_hk} ({'✅' if is_hk else '❌'})")
+            print(f"    {stock}: {is_hk} ({'✅' if is_hk else '[X]'})")
             if not is_hk:
                 return False
         
@@ -163,7 +163,7 @@ def test_stock_type_detection():
         for stock in us_stocks:
             market_info = StockUtils.get_market_info(stock)
             is_us = market_info['is_us']
-            print(f"    {stock}: {is_us} ({'✅' if is_us else '❌'})")
+            print(f"    {stock}: {is_us} ({'✅' if is_us else '[X]'})")
             if not is_us:
                 return False
         
@@ -171,7 +171,7 @@ def test_stock_type_detection():
         for stock in china_stocks:
             market_info = StockUtils.get_market_info(stock)
             is_china = market_info['is_china']
-            print(f"    {stock}: {is_china} ({'✅' if is_china else '❌'})")
+            print(f"    {stock}: {is_china} ({'✅' if is_china else '[X]'})")
             if not is_china:
                 return False
         
@@ -179,7 +179,7 @@ def test_stock_type_detection():
         return True
         
     except Exception as e:
-        print(f"❌ 股票类型检测测试失败: {e}")
+        print(f"[X] 股票类型检测测试失败: {e}")
         return False
 
 def main():
@@ -203,7 +203,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 60)
     print(f"🔧 基本面分析师ReAct模式港股修复测试完成: {passed}/{total} 通过")

@@ -60,7 +60,7 @@ def test_cache_manager_fundamentals():
             print(f"✅ 数据加载成功，长度: {len(loaded_data)}")
             print(f"📄 数据预览: {loaded_data[:200]}...")
         else:
-            print(f"❌ 数据加载失败")
+            print(f"[X] 数据加载失败")
         
         # 测试查找缓存
         print(f"\n🔍 测试查找基本面缓存数据...")
@@ -68,7 +68,7 @@ def test_cache_manager_fundamentals():
         if found_key:
             print(f"✅ 找到缓存数据，缓存键: {found_key}")
         else:
-            print(f"❌ 未找到缓存数据")
+            print(f"[X] 未找到缓存数据")
         
         # 测试缓存统计
         print(f"\n📊 测试缓存统计...")
@@ -78,7 +78,7 @@ def test_cache_manager_fundamentals():
         return True
         
     except Exception as e:
-        print(f"❌ 缓存管理器测试失败: {str(e)}")
+        print(f"[X] 缓存管理器测试失败: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
@@ -122,7 +122,7 @@ def test_fundamentals_with_cache():
         return True
         
     except Exception as e:
-        print(f"❌ 基本面数据缓存测试失败: {str(e)}")
+        print(f"[X] 基本面数据缓存测试失败: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
@@ -163,7 +163,7 @@ def test_cache_ttl():
         return True
         
     except Exception as e:
-        print(f"❌ 缓存TTL测试失败: {str(e)}")
+        print(f"[X] 缓存TTL测试失败: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
@@ -191,13 +191,13 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试 '{test_name}' 执行失败: {str(e)}")
+            print(f"[X] 测试 '{test_name}' 执行失败: {str(e)}")
             results.append((test_name, False))
     
     # 输出测试结果
     print(f"\n{'='*20} 测试结果汇总 {'='*20}")
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{status} {test_name}")
     
     passed = sum(1 for _, result in results if result)

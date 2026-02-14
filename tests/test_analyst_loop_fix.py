@@ -101,10 +101,10 @@ def test_conditional_logic_fix():
         print("✅ 所有分析师节点都已修复")
         return True
     except AssertionError as e:
-        print(f"\n❌ 测试失败: {e}")
+        print(f"\n[X] 测试失败: {e}")
         return False
     except Exception as e:
-        print(f"\n❌ 测试错误: {e}")
+        print(f"\n[X] 测试错误: {e}")
         import traceback
         traceback.print_exc()
         return False

@@ -81,7 +81,7 @@ def render_model_config():
                 "API密钥": api_key_display,
                 "最大Token": model.max_tokens,
                 "温度": model.temperature,
-                "状态": "✅ 启用" if model.enabled else "❌ 禁用"
+                "状态": "✅ 启用" if model.enabled else "[X] 禁用"
             })
         
         df = pd.DataFrame(model_data)
@@ -550,9 +550,9 @@ def render_system_settings():
                         error_detail = error_json.get('detail', response.text)
                     except:
                         pass
-                    st.error(f"❌ 初始化失败 (HTTP {response.status_code}): {error_detail}")
+                    st.error(f"[X] 初始化失败 (HTTP {response.status_code}): {error_detail}")
             except Exception as e:
-                st.error(f"❌ 调用API失败: {e}")
+                st.error(f"[X] 调用API失败: {e}")
                 import traceback
                 st.error(traceback.format_exc())
             
@@ -576,7 +576,7 @@ def render_env_status():
         if env_status["env_file_exists"]:
             st.success("✅ .env 文件已存在")
         else:
-            st.error("❌ .env 文件不存在")
+            st.error("[X] .env 文件不存在")
             st.info("💡 请复制 .env.example 为 .env 并配置API密钥")
 
     with col2:
@@ -593,7 +593,7 @@ def render_env_status():
             st.write("**大模型API密钥:**")
             for provider, configured in env_status["api_keys"].items():
                 if provider in ["dashscope", "openai", "google", "anthropic"]:
-                    status = "✅ 已配置" if configured else "❌ 未配置"
+                    status = "✅ 已配置" if configured else "[X] 未配置"
                     provider_name = {
                         "dashscope": "阿里百炼",
                         "openai": "OpenAI",
@@ -604,10 +604,10 @@ def render_env_status():
 
         with api_col2:
             st.write("**其他API密钥:**")
-            finnhub_status = "✅ 已配置" if env_status["api_keys"]["finnhub"] else "❌ 未配置"
+            finnhub_status = "✅ 已配置" if env_status["api_keys"]["finnhub"] else "[X] 未配置"
             st.write(f"- FinnHub (金融数据): {finnhub_status}")
 
-            reddit_status = "✅ 已配置" if env_status["other_configs"]["reddit_configured"] else "❌ 未配置"
+            reddit_status = "✅ 已配置" if env_status["other_configs"]["reddit_configured"] else "[X] 未配置"
             st.write(f"- Reddit API: {reddit_status}")
 
     # 配置优先级说明

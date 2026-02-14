@@ -186,7 +186,7 @@ def test_ui_behavior():
         if actual_show_guide == scenario['expected_show_guide']:
             print(f"   ✅ 测试通过")
         else:
-            print(f"   ❌ 测试失败")
+            print(f"   [X] 测试失败")
     
     return True
 
@@ -206,5 +206,5 @@ if __name__ == "__main__":
         print("   - 系统会记住用户的偏好设置")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         sys.exit(1)

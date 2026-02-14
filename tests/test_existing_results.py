@@ -63,7 +63,7 @@ def get_existing_task_ids():
         return task_ids
         
     except Exception as e:
-        print(f"❌ 获取任务ID失败: {e}")
+        print(f"[X] 获取任务ID失败: {e}")
         return []
 
 def test_existing_result(task_id, stock_symbol):
@@ -92,7 +92,7 @@ def test_existing_result(task_id, stock_symbol):
             access_token = login_result["data"]["access_token"]
             print("✅ 登录成功")
         else:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             return False
         
         headers = {
@@ -116,7 +116,7 @@ def test_existing_result(task_id, stock_symbol):
                 print(f"   ⚠️ 任务未完成，跳过")
                 return False
         else:
-            print(f"   ❌ 获取状态失败: {status_response.status_code}")
+            print(f"   [X] 获取状态失败: {status_response.status_code}")
             return False
         
         # 3. 获取分析结果
@@ -150,7 +150,7 @@ def test_existing_result(task_id, stock_symbol):
                         else:
                             print(f"      ⚠️ 内容过短: '{content}'")
                     else:
-                        print(f"   ❌ {report_type}: {content_type} (应该是str)")
+                        print(f"   [X] {report_type}: {content_type} (应该是str)")
                         print(f"      值: {content}")
                 
                 # 验证前端期望的字段
@@ -164,11 +164,11 @@ def test_existing_result(task_id, stock_symbol):
                         else:
                             print(f"   ⚠️ {field}: 内容无效或过短")
                     else:
-                        print(f"   ❌ {field}: 缺失")
+                        print(f"   [X] {field}: 缺失")
                 
                 return True
             else:
-                print(f"❌ API返回未包含reports字段")
+                print(f"[X] API返回未包含reports字段")
                 
                 # 显示完整的数据结构用于调试
                 print(f"\n🔍 完整数据结构:")
@@ -179,12 +179,12 @@ def test_existing_result(task_id, stock_symbol):
                 
                 return False
         else:
-            print(f"❌ 获取API结果失败: {result_response.status_code}")
+            print(f"[X] 获取API结果失败: {result_response.status_code}")
             print(f"   响应: {result_response.text}")
             return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def main():
@@ -197,7 +197,7 @@ def main():
     task_ids = get_existing_task_ids()
     
     if not task_ids:
-        print("❌ 没有找到已有的任务")
+        print("[X] 没有找到已有的任务")
         return
     
     print(f"✅ 找到 {len(task_ids)} 个任务:")

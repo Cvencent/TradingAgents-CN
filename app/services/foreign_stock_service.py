@@ -486,7 +486,7 @@ class ForeignStockService:
             }
 
         except Exception as e:
-            logger.error(f"❌ Alpha Vantage获取美股行情失败: {e}")
+            logger.error(f"[X] Alpha Vantage获取美股行情失败: {e}")
             raise
 
     def _get_us_quote_from_finnhub(self, code: str) -> Dict:
@@ -523,7 +523,7 @@ class ForeignStockService:
             }
 
         except Exception as e:
-            logger.error(f"❌ Finnhub获取美股行情失败: {e}")
+            logger.error(f"[X] Finnhub获取美股行情失败: {e}")
             raise
     
     async def _get_hk_info(self, code: str, force_refresh: bool = False) -> Dict:

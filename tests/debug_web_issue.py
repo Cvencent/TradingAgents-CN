@@ -44,17 +44,17 @@ def test_form_data_structure():
         if form_data_submitted.get('submitted', False):
             print("\n  ✅ 提交条件判断正确")
         else:
-            print("\n  ❌ 提交条件判断错误")
+            print("\n  [X] 提交条件判断错误")
         
         if form_data_not_submitted.get('submitted', False):
-            print("  ❌ 未提交条件判断错误")
+            print("  [X] 未提交条件判断错误")
         else:
             print("  ✅ 未提交条件判断正确")
         
         return True
         
     except Exception as e:
-        print(f"❌ 表单数据结构测试失败: {e}")
+        print(f"[X] 表单数据结构测试失败: {e}")
         return False
 
 def test_validation_function():
@@ -78,13 +78,13 @@ def test_validation_function():
         if not errors:
             print("  ✅ 港股验证通过")
         else:
-            print(f"  ❌ 港股验证失败: {errors}")
+            print(f"  [X] 港股验证失败: {errors}")
             return False
         
         return True
         
     except Exception as e:
-        print(f"❌ 验证函数测试失败: {e}")
+        print(f"[X] 验证函数测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -109,7 +109,7 @@ def test_analysis_runner_import():
         return True
         
     except Exception as e:
-        print(f"❌ 分析运行器导入失败: {e}")
+        print(f"[X] 分析运行器导入失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -128,7 +128,7 @@ def test_streamlit_components():
         return True
         
     except Exception as e:
-        print(f"❌ Streamlit组件测试失败: {e}")
+        print(f"[X] Streamlit组件测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -178,7 +178,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"🐛 调试测试完成: {passed}/{total} 通过")

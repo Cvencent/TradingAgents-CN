@@ -69,17 +69,17 @@ def test_deepseek_market_analyst():
         not_placeholder = "正在调用工具" not in market_report
         
         print(f"📊 报告质量检查:")
-        print(f"   包含实际数据: {'✅' if has_data else '❌'}")
-        print(f"   分析内容充实: {'✅' if has_analysis else '❌'}")
-        print(f"   非占位符内容: {'✅' if not_placeholder else '❌'}")
+        print(f"   包含实际数据: {'✅' if has_data else '[X]'}")
+        print(f"   分析内容充实: {'✅' if has_analysis else '[X]'}")
+        print(f"   非占位符内容: {'✅' if not_placeholder else '[X]'}")
         
         success = has_data and has_analysis and not_placeholder
-        print(f"   整体评估: {'✅ 成功' if success else '❌ 需要改进'}")
+        print(f"   整体评估: {'✅ 成功' if success else '[X] 需要改进'}")
         
         return success
         
     except Exception as e:
-        print(f"❌ DeepSeek市场分析师测试失败: {e}")
+        print(f"[X] DeepSeek市场分析师测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -143,17 +143,17 @@ def test_dashscope_market_analyst():
         not_placeholder = "正在调用工具" not in market_report
         
         print(f"📊 报告质量检查:")
-        print(f"   包含实际数据: {'✅' if has_data else '❌'}")
-        print(f"   分析内容充实: {'✅' if has_analysis else '❌'}")
-        print(f"   非占位符内容: {'✅' if not_placeholder else '❌'}")
+        print(f"   包含实际数据: {'✅' if has_data else '[X]'}")
+        print(f"   分析内容充实: {'✅' if has_analysis else '[X]'}")
+        print(f"   非占位符内容: {'✅' if not_placeholder else '[X]'}")
         
         success = has_data and has_analysis and not_placeholder
-        print(f"   整体评估: {'✅ 成功' if success else '❌ 需要改进'}")
+        print(f"   整体评估: {'✅ 成功' if success else '[X] 需要改进'}")
         
         return success
         
     except Exception as e:
-        print(f"❌ 百炼市场分析师测试失败: {e}")
+        print(f"[X] 百炼市场分析师测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -180,8 +180,8 @@ def main():
     print("\n📋 测试总结")
     print("=" * 60)
     
-    print(f"DeepSeek市场分析师: {'✅ 修复成功' if deepseek_success else '❌ 仍需修复'}")
-    print(f"百炼ReAct分析师: {'✅ 工作正常' if dashscope_success else '❌ 需要检查'}")
+    print(f"DeepSeek市场分析师: {'✅ 修复成功' if deepseek_success else '[X] 仍需修复'}")
+    print(f"百炼ReAct分析师: {'✅ 工作正常' if dashscope_success else '[X] 需要检查'}")
     
     overall_success = deepseek_success and dashscope_success
     

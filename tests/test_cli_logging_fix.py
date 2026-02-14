@@ -55,7 +55,7 @@ def test_cli_logging_setup():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -80,7 +80,7 @@ def test_console_output():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_log_file_writing():
@@ -123,7 +123,7 @@ def test_log_file_writing():
             return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_cli_interface_preview():
@@ -164,7 +164,7 @@ def test_cli_interface_preview():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def main():
@@ -202,7 +202,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")

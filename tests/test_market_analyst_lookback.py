@@ -51,7 +51,7 @@ def test_config_loading():
         
         return lookback_days
     except Exception as e:
-        print(f"❌ 配置加载失败: {e}")
+        print(f"[X] 配置加载失败: {e}")
         return None
 
 
@@ -88,7 +88,7 @@ def test_date_range_calculation(lookback_days):
         
         return start_date, end_date, actual_days
     except Exception as e:
-        print(f"❌ 日期范围计算失败: {e}")
+        print(f"[X] 日期范围计算失败: {e}")
         import traceback
         traceback.print_exc()
         return None, None, None
@@ -118,7 +118,7 @@ def test_data_fetching(start_date, end_date):
         )
         
         # 检查结果
-        if result and not result.startswith("❌"):
+        if result and not result.startswith("[X]"):
             print(f"✅ 数据获取成功")
             print(f"📊 返回数据长度: {len(result)} 字符")
             
@@ -148,11 +148,11 @@ def test_data_fetching(start_date, end_date):
             
             return True
         else:
-            print(f"❌ 数据获取失败")
+            print(f"[X] 数据获取失败")
             print(f"错误信息: {result}")
             return False
     except Exception as e:
-        print(f"❌ 数据获取异常: {e}")
+        print(f"[X] 数据获取异常: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -196,7 +196,7 @@ def test_technical_indicators_accuracy(lookback_days):
             level = "minimum"
             all_passed = False
         else:
-            status = "❌ 不足"
+            status = "[X] 不足"
             level = "insufficient"
             all_passed = False
         
@@ -222,13 +222,13 @@ def main():
     # 测试1：配置加载
     lookback_days = test_config_loading()
     if lookback_days is None:
-        print("\n❌ 配置加载失败，终止测试")
+        print("\n[X] 配置加载失败，终止测试")
         return
     
     # 测试2：日期范围计算
     start_date, end_date, actual_days = test_date_range_calculation(lookback_days)
     if start_date is None:
-        print("\n❌ 日期范围计算失败，终止测试")
+        print("\n[X] 日期范围计算失败，终止测试")
         return
     
     # 测试3：数据获取
@@ -243,7 +243,7 @@ def main():
     print("=" * 80)
     print(f"✅ 配置加载: 成功 ({lookback_days}天)")
     print(f"✅ 日期计算: 成功 ({actual_days}天)")
-    print(f"{'✅' if data_success else '❌'} 数据获取: {'成功' if data_success else '失败'}")
+    print(f"{'✅' if data_success else '[X]'} 数据获取: {'成功' if data_success else '失败'}")
     print(f"{'✅' if indicators_ok else '⚠️ '} 技术指标: {'满足要求' if indicators_ok else '部分不足'}")
     
     if lookback_days == 250 and data_success and indicators_ok:

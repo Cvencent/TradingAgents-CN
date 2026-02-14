@@ -167,7 +167,7 @@ class DatabaseManager:
         if mongodb_available:
             self.logger.info(f"✅ MongoDB: {mongodb_msg}")
         else:
-            self.logger.info(f"❌ MongoDB: {mongodb_msg}")
+            self.logger.info(f"[X] MongoDB: {mongodb_msg}")
         
         # 检测Redis
         redis_available, redis_msg = self._detect_redis()
@@ -176,7 +176,7 @@ class DatabaseManager:
         if redis_available:
             self.logger.info(f"✅ Redis: {redis_msg}")
         else:
-            self.logger.info(f"❌ Redis: {redis_msg}")
+            self.logger.info(f"[X] Redis: {redis_msg}")
         
         # 更新配置
         self._update_config_based_on_detection()

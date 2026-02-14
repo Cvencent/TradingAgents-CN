@@ -33,7 +33,7 @@ class UsageStatisticsService:
             logger.info(f"✅ 添加使用记录成功: {record.provider}/{record.model_name}")
             return True
         except Exception as e:
-            logger.error(f"❌ 添加使用记录失败: {e}")
+            logger.error(f"[X] 添加使用记录失败: {e}")
             return False
     
     async def get_usage_records(
@@ -73,7 +73,7 @@ class UsageStatisticsService:
             logger.info(f"✅ 获取使用记录成功: {len(records)} 条")
             return records
         except Exception as e:
-            logger.error(f"❌ 获取使用记录失败: {e}")
+            logger.error(f"[X] 获取使用记录失败: {e}")
             return []
     
     async def get_usage_statistics(
@@ -183,7 +183,7 @@ class UsageStatisticsService:
             logger.info(f"✅ 获取使用统计成功: {stats.total_requests} 条记录")
             return stats
         except Exception as e:
-            logger.error(f"❌ 获取使用统计失败: {e}")
+            logger.error(f"[X] 获取使用统计失败: {e}")
             return UsageStatistics()
     
     async def get_cost_by_provider(self, days: int = 7) -> Dict[str, float]:
@@ -228,7 +228,7 @@ class UsageStatisticsService:
             logger.info(f"✅ 删除旧记录成功: {deleted_count} 条")
             return deleted_count
         except Exception as e:
-            logger.error(f"❌ 删除旧记录失败: {e}")
+            logger.error(f"[X] 删除旧记录失败: {e}")
             return 0
 
 

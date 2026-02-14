@@ -139,7 +139,7 @@ class ChineseFinanceDataAggregator:
                 logger.warning(f"⚠️ [财经数据] 股吧爬虫获取失败，尝试使用数据源管理器")
                 return self._get_stock_forum_sentiment_fallback(ticker, days)
         except Exception as e:
-            logger.error(f"❌ [财经数据] 股吧爬虫异常: {e}")
+            logger.error(f"[X] [财经数据] 股吧爬虫异常: {e}")
             # 降级：使用旧的数据源管理器
             return self._get_stock_forum_sentiment_fallback(ticker, days)
 
@@ -404,7 +404,7 @@ def get_chinese_social_sentiment(ticker: str, curr_date: str) -> str:
 中国市场情绪分析 - {ticker}
 分析日期: {curr_date}
 
-❌ 分析失败: {str(e)}
+[X] 分析失败: {str(e)}
 
 💡 替代建议:
 1. 查看财经新闻网站的相关报道

@@ -80,12 +80,12 @@ def test_unified_news_tool():
                         has_real_news = any(indicator in report for indicator in news_indicators)
                         print(f"🔍 包含真实新闻特征: {'是' if has_real_news else '否'}")
                     else:
-                        print("❌ 消息内容为空")
+                        print("[X] 消息内容为空")
                 else:
-                    print("❌ 未获取到新闻分析报告")
+                    print("[X] 未获取到新闻分析报告")
                     
             except Exception as e:
-                print(f"❌ 测试股票 {stock_code} 时出错: {e}")
+                print(f"[X] 测试股票 {stock_code} 时出错: {e}")
                 import traceback
                 traceback.print_exc()
                 
@@ -94,7 +94,7 @@ def test_unified_news_tool():
         print(f"{'='*60}")
         
     except Exception as e:
-        print(f"❌ 测试过程中出现错误: {e}")
+        print(f"[X] 测试过程中出现错误: {e}")
         import traceback
         traceback.print_exc()
 

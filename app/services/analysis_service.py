@@ -73,7 +73,7 @@ class AnalysisService:
                 logger.info(f"🔄 转换用户ID: {user_id} -> {object_id}")
                 return PyObjectId(object_id)
         except Exception as e:
-            logger.error(f"❌ 用户ID转换失败: {user_id} -> {e}")
+            logger.error(f"[X] 用户ID转换失败: {user_id} -> {e}")
             # 如果转换失败，生成一个新的ObjectId
             new_object_id = ObjectId()
             logger.warning(f"⚠️ 生成新的用户ID: {new_object_id}")
@@ -230,7 +230,7 @@ class AnalysisService:
             return result
 
         except Exception as e:
-            logger.error(f"❌ [线程池] 执行分析任务失败: {task.task_id} - {e}")
+            logger.error(f"[X] [线程池] 执行分析任务失败: {task.task_id} - {e}")
             raise
 
     def _execute_analysis_sync(self, task: AnalysisTask) -> AnalysisResult:
@@ -342,7 +342,7 @@ class AnalysisService:
             return result
 
         except Exception as e:
-            logger.error(f"❌ [线程池] 执行分析任务失败: {task.task_id} - {e}")
+            logger.error(f"[X] [线程池] 执行分析任务失败: {task.task_id} - {e}")
             raise
 
     async def _execute_single_analysis_async(self, task: AnalysisTask):
@@ -406,7 +406,7 @@ class AnalysisService:
             logger.info(f"✅ 分析任务完成: {task.task_id}")
 
         except Exception as e:
-            logger.error(f"❌ 分析任务失败: {task.task_id} - {e}")
+            logger.error(f"[X] 分析任务失败: {task.task_id} - {e}")
 
             # 标记失败
             if progress_tracker:
@@ -939,7 +939,7 @@ class AnalysisService:
                 logger.warning(f"⚠️  记录使用成本失败")
 
         except Exception as e:
-            logger.error(f"❌ 记录 token 使用失败: {e}")
+            logger.error(f"[X] 记录 token 使用失败: {e}")
 
 
 # 全局分析服务实例（延迟初始化）

@@ -54,8 +54,8 @@ class AuthService:
             logger.warning("⏰ Token已过期")
             return None
         except jwt.InvalidTokenError as e:
-            logger.warning(f"❌ Token无效: {str(e)}")
+            logger.warning(f"[X] Token无效: {str(e)}")
             return None
         except Exception as e:
-            logger.error(f"❌ Token验证异常: {str(e)}")
+            logger.error(f"[X] Token验证异常: {str(e)}")
             return None

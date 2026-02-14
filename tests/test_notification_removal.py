@@ -54,7 +54,7 @@ def check_notification_code():
     
     # 报告结果
     if found_issues:
-        print(f"❌ 发现 {len(found_issues)} 个通知相关代码残留:")
+        print(f"[X] 发现 {len(found_issues)} 个通知相关代码残留:")
         print()
         
         for issue in found_issues:
@@ -78,7 +78,7 @@ def check_sync_control_component():
     sync_control_path = "frontend/src/components/Sync/SyncControl.vue"
     
     if not os.path.exists(sync_control_path):
-        print(f"❌ 文件不存在: {sync_control_path}")
+        print(f"[X] 文件不存在: {sync_control_path}")
         return False
     
     try:
@@ -105,7 +105,7 @@ def check_sync_control_component():
         all_removed = True
         for feature in removed_features:
             if feature in content:
-                print(f"   ❌ 仍然存在: {feature}")
+                print(f"   [X] 仍然存在: {feature}")
                 all_removed = False
             else:
                 print(f"   ✅ 已移除: {feature}")
@@ -116,7 +116,7 @@ def check_sync_control_component():
             if feature in content:
                 print(f"   ✅ 已保留: {feature}")
             else:
-                print(f"   ❌ 意外移除: {feature}")
+                print(f"   [X] 意外移除: {feature}")
                 all_kept = False
         
         # 检查按钮数量
@@ -133,7 +133,7 @@ def check_sync_control_component():
         return all_removed and all_kept
         
     except Exception as e:
-        print(f"❌ 读取文件失败: {e}")
+        print(f"[X] 读取文件失败: {e}")
         return False
 
 def generate_test_instructions():
@@ -154,7 +154,7 @@ def generate_test_instructions():
     print("   7. 💬 页面消息提示 (ElMessage)")
     print("   8. 📚 同步历史记录")
     print()
-    print("❌ **应该已经移除的功能:**")
+    print("[X] **应该已经移除的功能:**")
     print("   1. 🧪 测试通知按钮")
     print("   2. 🔔 桌面通知")
     print("   3. 📱 通知权限请求")
@@ -193,6 +193,6 @@ if __name__ == "__main__":
     else:
         print("⚠️ 发现问题，需要进一步检查:")
         if not code_clean:
-            print("   ❌ 代码中仍有通知相关残留")
+            print("   [X] 代码中仍有通知相关残留")
         if not component_clean:
-            print("   ❌ 组件功能不正确")
+            print("   [X] 组件功能不正确")

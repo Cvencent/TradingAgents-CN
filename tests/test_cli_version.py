@@ -36,7 +36,7 @@ def test_cli_imports():
         return True
         
     except Exception as e:
-        print(f"❌ CLI模块导入失败: {e}")
+        print(f"[X] CLI模块导入失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -70,11 +70,11 @@ def test_cli_config():
             print("✅ CLI可以访问DeepSeek配置")
             return True
         else:
-            print("❌ CLI无法访问DeepSeek配置")
+            print("[X] CLI无法访问DeepSeek配置")
             return False
         
     except Exception as e:
-        print(f"❌ CLI配置测试失败: {e}")
+        print(f"[X] CLI配置测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -117,7 +117,7 @@ def test_cli_graph_creation():
         return True
         
     except Exception as e:
-        print(f"❌ CLI图创建失败: {e}")
+        print(f"[X] CLI图创建失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -157,14 +157,14 @@ def test_cli_cost_tracking():
                 print("✅ CLI Token跟踪正常")
                 return True
             else:
-                print("❌ CLI Token跟踪失败")
+                print("[X] CLI Token跟踪失败")
                 return False
         else:
-            print("❌ CLI成本计算为0")
+            print("[X] CLI成本计算为0")
             return False
         
     except Exception as e:
-        print(f"❌ CLI成本跟踪测试失败: {e}")
+        print(f"[X] CLI成本跟踪测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -185,7 +185,7 @@ def test_cli_help():
         return True
         
     except Exception as e:
-        print(f"❌ CLI帮助功能测试失败: {e}")
+        print(f"[X] CLI帮助功能测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -212,7 +212,7 @@ def main():
         try:
             results[test_name] = test_func()
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results[test_name] = False
     
     # 总结
@@ -220,7 +220,7 @@ def main():
     print("=" * 60)
     
     for test_name, success in results.items():
-        status = "✅ 成功" if success else "❌ 失败"
+        status = "✅ 成功" if success else "[X] 失败"
         print(f"{test_name}: {status}")
     
     overall_success = all(results.values())
@@ -230,7 +230,7 @@ def main():
         print("   命令行版本可以正常使用")
         print("   建议运行: python -m cli.main analyze")
     else:
-        print("\n❌ CLI版本测试有失败项")
+        print("\n[X] CLI版本测试有失败项")
         print("   请检查失败的测试项")
     
     print("\n🎯 测试完成！")

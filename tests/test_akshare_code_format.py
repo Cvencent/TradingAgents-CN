@@ -19,7 +19,7 @@ def test_akshare_interfaces():
         import akshare as ak
         import pandas as pd
     except ImportError:
-        print("❌ AKShare 未安装，跳过测试")
+        print("[X] AKShare 未安装，跳过测试")
         return
     
     # 测试 1: 新浪财经接口
@@ -70,10 +70,10 @@ def test_akshare_interfaces():
                 else:
                     print(f"\n   ✅ 所有代码都是标准的6位数字格式")
             else:
-                print("❌ 未找到代码列")
+                print("[X] 未找到代码列")
                 
     except Exception as e:
-        print(f"❌ 新浪接口测试失败: {e}")
+        print(f"[X] 新浪接口测试失败: {e}")
         import traceback
         traceback.print_exc()
     
@@ -125,10 +125,10 @@ def test_akshare_interfaces():
                 else:
                     print(f"\n   ✅ 所有代码都是标准的6位数字格式")
             else:
-                print("❌ 未找到代码列")
+                print("[X] 未找到代码列")
                 
     except Exception as e:
-        print(f"❌ 东方财富接口测试失败: {e}")
+        print(f"[X] 东方财富接口测试失败: {e}")
         import traceback
         traceback.print_exc()
     

@@ -45,11 +45,11 @@ def clean_import_test():
             print("✅ 默认数据源正确设置为AKShare")
             return True
         else:
-            print(f"❌ 默认数据源错误: 期望akshare，实际{manager.default_source.value}")
+            print(f"[X] 默认数据源错误: 期望akshare，实际{manager.default_source.value}")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -90,7 +90,7 @@ def test_env_variable_directly():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -126,11 +126,11 @@ def test_manual_env_setting():
             print("✅ 手动设置环境变量后，默认数据源正确为AKShare")
             return True
         else:
-            print(f"❌ 手动设置环境变量后，默认数据源仍然错误: {manager.default_source.value}")
+            print(f"[X] 手动设置环境变量后，默认数据源仍然错误: {manager.default_source.value}")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -180,11 +180,11 @@ def test_fallback_order():
             print("✅ 备用数据源顺序正确: AKShare排在第一位")
             return True
         else:
-            print(f"❌ 备用数据源顺序错误: 期望AKSHARE在第一位，实际顺序: {fallback_sources}")
+            print(f"[X] 备用数据源顺序错误: 期望AKSHARE在第一位，实际顺序: {fallback_sources}")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -208,7 +208,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试{test_name}异常: {e}")
+            print(f"[X] 测试{test_name}异常: {e}")
             results.append((test_name, False))
     
     # 总结结果
@@ -219,7 +219,7 @@ def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"  {test_name}: {status}")
         if result:
             passed += 1

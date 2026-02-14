@@ -41,7 +41,9 @@ try:
     def _get_stock_info_safe(stock_code: str):
         """获取股票基础信息的安全封装"""
         return _data_source_manager.get_stock_basic_info(stock_code)
-except Exception:
+except Exception as e:
+    if "Permission" in str(e) or "restricted" in str(e) or "tk.csv" in str(e):
+        logger.warning(f"⚠️ Tushare 文件访问受限，股票信息获取功能可能不可用: {e}")
     _get_stock_info_safe = None
 
 # 设置日志
@@ -80,7 +82,7 @@ async def get_provider_by_model_name(model_name: str) -> str:
         return _get_default_provider_by_model(model_name)
 
     except Exception as e:
-        logger.error(f"❌ 查找模型供应商失败: {e}")
+        logger.error(f"[X] 查找模型供应商失败: {e}")
         return _get_default_provider_by_model(model_name)
 
 
@@ -222,7 +224,7 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
         }
 
     except Exception as e:
-        logger.error(f"❌ [同步查询] 查找模型供应商失败: {e}")
+        logger.error(f"[X] [同步查询] 查找模型供应商失败: {e}")
         provider = _get_default_provider_by_model(model_name)
 
         # 尝试从厂家配置中获取 default_base_url 和 API Key
@@ -358,6 +360,8 @@ def _get_default_provider_by_model(model_name: str) -> str:
         # DeepSeek
         'deepseek-chat': 'deepseek',
         'deepseek-coder': 'deepseek',
+        'deepseek-v3.2-exp-thinking': 'deepseek',
+        'deepseek-v3': 'deepseek',
 
         # 智谱AI
         'glm-4': 'zhipu',
@@ -548,7 +552,7 @@ def create_analysis_config(
 
                 client.close()
             except Exception as e2:
-                logger.error(f"❌ 查询数据库失败: {e2}，使用默认 OpenAI 端点")
+                logger.error(f"[X] 查询数据库失败: {e2}，使用默认 OpenAI 端点")
                 config["backend_url"] = "https://api.openai.com/v1"
 
         logger.info(f"⚠️  使用回退的 backend_url: {config['backend_url']}")
@@ -699,7 +703,7 @@ class SimpleAnalysisService:
                 logger.info(f"🔄 转换用户ID: {user_id} -> {object_id}")
                 return PyObjectId(object_id)
         except Exception as e:
-            logger.error(f"❌ 用户ID转换失败: {user_id} -> {e}")
+            logger.error(f"[X] 用户ID转换失败: {user_id} -> {e}")
             # 如果转换失败，生成一个新的ObjectId
             new_object_id = ObjectId()
             logger.warning(f"⚠️ 生成新的用户ID: {new_object_id}")
@@ -745,7 +749,7 @@ class SimpleAnalysisService:
                     logger.info(f"ℹ️ 未找到级别 {analysis_level} 的流程配置，使用默认配置")
             
             except Exception as e:
-                logger.error(f"❌ 加载流程配置失败: {e}")
+                logger.error(f"[X] 加载流程配置失败: {e}")
         
         logger.info(f"🔧 创建新的TradingAgents实例（并发安全模式）...")
 
@@ -793,7 +797,7 @@ class SimpleAnalysisService:
             if verify_task:
                 logger.info(f"✅ 任务创建验证成功: {verify_task.task_id}")
             else:
-                logger.error(f"❌ 任务创建验证失败: 无法查询到刚创建的任务 {task_id}")
+                logger.error(f"[X] 任务创建验证失败: 无法查询到刚创建的任务 {task_id}")
 
             # 补齐股票名称并写入数据库任务文档的初始记录
             code = stock_code
@@ -830,11 +834,11 @@ class SimpleAnalysisService:
                     logger.warning(f"⚠️ MongoDB保存结果异常: matched={result.matched_count}, upserted={result.upserted_id}")
 
             except Exception as e:
-                logger.error(f"❌ 创建任务时写入MongoDB失败: {e}")
+                logger.error(f"[X] 创建任务时写入MongoDB失败: {e}")
                 # 这里不应该忽略错误，因为没有MongoDB记录会导致状态查询失败
                 # 但为了不影响任务执行，我们记录错误但继续执行
                 import traceback
-                logger.error(f"❌ MongoDB保存详细错误: {traceback.format_exc()}")
+                logger.error(f"[X] MongoDB保存详细错误: {traceback.format_exc()}")
 
             return {
                 "task_id": task_id,
@@ -843,7 +847,7 @@ class SimpleAnalysisService:
             }
 
         except Exception as e:
-            logger.error(f"❌ 创建分析任务失败: {e}")
+            logger.error(f"[X] 创建分析任务失败: {e}")
             raise
 
     async def execute_analysis_background(
@@ -861,7 +865,7 @@ class SimpleAnalysisService:
             logger.info(f"🎯🎯🎯 [ENTRY] execute_analysis_background 方法被调用: {task_id}")
             logger.info(f"🎯🎯🎯 [ENTRY] user_id={user_id}, stock_code={stock_code}")
         except Exception as entry_error:
-            print(f"❌❌❌ [CRITICAL] 日志记录失败: {entry_error}")
+            print(f"[X][X][X] [CRITICAL] 日志记录失败: {entry_error}")
             import traceback
             traceback.print_exc()
 
@@ -903,13 +907,13 @@ class SimpleAnalysisService:
             )
 
             if not validation_result.is_valid:
-                error_msg = f"❌ 股票代码验证失败: {validation_result.error_message}"
+                error_msg = f"[X] 股票代码验证失败: {validation_result.error_message}"
                 logger.error(error_msg)
                 logger.error(f"💡 建议: {validation_result.suggestion}")
 
                 # 构建用户友好的错误消息
                 user_friendly_error = (
-                    f"❌ 股票代码无效\n\n"
+                    f"[X] 股票代码无效\n\n"
                     f"{validation_result.error_message}\n\n"
                     f"💡 {validation_result.suggestion}"
                 )
@@ -1000,9 +1004,56 @@ class SimpleAnalysisService:
 
             # 执行实际的分析
             result = await self._execute_analysis_sync(task_id, user_id, request, progress_tracker)
+            
+            # 🔍 调试：检查返回的state和messages
+            logger.info(f"🔍 [DEBUG] execute_analysis_sync返回的result keys: {list(result.keys())}")
+            if 'state' in result:
+                logger.info(f"🔍 [DEBUG] result['state']类型: {type(result['state'])}")
+                if isinstance(result['state'], dict):
+                    logger.info(f"🔍 [DEBUG] result['state'] keys: {list(result['state'].keys())}")
+                    if 'messages' in result['state']:
+                        messages = result['state']['messages']
+                        logger.info(f"🔍 [DEBUG] messages类型: {type(messages)}")
+                        logger.info(f"🔍 [DEBUG] messages数量: {len(messages) if isinstance(messages, list) else 'not a list'}")
+                        if isinstance(messages, list) and len(messages) > 0:
+                            logger.info(f"🔍 [DEBUG] 第一条消息类型: {type(messages[0]).__name__}")
+                            logger.info(f"🔍 [DEBUG] 最后一条消息类型: {type(messages[-1]).__name__}")
+                    else:
+                        logger.warning(f"⚠️ [DEBUG] result['state']中没有messages字段!")
+                else:
+                    logger.warning(f"⚠️ [DEBUG] result['state']不是字典!")
+            else:
+                logger.warning(f"⚠️ [DEBUG] result中没有state字段!")
 
             # 标记进度跟踪器完成（在线程中执行）
             await asyncio.to_thread(progress_tracker.mark_completed)
+
+            # 🔥 关键修复：在保存之前从state中提取prompts
+            # 因为state包含不可序列化的数据，在保存到MongoDB时会被移除
+            try:
+                if 'state' in result and isinstance(result['state'], dict):
+                    state = result['state']
+                    # 从state中提取reports用于确定哪些分析师被执行了
+                    reports = {}
+                    report_fields = [
+                        'market_report', 'sentiment_report', 'news_report',
+                        'fundamentals_report', 'social_report', 'capital_flow_report'
+                    ]
+                    for field in report_fields:
+                        if field in state:
+                            reports[field] = state[field]
+                    
+                    # 提取prompts并保存到result中
+                    prompts = self._extract_prompts_from_state(state, reports)
+                    if prompts:
+                        result['prompts'] = prompts
+                        logger.info(f"✅ [关键修复] 从state提取了 {len(prompts)} 个prompts到result: {list(prompts.keys())}")
+                    else:
+                        logger.warning(f"⚠️ [关键修复] 未能从state提取到prompts")
+                else:
+                    logger.warning(f"⚠️ [关键修复] result中没有state字段，无法提取prompts")
+            except Exception as e:
+                logger.error(f"[X] [关键修复] 提取prompts时出错: {e}")
 
             # 保存分析结果到文件和数据库
             try:
@@ -1010,7 +1061,7 @@ class SimpleAnalysisService:
                 await self._save_analysis_results_complete(task_id, result)
                 logger.info(f"✅ 分析结果保存完成: {task_id}")
             except Exception as save_error:
-                logger.error(f"❌ 保存分析结果失败: {task_id} - {save_error}")
+                logger.error(f"[X] 保存分析结果失败: {task_id} - {save_error}")
                 # 保存失败不影响分析完成状态
 
             # 🔍 调试：检查即将保存到内存的result
@@ -1057,7 +1108,7 @@ class SimpleAnalysisService:
             logger.info(f"✅ 后台分析任务完成: {task_id}")
 
         except Exception as e:
-            logger.error(f"❌ 后台分析任务失败: {task_id} - {e}")
+            logger.error(f"[X] 后台分析任务失败: {task_id} - {e}")
 
             # 格式化错误信息为用户友好的提示
             from ..utils.error_formatter import ErrorFormatter
@@ -1548,7 +1599,7 @@ class SimpleAnalysisService:
                         })
 
                 except Exception as e:
-                    logger.error(f"❌ Graph进度回调失败: {e}", exc_info=True)
+                    logger.error(f"[X] Graph进度回调失败: {e}", exc_info=True)
 
             logger.info(f"🚀 准备调用 trading_graph.propagate，progress_callback={graph_progress_callback}")
 
@@ -1561,6 +1612,24 @@ class SimpleAnalysisService:
             )
 
             logger.info(f"✅ trading_graph.propagate 执行完成")
+            
+            # 🔍 关键调试：检查state是否包含messages
+            logger.info(f"🔍 [CRITICAL] State类型: {type(state)}")
+            if isinstance(state, dict):
+                logger.info(f"🔍 [CRITICAL] State keys: {list(state.keys())}")
+                if 'messages' in state:
+                    messages = state['messages']
+                    logger.info(f"🔍 [CRITICAL] ✅ State中有messages字段!")
+                    logger.info(f"🔍 [CRITICAL] Messages类型: {type(messages)}")
+                    logger.info(f"🔍 [CRITICAL] Messages数量: {len(messages) if isinstance(messages, list) else 'not a list'}")
+                    if isinstance(messages, list) and len(messages) > 0:
+                        logger.info(f"🔍 [CRITICAL] 第一条消息类型: {type(messages[0]).__name__}")
+                        logger.info(f"🔍 [CRITICAL] 最后一条消息类型: {type(messages[-1]).__name__}")
+                else:
+                    logger.error(f"[X] [CRITICAL] State中没有messages字段!")
+                    logger.error(f"[X] [CRITICAL] 这就是为什么prompts无法提取的原因!")
+            else:
+                logger.error(f"[X] [CRITICAL] State不是字典类型: {type(state)}")
 
             # 🔍 调试：检查decision的结构
             logger.info(f"🔍 [DEBUG] Decision类型: {type(decision)}")
@@ -1841,7 +1910,7 @@ class SimpleAnalysisService:
                     }
                     logger.warning(f"⚠️ Decision不是字典类型: {type(decision)}")
             except Exception as e:
-                logger.error(f"❌ 格式化decision失败: {e}")
+                logger.error(f"[X] 格式化decision失败: {e}")
                 formatted_decision = {
                     'action': '持有',
                     'confidence': 0.5,
@@ -1950,7 +2019,7 @@ class SimpleAnalysisService:
             return result
 
         except Exception as e:
-            logger.error(f"❌ [线程池] 分析执行失败: {task_id} - {e}")
+            logger.error(f"[X] [线程池] 分析执行失败: {task_id} - {e}")
 
             # 格式化错误信息为用户友好的提示
             from ..utils.error_formatter import ErrorFormatter
@@ -2147,7 +2216,7 @@ class SimpleAnalysisService:
             logger.info(f"📋 [Tasks] 合并后返回数量: {len(results)} (内存: {len(tasks_in_mem)}, MongoDB: {count})")
             return results
         except Exception as outer_e:
-            logger.error(f"❌ list_all_tasks 外层异常: {outer_e}", exc_info=True)
+            logger.error(f"[X] list_all_tasks 外层异常: {outer_e}", exc_info=True)
             return []
 
     async def list_user_tasks(
@@ -2278,7 +2347,7 @@ class SimpleAnalysisService:
 
                 logger.info(f"📋 [Tasks] MongoDB 返回数量: {count}")
             except Exception as mongo_e:
-                logger.error(f"❌ MongoDB 查询任务列表失败: {mongo_e}", exc_info=True)
+                logger.error(f"[X] MongoDB 查询任务列表失败: {mongo_e}", exc_info=True)
                 # MongoDB 查询失败，继续使用内存数据
 
             # 4) 合并内存和 MongoDB 数据，去重
@@ -2348,7 +2417,7 @@ class SimpleAnalysisService:
             logger.info(f"📋 [Tasks] 合并后返回数量: {len(results)} (内存: {len(tasks_in_mem)}, MongoDB: {count})")
             return results
         except Exception as outer_e:
-            logger.error(f"❌ list_user_tasks 外层异常: {outer_e}", exc_info=True)
+            logger.error(f"[X] list_user_tasks 外层异常: {outer_e}", exc_info=True)
             return []
 
     async def cleanup_zombie_tasks(self, max_running_hours: int = 2) -> Dict[str, Any]:
@@ -2404,7 +2473,7 @@ class SimpleAnalysisService:
             }
 
         except Exception as e:
-            logger.error(f"❌ 清理僵尸任务失败: {e}", exc_info=True)
+            logger.error(f"[X] 清理僵尸任务失败: {e}", exc_info=True)
             return {
                 "success": False,
                 "error": str(e),
@@ -2463,7 +2532,7 @@ class SimpleAnalysisService:
             return zombie_tasks
 
         except Exception as e:
-            logger.error(f"❌ 查询僵尸任务失败: {e}", exc_info=True)
+            logger.error(f"[X] 查询僵尸任务失败: {e}", exc_info=True)
             return []
 
 
@@ -2500,120 +2569,343 @@ class SimpleAnalysisService:
             logger.debug(f"📊 任务状态已更新: {task_id} -> {status} ({progress}%)")
 
         except Exception as e:
-            logger.error(f"❌ 更新任务状态失败: {task_id} - {e}")
+            logger.error(f"[X] 更新任务状态失败: {task_id} - {e}")
 
-    def _extract_prompts_from_state(self, state: Dict[str, Any]) -> Dict[str, str]:
+    def _convert_message_to_dict(self, msg) -> dict:
+        """将LangChain消息对象转换为字典"""
+        try:
+            msg_type = type(msg).__name__
+            content = ""
+            
+            if hasattr(msg, 'content'):
+                content = msg.content
+            elif isinstance(msg, dict) and 'content' in msg:
+                content = msg['content']
+            
+            result = {
+                "type": msg_type,
+                "content": str(content) if content else ""
+            }
+            
+            # 添加其他常见属性
+            if hasattr(msg, 'id') and msg.id:
+                result["id"] = msg.id
+            if hasattr(msg, 'name') and msg.name:
+                result["name"] = msg.name
+            if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                result["tool_calls"] = msg.tool_calls
+                
+            return result
+        except Exception:
+            return {"type": "Unknown", "content": str(msg)}
+
+    def _extract_prompts_from_state(self, state: Dict[str, Any], reports: Dict[str, str] = None) -> Dict[str, str]:
         """从state中提取prompt信息
 
-        从messages中提取HumanMessage内容作为各分析师使用的prompt
+        优先从state中读取保存的request_prompt，如果不存在则从messages中提取
 
         Args:
             state: 分析状态字典
+            reports: 已提取的报告字典（用于确定哪些分析师被执行了）
 
         Returns:
-            包含各分析师prompt的字典
+            包含各分析师prompt的字典 {analyst_key: prompt}
         """
         prompts = {}
 
         try:
-            # 获取messages列表
-            messages = state.get("messages", []) if isinstance(state, dict) else []
-            if not messages:
-                logger.warning(f"⚠️ [Prompts] messages为空，无法提取prompts")
-                return prompts
+            logger.info(f"📝 [Prompts] 开始提取实际prompts")
 
-            logger.info(f"📝 [Prompts] 开始从 {len(messages)} 条消息中提取prompts")
-
-            # 分析师名称映射（支持多种格式）
-            analyst_mapping = {
-                'Market Analyst': 'market_report',
-                'Fundamentals Analyst': 'fundamentals_report',
-                'Sentiment Analyst': 'sentiment_report',
-                'News Analyst': 'news_report',
-                'Social Analyst': 'social_report',
-                'Capital Flow Analyst': 'capital_flow_report',
-                'Research Team': 'investment_plan',
-                'Trader': 'trader_investment_plan',
-                'Final Decision': 'final_trade_decision',
-                'Bull Researcher': 'bull_researcher',
-                'Bear Researcher': 'bear_researcher',
-                'Risky Analyst': 'risky_analyst',
-                'Safe Analyst': 'safe_analyst',
-                'Neutral Analyst': 'neutral_analyst',
+            # 🔥 首先尝试从state中直接读取保存的request_prompt（这是发送给模型的原始prompt）
+            request_prompt_fields = {
+                'market_report': 'market_request_prompt',
+                'fundamentals_report': 'fundamentals_prompt',  # fundamentals_analyst使用不同的字段名
+                'sentiment_report': 'sentiment_request_prompt',
+                'news_report': 'news_request_prompt',
+                'social_report': 'sentiment_request_prompt',  # social_media_analyst保存为sentiment_request_prompt
+                'capital_flow_report': 'capital_flow_request_prompt',
             }
 
-            # 遍历messages，提取HumanMessage作为prompt
-            current_analyst = None
-            current_prompt_parts = []
-            system_messages = []  # 保存SystemMessage用于后续查找analyst名称
+            if isinstance(state, dict):
+                for report_key, prompt_field in request_prompt_fields.items():
+                    if prompt_field in state and state[prompt_field]:
+                        prompts[report_key] = state[prompt_field]
+                        logger.info(f"  ✅ 从state直接读取 {report_key}: {len(state[prompt_field])} chars")
 
-            for msg in messages:
-                try:
-                    # 获取消息类型和内容
-                    msg_type = type(msg).__name__
-                    msg_content = ""
+                # 如果已经从state中读取到了prompts，直接返回
+                if prompts:
+                    logger.info(f"📝 [Prompts] 从state直接读取完成: {len(prompts)} 个 -> {list(prompts.keys())}")
+                    # 继续提取研究团队的prompts
+                    self._extract_debate_prompts(state, reports or {}, prompts)
+                    return prompts
 
-                    if hasattr(msg, 'content'):
-                        msg_content = msg.content
-                    elif isinstance(msg, dict) and 'content' in msg:
-                        msg_content = msg['content']
-                        msg_type = msg.get('type', msg_type)
+            # 分析师标识符映射（用于在消息中识别分析师）
+            analyst_identifiers = {
+                'market_report': ['技术面分析师', 'Market Analyst', 'market_analyst'],
+                'fundamentals_report': ['基本面分析师', 'Fundamentals Analyst', 'fundamentals_analyst'],
+                'sentiment_report': ['情绪分析师', 'Sentiment Analyst', 'sentiment_analyst'],
+                'news_report': ['新闻分析师', 'News Analyst', 'news_analyst'],
+                'social_report': ['社交媒体分析师', 'Social Analyst', 'social_analyst'],
+                'capital_flow_report': ['资金流分析师', 'Capital Flow Analyst', 'capital_flow_analyst'],
+                # 研究团队
+                'bull_researcher': ['多头研究员', 'Bull Researcher', 'bull_researcher', '看涨研究员'],
+                'bear_researcher': ['空头研究员', 'Bear Researcher', 'bear_researcher', '看跌研究员'],
+                # 风险管理团队
+                'risky_analyst': ['激进分析师', 'Risky Analyst', 'risky_analyst', '激进型'],
+                'safe_analyst': ['保守分析师', 'Safe Analyst', 'safe_analyst', '保守型'],
+                'neutral_analyst': ['中性分析师', 'Neutral Analyst', 'neutral_analyst', '中性型'],
+            }
 
-                    # 收集SystemMessage用于后续查找
-                    if msg_type in ['SystemMessage', 'System', 'system'] or (isinstance(msg, dict) and msg.get('type') in ['system', 'System']):
-                        system_messages.append(msg_content)
-                        continue
+            # 如果没有reports，尝试从state构建
+            if not reports:
+                reports = {}
+                for key in analyst_identifiers.keys():
+                    if isinstance(state, dict) and key in state:
+                        reports[key] = state[key]
 
-                    # 如果是HumanMessage
-                    if msg_type in ['HumanMessage', 'Human', 'human'] or (isinstance(msg, dict) and msg.get('type') in ['human', 'user']):
-                        # 保存前一个analyst的prompt
-                        if current_prompt_parts and current_analyst:
-                            full_prompt = '\n'.join(current_prompt_parts).strip()
-                            if len(full_prompt) > 50:
-                                prompts[current_analyst] = full_prompt
-                                logger.info(f"  ✅ 提取到 {current_analyst}: {len(full_prompt)} 字符")
-                            current_prompt_parts = []
+            # 获取messages
+            messages = state.get("messages", []) if isinstance(state, dict) else []
+            logger.info(f"🔍 [Prompts] messages类型: {type(messages)}")
+            logger.info(f"🔍 [Prompts] messages数量: {len(messages) if isinstance(messages, list) else 'not a list'}")
+            
+            if not messages:
+                logger.warning(f"⚠️ [Prompts] messages为空，跳过从messages提取")
+                logger.warning(f"⚠️ [Prompts] state类型: {type(state)}")
+                logger.warning(f"⚠️ [Prompts] state keys: {list(state.keys()) if isinstance(state, dict) else 'not a dict'}")
+            else:
+                logger.info(f"📊 [Prompts] 从 {len(messages)} 条消息中提取")
+                if isinstance(messages, list) and len(messages) > 0:
+                    logger.info(f"🔍 [Prompts] 第一条消息类型: {type(messages[0]).__name__}")
+                    logger.info(f"🔍 [Prompts] 最后一条消息类型: {type(messages[-1]).__name__}")
 
-                        # 添加当前HumanMessage内容
-                        current_prompt_parts.append(str(msg_content))
-
-                        # 从SystemMessage中查找analyst名称
-                        for sys_content in system_messages:
-                            for analyst_name, key in analyst_mapping.items():
-                                if analyst_name.lower() in str(sys_content).lower():
-                                    current_analyst = key
-                                    break
-                            if current_analyst:
-                                break
-
-                    # 如果是AIMessage或ToolMessage
-                    elif msg_type in ['AIMessage', 'AI', 'ai', 'ToolMessage', 'tool']:
-                        # 保存当前prompt
-                        if current_prompt_parts and current_analyst:
-                            full_prompt = '\n'.join(current_prompt_parts).strip()
-                            if len(full_prompt) > 50:
-                                prompts[current_analyst] = full_prompt
-                                logger.info(f"  ✅ 提取到 {current_analyst}: {len(full_prompt)} 字符")
-                            current_prompt_parts = []
-                            current_analyst = None
-
-                except Exception as e:
-                    logger.warning(f"⚠️ 处理消息时出错: {e}")
+            # 遍历所有分析师类型
+            for report_key, identifiers in analyst_identifiers.items():
+                # 检查该分析师是否被执行（有报告）
+                if report_key not in reports or not reports[report_key]:
                     continue
 
-            # 保存最后一个prompt
-            if current_prompt_parts and current_analyst:
-                full_prompt = '\n'.join(current_prompt_parts).strip()
-                if len(full_prompt) > 50:
-                    prompts[current_analyst] = full_prompt
-                    logger.info(f"  ✅ 提取到 {current_analyst}: {len(full_prompt)} 字符")
+                # 从messages中找到该分析师相关的消息
+                analyst_messages = []
+                current_analyst_started = False
 
-            logger.info(f"📝 [Prompts] 从state中提取到 {len(prompts)} 个prompt")
+                for msg in messages:
+                    msg_type = type(msg).__name__
+                    msg_content = ""
+                    msg_type_str = ""  # 用于字典类型的消息
+                    
+                    if hasattr(msg, 'content'):
+                        msg_content = str(msg.content)
+                    elif isinstance(msg, dict) and 'content' in msg:
+                        msg_content = str(msg.get('content', ''))
+                        # 🔥 关键修复：从字典中获取type字段
+                        msg_type_str = msg.get('type', '').lower()
+                    else:
+                        msg_content = str(msg)
+
+                    # 🔥 关键修复：同时检查原始类型和字典中的type字段
+                    is_system = msg_type in ['SystemMessage', 'System', 'system'] or msg_type_str in ['system']
+                    is_human = msg_type in ['HumanMessage', 'Human', 'human'] or msg_type_str in ['human']
+                    is_ai = msg_type in ['AIMessage', 'AI', 'ai'] or msg_type_str in ['ai']
+                    is_tool = msg_type in ['ToolMessage', 'tool'] or msg_type_str in ['tool']
+
+                    # 检查是否是该分析师的SystemMessage
+                    if is_system:
+                        # 检查system message是否包含该分析师的标识
+                        is_target_analyst = any(identifier in msg_content for identifier in identifiers)
+                        if is_target_analyst:
+                            current_analyst_started = True
+                            analyst_messages.append(f"=== System Message ===\n{msg_content}")
+                            logger.info(f"  ✅ 找到 {report_key} 的SystemMessage")
+                        elif current_analyst_started:
+                            # 遇到其他分析师的system message，结束当前分析师的消息收集
+                            break
+                    
+                    # 如果已经开始收集当前分析师的消息，收集后续的HumanMessage和AIMessage
+                    elif current_analyst_started:
+                        if is_human:
+                            analyst_messages.append(f"\n=== Human Message ===\n{msg_content}")
+                        elif is_ai:
+                            # 如果是AI消息，可能是工具调用，也包含在prompt中
+                            if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                                tool_calls_str = str(msg.tool_calls)
+                                analyst_messages.append(f"\n=== AI Message (Tool Calls) ===\n{msg_content[:500]}...\nTool Calls: {tool_calls_str[:500]}")
+                            else:
+                                analyst_messages.append(f"\n=== AI Message ===\n{msg_content[:1000]}")
+                        elif is_tool:
+                            # 工具返回结果
+                            analyst_messages.append(f"\n=== Tool Result ===\n{msg_content[:1000]}...")
+
+                # 如果找到了该分析师的消息，构建完整prompt
+                if analyst_messages and len('\n'.join(analyst_messages)) > 100:
+                    full_prompt = '\n'.join(analyst_messages)
+                    prompts[report_key] = full_prompt
+                    logger.info(f"  ✅ 提取 {report_key}: {len(full_prompt)} chars")
+
+            # 对于研究团队和风险管理，特殊处理
+            debate_analysts = {
+                'investment_plan': {
+                    'identifiers': ['投资组合经理', '研究经理', 'Research Manager', 'investment_plan'],
+                    'name': '研究团队'
+                },
+                'final_trade_decision': {
+                    'identifiers': ['风险管理委员会', '风险经理', 'Risk Manager', 'final_trade_decision'],
+                    'name': '风险管理委员会'
+                }
+            }
+
+            for report_key, config in debate_analysts.items():
+                if report_key not in reports or not reports[report_key]:
+                    continue
+
+                identifiers = config['identifiers']
+                analyst_messages = []
+                current_analyst_started = False
+
+                for msg in messages:
+                    msg_type = type(msg).__name__
+                    msg_content = ""
+                    
+                    if hasattr(msg, 'content'):
+                        msg_content = str(msg.content)
+                    elif isinstance(msg, dict) and 'content' in msg:
+                        msg_content = str(msg.get('content', ''))
+                    else:
+                        msg_content = str(msg)
+
+                    # 检查是否是该分析师的SystemMessage或HumanMessage
+                    is_target_analyst = any(identifier in msg_content for identifier in identifiers)
+                    
+                    if is_target_analyst:
+                        current_analyst_started = True
+                        if msg_type in ['SystemMessage', 'System', 'system']:
+                            analyst_messages.append(f"=== System Message ===\n{msg_content}")
+                        elif msg_type in ['HumanMessage', 'Human', 'human']:
+                            analyst_messages.append(f"\n=== Human Message ===\n{msg_content}")
+                        logger.info(f"  ✅ 找到 {report_key} 的消息")
+                    elif current_analyst_started and msg_type in ['AIMessage', 'AI', 'ai']:
+                        # 收集AI回复
+                        analyst_messages.append(f"\n=== AI Message ===\n{msg_content[:1000]}")
+                        break  # 只收集第一条AI回复
+
+                if analyst_messages and len('\n'.join(analyst_messages)) > 100:
+                    full_prompt = '\n'.join(analyst_messages)
+                    prompts[report_key] = full_prompt
+                    logger.info(f"  ✅ 提取 {report_key}: {len(full_prompt)} chars")
+
+            # 🔧 从debate state中提取研究团队和风险管理团队的prompts
+            # 这些prompts是直接在研究员节点中保存的，不在messages中
+            self._extract_debate_prompts(state, reports, prompts)
+
+            logger.info(f"📝 [Prompts] 提取完成: {len(prompts)} 个 -> {list(prompts.keys())}")
 
         except Exception as e:
-            logger.warning(f"⚠️ 提取prompt时出错: {e}")
+            logger.error(f"[X] 提取prompts时出错: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
 
         return prompts
+
+    def _extract_debate_prompts(self, state: Dict[str, Any], reports: Dict[str, str], prompts: Dict[str, str]):
+        """从debate state中提取研究团队和风险管理团队的prompts
+
+        Args:
+            state: 分析状态字典
+            reports: 已提取的报告字典
+            prompts: 要填充的prompts字典（会被修改）
+        """
+        try:
+            # 🔍 调试信息
+            logger.info(f"🔍 [_extract_debate_prompts] 开始提取")
+            logger.info(f"🔍 [_extract_debate_prompts] state类型: {type(state)}")
+            logger.info(f"🔍 [_extract_debate_prompts] reports keys: {list(reports.keys())}")
+            
+            # 从investment_debate_state中提取研究团队prompts
+            investment_debate_state = state.get("investment_debate_state", {}) if isinstance(state, dict) else {}
+            logger.info(f"🔍 [_extract_debate_prompts] investment_debate_state类型: {type(investment_debate_state)}")
+            if isinstance(investment_debate_state, dict):
+                logger.info(f"🔍 [_extract_debate_prompts] investment_debate_state keys: {list(investment_debate_state.keys())}")
+                logger.info(f"🔍 [_extract_debate_prompts] bull_prompts存在: {'bull_prompts' in investment_debate_state}")
+                logger.info(f"🔍 [_extract_debate_prompts] bear_prompts存在: {'bear_prompts' in investment_debate_state}")
+            
+            if investment_debate_state:
+                # 多头研究员prompts
+                if "bull_researcher" in reports and reports["bull_researcher"]:
+                    bull_prompts = investment_debate_state.get("bull_prompts", [])
+                    if bull_prompts and isinstance(bull_prompts, list) and len(bull_prompts) > 0:
+                        # 将所有轮次的prompt拼接起来
+                        if len(bull_prompts) > 1:
+                            full_bull_prompt = ""
+                            for i, p in enumerate(bull_prompts):
+                                full_bull_prompt += f"\n\n=== 第{i+1}轮 ===\n\n{p}"
+                        else:
+                            full_bull_prompt = bull_prompts[0]
+                        prompts["bull_researcher"] = full_bull_prompt.strip()
+                        logger.info(f"  ✅ 从debate state提取 bull_researcher: {len(full_bull_prompt)} chars")
+
+                # 空头研究员prompts
+                if "bear_researcher" in reports and reports["bear_researcher"]:
+                    bear_prompts = investment_debate_state.get("bear_prompts", [])
+                    if bear_prompts and isinstance(bear_prompts, list) and len(bear_prompts) > 0:
+                        if len(bear_prompts) > 1:
+                            full_bear_prompt = ""
+                            for i, p in enumerate(bear_prompts):
+                                full_bear_prompt += f"\n\n=== 第{i+1}轮 ===\n\n{p}"
+                        else:
+                            full_bear_prompt = bear_prompts[0]
+                        prompts["bear_researcher"] = full_bear_prompt.strip()
+                        logger.info(f"  ✅ 从debate state提取 bear_researcher: {len(full_bear_prompt)} chars")
+
+            # 从risk_debate_state中提取风险管理团队prompts
+            risk_debate_state = state.get("risk_debate_state", {}) if isinstance(state, dict) else {}
+            logger.info(f"🔍 [_extract_debate_prompts] risk_debate_state类型: {type(risk_debate_state)}")
+            if isinstance(risk_debate_state, dict):
+                logger.info(f"🔍 [_extract_debate_prompts] risk_debate_state keys: {list(risk_debate_state.keys())}")
+                logger.info(f"🔍 [_extract_debate_prompts] risky_prompts存在: {'risky_prompts' in risk_debate_state}")
+                logger.info(f"🔍 [_extract_debate_prompts] safe_prompts存在: {'safe_prompts' in risk_debate_state}")
+                logger.info(f"🔍 [_extract_debate_prompts] neutral_prompts存在: {'neutral_prompts' in risk_debate_state}")
+            
+            if risk_debate_state:
+                # 激进分析师prompts
+                if "risky_analyst" in reports and reports["risky_analyst"]:
+                    risky_prompts = risk_debate_state.get("risky_prompts", [])
+                    if risky_prompts and isinstance(risky_prompts, list) and len(risky_prompts) > 0:
+                        if len(risky_prompts) > 1:
+                            full_risky_prompt = ""
+                            for i, p in enumerate(risky_prompts):
+                                full_risky_prompt += f"\n\n=== 第{i+1}轮 ===\n\n{p}"
+                        else:
+                            full_risky_prompt = risky_prompts[0]
+                        prompts["risky_analyst"] = full_risky_prompt.strip()
+                        logger.info(f"  ✅ 从debate state提取 risky_analyst: {len(full_risky_prompt)} chars")
+
+                # 保守分析师prompts
+                if "safe_analyst" in reports and reports["safe_analyst"]:
+                    safe_prompts = risk_debate_state.get("safe_prompts", [])
+                    if safe_prompts and isinstance(safe_prompts, list) and len(safe_prompts) > 0:
+                        if len(safe_prompts) > 1:
+                            full_safe_prompt = ""
+                            for i, p in enumerate(safe_prompts):
+                                full_safe_prompt += f"\n\n=== 第{i+1}轮 ===\n\n{p}"
+                        else:
+                            full_safe_prompt = safe_prompts[0]
+                        prompts["safe_analyst"] = full_safe_prompt.strip()
+                        logger.info(f"  ✅ 从debate state提取 safe_analyst: {len(full_safe_prompt)} chars")
+
+                # 中性分析师prompts
+                if "neutral_analyst" in reports and reports["neutral_analyst"]:
+                    neutral_prompts = risk_debate_state.get("neutral_prompts", [])
+                    if neutral_prompts and isinstance(neutral_prompts, list) and len(neutral_prompts) > 0:
+                        if len(neutral_prompts) > 1:
+                            full_neutral_prompt = ""
+                            for i, p in enumerate(neutral_prompts):
+                                full_neutral_prompt += f"\n\n=== 第{i+1}轮 ===\n\n{p}"
+                        else:
+                            full_neutral_prompt = neutral_prompts[0]
+                        prompts["neutral_analyst"] = full_neutral_prompt.strip()
+                        logger.info(f"  ✅ 从debate state提取 neutral_analyst: {len(full_neutral_prompt)} chars")
+
+        except Exception as e:
+            logger.warning(f"⚠️ 从debate state提取prompts时出错: {e}")
 
     async def _save_analysis_result(self, task_id: str, result: Dict[str, Any]):
         """保存分析结果（原始方法）"""
@@ -2625,7 +2917,7 @@ class SimpleAnalysisService:
             )
             logger.debug(f"💾 分析结果已保存: {task_id}")
         except Exception as e:
-            logger.error(f"❌ 保存分析结果失败: {task_id} - {e}")
+            logger.error(f"[X] 保存分析结果失败: {task_id} - {e}")
 
     async def _save_analysis_result_web_style(self, task_id: str, result: Dict[str, Any]):
         """保存分析结果 - 采用web目录的方式，保存到analysis_reports集合"""
@@ -2876,7 +3168,7 @@ class SimpleAnalysisService:
                                 stock_name = info_dict['name']
                                 logger.info(f"✅ 降级方案成功获取股票名称: {stock_symbol} -> {stock_name}")
                         except Exception as fallback_e:
-                            logger.error(f"❌ 降级方案也失败: {fallback_e}")
+                            logger.error(f"[X] 降级方案也失败: {fallback_e}")
 
                 elif market_info.get("market") == "hong_kong":
                     # 港股：使用改进的港股工具
@@ -2899,6 +3191,119 @@ class SimpleAnalysisService:
             except Exception as e:
                 logger.warning(f"⚠️ 获取股票名称失败: {stock_symbol} - {e}")
                 stock_name = stock_symbol
+
+            # 🔧 序列化messages以便保存到MongoDB
+            state = result.get('state', {})
+            messages_raw = state.get("messages", []) if isinstance(state, dict) else []
+            messages_serialized = []
+
+            # 🔥 关键修复：从state中提取原始prompts
+            prompts = {}
+
+            # 🔍 调试：检查state中的实际内容
+            logger.info(f"🔍 [PROMPTS DEBUG] state类型: {type(state)}")
+            if isinstance(state, dict):
+                logger.info(f"🔍 [PROMPTS DEBUG] state键: {list(state.keys())}")
+                # 检查是否有prompt相关的字段
+                prompt_related_keys = [k for k in state.keys() if 'prompt' in k.lower()]
+                logger.info(f"🔍 [PROMPTS DEBUG] prompt相关键: {prompt_related_keys}")
+                # 检查market_request_prompt
+                if 'market_request_prompt' in state:
+                    logger.info(f"🔍 [PROMPTS DEBUG] market_request_prompt存在，长度: {len(state['market_request_prompt']) if isinstance(state['market_request_prompt'], str) else 'not string'}")
+                else:
+                    logger.info(f"🔍 [PROMPTS DEBUG] market_request_prompt不存在")
+                # 检查fundamentals_prompt
+                if 'fundamentals_prompt' in state:
+                    logger.info(f"🔍 [PROMPTS DEBUG] fundamentals_prompt存在，长度: {len(state['fundamentals_prompt']) if isinstance(state['fundamentals_prompt'], str) else 'not string'}")
+                else:
+                    logger.info(f"🔍 [PROMPTS DEBUG] fundamentals_prompt不存在")
+            else:
+                logger.warning(f"🔍 [PROMPTS DEBUG] state不是字典类型!")
+
+            # 定义字段名映射（分析师返回的字段名 -> 统一的字段名）
+            # 注意：不同分析师可能使用不同的字段名
+            prompt_field_mapping = {
+                # Market Analyst
+                'market_request_prompt': 'market_request_prompt',
+                # Fundamentals Analyst - 注意：它使用的是 fundamentals_prompt 而不是 fundamentals_request_prompt
+                'fundamentals_prompt': 'fundamentals_request_prompt',
+                'fundamentals_request_prompt': 'fundamentals_request_prompt',
+                # Sentiment Analyst (social_media_analyst)
+                'sentiment_request_prompt': 'sentiment_request_prompt',
+                # News Analyst
+                'news_request_prompt': 'news_request_prompt',
+                # Bull/Bear Researchers
+                'bull_request_prompt': 'bull_request_prompt',
+                'bear_request_prompt': 'bear_request_prompt',
+                # Risk Analysts
+                'risky_request_prompt': 'risky_request_prompt',
+                'safe_request_prompt': 'safe_request_prompt',
+                'neutral_request_prompt': 'neutral_request_prompt',
+                # Trader
+                'trader_request_prompt': 'trader_request_prompt',
+                # Final Decision
+                'final_request_prompt': 'final_request_prompt',
+                # 其他可能的字段名变体
+                'market_prompt': 'market_request_prompt',
+                'sentiment_prompt': 'sentiment_request_prompt',
+                'news_prompt': 'news_request_prompt',
+            }
+
+            # 遍历所有可能的字段名
+            for source_field, target_field in prompt_field_mapping.items():
+                try:
+                    # 从state中获取值
+                    if hasattr(state, source_field):
+                        value = getattr(state, source_field, None)
+                    elif isinstance(state, dict) and source_field in state:
+                        value = state[source_field]
+                    else:
+                        value = None
+
+                    # 如果找到值且有效，保存到prompts中
+                    if value and isinstance(value, str) and len(value.strip()) > 50:
+                        # 避免重复保存相同的target_field（保留第一个找到的）
+                        if target_field not in prompts:
+                            prompts[target_field] = value.strip()
+                            logger.info(f"📝 [PROMPTS] 提取prompt: {source_field} -> {target_field} - 长度: {len(value.strip())}")
+                except Exception as e:
+                    logger.warning(f"⚠️ 提取prompt字段 {source_field} 时出错: {e}")
+                    continue
+
+            logger.info(f"📝 [PROMPTS] 从state中提取到 {len(prompts)} 个prompts: {list(prompts.keys())}")
+
+            for msg in messages_raw:
+                try:
+                    # 将LangChain消息对象转换为可序列化的字典
+                    if hasattr(msg, 'dict'):
+                        # LangChain消息对象有dict()方法
+                        msg_dict = msg.dict()
+                    elif hasattr(msg, 'model_dump'):
+                        # Pydantic v2
+                        msg_dict = msg.model_dump()
+                    elif isinstance(msg, dict):
+                        msg_dict = msg
+                    else:
+                        # 手动构建字典
+                        msg_dict = {
+                            'type': type(msg).__name__,
+                            'content': str(msg.content) if hasattr(msg, 'content') else str(msg),
+                        }
+                        if hasattr(msg, 'name'):
+                            msg_dict['name'] = msg.name
+                        if hasattr(msg, 'tool_calls'):
+                            msg_dict['tool_calls'] = msg.tool_calls
+
+                    messages_serialized.append(msg_dict)
+                except Exception as e:
+                    logger.warning(f"⚠️ 序列化消息失败: {e}")
+                    # 降级方案：保存基本信息
+                    messages_serialized.append({
+                        'type': type(msg).__name__,
+                        'content': str(msg)[:1000]  # 限制长度
+                    })
+
+            logger.info(f"📝 序列化了 {len(messages_serialized)} 条消息用于保存")
 
             # 构建文档（与web目录的MongoDBReportManager保持一致）
             document = {
@@ -2940,7 +3345,13 @@ class SimpleAnalysisService:
                 "tokens_used": result.get("tokens_used", 0),
 
                 # 🆕 性能指标数据
-                "performance_metrics": result.get("performance_metrics", {})
+                "performance_metrics": result.get("performance_metrics", {}),
+
+                # 🔧 添加prompts字段 - 使用从state中提取的prompts
+                "prompts": prompts,
+
+                # 🔧 关键修复：保存原始messages以便后续查看prompt
+                "messages": messages_serialized
             }
 
             # 保存到analysis_reports集合（与web目录保持一致）
@@ -2952,6 +3363,9 @@ class SimpleAnalysisService:
                 # 🔧 关键修复：先保存到analysis_tasks，确保数据完整性
                 # 使用document中的analysis_date（本地生成），而不是result中可能缺失的字段
                 analysis_date = document.get("analysis_date")  # 本地生成的日期
+                
+                # 🔥 关键修复：使用已序列化的 messages_serialized，而不是重新从 state 获取
+                # 因为 state 中的 messages 可能包含不可序列化的 LangChain 对象
                 await db.analysis_tasks.update_one(
                     {"task_id": task_id},
                     {"$set": {"result": {
@@ -2971,17 +3385,17 @@ class SimpleAnalysisService:
                         "execution_time": result.get("execution_time", 0),
                         "tokens_used": result.get("tokens_used", 0),
                         "reports": reports,  # 包含提取的报告内容
-                        "messages": result.get("state", {}).get("messages", []),  # 🔥 添加messages
-                        "prompts": self._extract_prompts_from_state(result.get('state', {})),  # 🔧 添加prompt提取
+                        "messages": messages_serialized,  # 🔥 使用已序列化的 messages
+                        "prompts": result.get("prompts", {}),  # 🔧 使用result中已提取的prompts
                         "decision": result.get("decision", {})
                     }}}
                 )
                 logger.info(f"💾 分析结果已保存 (web风格): {task_id}")
             else:
-                logger.error("❌ MongoDB插入失败")
+                logger.error("[X] MongoDB插入失败")
 
         except Exception as e:
-            logger.error(f"❌ 保存分析结果失败: {task_id} - {e}")
+            logger.error(f"[X] 保存分析结果失败: {task_id} - {e}")
             # 🔧 关键修复：降级保存时保留关键信息，不覆盖已有的完整结果
             try:
                 # 检查是否已有完整结果，如果有则保留
@@ -3015,7 +3429,7 @@ class SimpleAnalysisService:
                     )
                     logger.info(f"💾 使用简化结果保存: {task_id}")
             except Exception as fallback_error:
-                logger.error(f"❌ 降级保存也失败: {task_id} - {fallback_error}")
+                logger.error(f"[X] 降级保存也失败: {task_id} - {fallback_error}")
 
     async def _save_analysis_results_complete(self, task_id: str, result: Dict[str, Any]):
         """完整的分析结果保存 - 完全采用web目录的双重保存方式"""
@@ -3051,13 +3465,13 @@ class SimpleAnalysisService:
                 logger.warning(f"⚠️ 数据库保存成功，但本地文件保存失败")
 
         except Exception as save_error:
-            logger.error(f"❌ [完整保存] 保存分析报告时发生错误: {str(save_error)}")
+            logger.error(f"[X] [完整保存] 保存分析报告时发生错误: {str(save_error)}")
             # 降级到仅数据库保存
             try:
                 await self._save_analysis_result_web_style(task_id, result)
                 logger.info(f"💾 降级保存成功 (仅数据库): {task_id}")
             except Exception as fallback_error:
-                logger.error(f"❌ 降级保存也失败: {task_id} - {fallback_error}")
+                logger.error(f"[X] 降级保存也失败: {task_id} - {fallback_error}")
 
     async def _save_modular_reports_to_data_dir(self, result: Dict[str, Any], stock_symbol: str) -> Dict[str, str]:
         """保存分模块报告到data目录 - 完全采用web目录的文件结构"""
@@ -3233,9 +3647,9 @@ class SimpleAnalysisService:
             return saved_files
 
         except Exception as e:
-            logger.error(f"❌ 保存分模块报告失败: {e}")
+            logger.error(f"[X] 保存分模块报告失败: {e}")
             import traceback
-            logger.error(f"❌ 详细错误: {traceback.format_exc()}")
+            logger.error(f"[X] 详细错误: {traceback.format_exc()}")
             return {}
 
 # 重复的 get_task_status 方法已删除，使用第469行的内存版本

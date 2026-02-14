@@ -17,7 +17,7 @@ def test_akshare_import():
         print(f"✅ AKShare导入成功，版本: {ak.__version__}")
         return True, ak
     except ImportError as e:
-        print(f"❌ AKShare导入失败: {e}")
+        print(f"[X] AKShare导入失败: {e}")
         return False, None
 
 def test_data_source_manager():
@@ -42,7 +42,7 @@ def test_data_source_manager():
         
         return True, manager
     except Exception as e:
-        print(f"❌ 数据源管理器测试失败: {e}")
+        print(f"[X] 数据源管理器测试失败: {e}")
         traceback.print_exc()
         return False, None
 
@@ -61,11 +61,11 @@ def test_akshare_adapter():
             print("✅ AKShare适配器获取成功")
             return True, akshare_adapter
         else:
-            print("❌ AKShare适配器获取失败")
+            print("[X] AKShare适配器获取失败")
             return False, None
             
     except Exception as e:
-        print(f"❌ AKShare适配器测试失败: {e}")
+        print(f"[X] AKShare适配器测试失败: {e}")
         traceback.print_exc()
         return False, None
 
@@ -83,10 +83,10 @@ def test_akshare_utils_file():
             print("✅ get_akshare_provider函数导入成功")
             return True
         except ImportError as e:
-            print(f"❌ 导入get_akshare_provider失败: {e}")
+            print(f"[X] 导入get_akshare_provider失败: {e}")
             return False
     else:
-        print(f"❌ AKShare工具文件不存在: {akshare_utils_path}")
+        print(f"[X] AKShare工具文件不存在: {akshare_utils_path}")
         return False
 
 def test_akshare_basic_functionality():
@@ -105,7 +105,7 @@ def test_akshare_basic_functionality():
             print(f"✅ 获取股票列表成功，共{len(stock_list)}只股票")
             print(f"   示例: {stock_list.head(3).to_dict('records')}")
         else:
-            print("❌ 获取股票列表失败")
+            print("[X] 获取股票列表失败")
             return False
         
         # 测试获取股票历史数据
@@ -115,13 +115,13 @@ def test_akshare_basic_functionality():
             print(f"✅ 获取股票数据成功，共{len(stock_data)}条记录")
             print(f"   最新数据: {stock_data.tail(1).to_dict('records')}")
         else:
-            print("❌ 获取股票数据失败")
+            print("[X] 获取股票数据失败")
             return False
         
         return True
         
     except Exception as e:
-        print(f"❌ AKShare基本功能测试失败: {e}")
+        print(f"[X] AKShare基本功能测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -140,11 +140,11 @@ def test_data_source_switching():
             print("✅ 数据源切换到AKShare成功")
             return True
         else:
-            print("❌ 数据源切换到AKShare失败")
+            print("[X] 数据源切换到AKShare失败")
             return False
             
     except Exception as e:
-        print(f"❌ 数据源切换测试失败: {e}")
+        print(f"[X] 数据源切换测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -167,11 +167,11 @@ def test_unified_data_interface():
             print(f"   数据预览: {data[:200]}...")
             return True
         else:
-            print("❌ 统一数据接口测试失败")
+            print("[X] 统一数据接口测试失败")
             return False
             
     except Exception as e:
-        print(f"❌ 统一数据接口测试失败: {e}")
+        print(f"[X] 统一数据接口测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -208,7 +208,7 @@ class AKShareProvider:
         except ImportError:
             self.ak = None
             self.connected = False
-            print("❌ AKShare未安装")
+            print("[X] AKShare未安装")
     
     def get_stock_data(self, symbol: str, start_date: str = None, end_date: str = None) -> Optional[pd.DataFrame]:
         """获取股票历史数据"""
@@ -234,7 +234,7 @@ class AKShareProvider:
             return data
             
         except Exception as e:
-            print(f"❌ AKShare获取股票数据失败: {e}")
+            print(f"[X] AKShare获取股票数据失败: {e}")
             return None
     
     def get_stock_info(self, symbol: str) -> Dict[str, Any]:
@@ -257,7 +257,7 @@ class AKShareProvider:
                 return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'akshare'}
                 
         except Exception as e:
-            print(f"❌ AKShare获取股票信息失败: {e}")
+            print(f"[X] AKShare获取股票信息失败: {e}")
             return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'akshare'}
 
 def get_akshare_provider() -> AKShareProvider:
@@ -271,7 +271,7 @@ def get_akshare_provider() -> AKShareProvider:
             print(f"✅ 创建akshare_utils.py成功: {akshare_utils_path}")
             return True
         except Exception as e:
-            print(f"❌ 创建akshare_utils.py失败: {e}")
+            print(f"[X] 创建akshare_utils.py失败: {e}")
             return False
     else:
         print("✅ akshare_utils.py文件已存在")
@@ -317,7 +317,7 @@ def main():
     total = len(test_results)
     
     for test_name, result in test_results.items():
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name:25} {status}")
     
     print(f"\n🎯 总体结果: {passed}/{total} 项测试通过")
@@ -327,7 +327,7 @@ def main():
     elif passed >= total * 0.7:
         print("⚠️ AKShare功能基本可用，但有部分问题需要修复")
     else:
-        print("❌ AKShare功能存在严重问题，需要修复")
+        print("[X] AKShare功能存在严重问题，需要修复")
     
     return passed == total
 

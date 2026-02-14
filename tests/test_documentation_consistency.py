@@ -34,7 +34,7 @@ def test_redis_commander_port_consistency():
             if "localhost:8082" in env_content and "Redis Commander" in env_content:
                 print("✅ .env.example 中 Redis Commander 端口配置正确 (8082)")
             else:
-                print("❌ .env.example 中 Redis Commander 端口配置不正确")
+                print("[X] .env.example 中 Redis Commander 端口配置不正确")
                 return False
     
     # 检查 database_setup.md 文件
@@ -46,7 +46,7 @@ def test_redis_commander_port_consistency():
             if "8082" in db_content and "Redis Commander" in db_content:
                 print("✅ database_setup.md 中 Redis Commander 端口配置正确 (8082)")
             else:
-                print("❌ database_setup.md 中 Redis Commander 端口配置不正确")
+                print("[X] database_setup.md 中 Redis Commander 端口配置不正确")
                 return False
     
     return True
@@ -78,7 +78,7 @@ def test_cli_command_format_consistency():
                 if old_format_count == 0:
                     print(f"✅ {doc_file} 中 CLI 命令格式正确")
                 else:
-                    print(f"❌ {doc_file} 中仍有 {old_format_count} 处使用旧格式")
+                    print(f"[X] {doc_file} 中仍有 {old_format_count} 处使用旧格式")
                     return False
     
     return True
@@ -102,7 +102,7 @@ def test_cli_smart_suggestions():
                 print("✅ CLI 智能建议功能已实现")
                 return True
             else:
-                print("❌ CLI 智能建议功能未找到")
+                print("[X] CLI 智能建议功能未找到")
                 return False
     
     return False
@@ -134,7 +134,7 @@ def test_documentation_structure():
         print("✅ 所有关键文档都存在")
         return True
     else:
-        print(f"❌ 缺少文档: {', '.join(missing_docs)}")
+        print(f"[X] 缺少文档: {', '.join(missing_docs)}")
         return False
 
 
@@ -161,7 +161,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 执行失败: {e}")
+            print(f"[X] 测试 {test_func.__name__} 执行失败: {e}")
     
     print("\n" + "=" * 50)
     print(f"📊 测试结果: {passed}/{total} 通过")

@@ -119,15 +119,15 @@ def test_deepseek_complete_workflow():
             
             # 检查是否包含实际数据分析
             has_data = any(keyword in result2.content for keyword in ["¥6.56", "RSI", "MACD", "万科A", "42.5"])
-            print(f"   包含实际数据: {'✅' if has_data else '❌'}")
+            print(f"   包含实际数据: {'✅' if has_data else '[X]'}")
             
             return result2
         else:
-            print("❌ 没有工具调用")
+            print("[X] 没有工具调用")
             return result1
         
     except Exception as e:
-        print(f"❌ DeepSeek测试失败: {e}")
+        print(f"[X] DeepSeek测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -235,12 +235,12 @@ Question: {input}
         
         # 检查是否包含实际数据分析
         has_data = any(keyword in result['output'] for keyword in ["¥6.56", "RSI", "MACD", "万科A", "42.5"])
-        print(f"   包含实际数据: {'✅' if has_data else '❌'}")
+        print(f"   包含实际数据: {'✅' if has_data else '[X]'}")
         
         return result
         
     except Exception as e:
-        print(f"❌ 百炼ReAct Agent测试失败: {e}")
+        print(f"[X] 百炼ReAct Agent测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -264,13 +264,13 @@ def main():
         has_data = any(keyword in deepseek_result.content for keyword in ["¥6.56", "RSI", "MACD", "万科A"])
         print(f"✅ DeepSeek: {'成功生成基于数据的分析' if has_data else '调用工具但分析不完整'}")
     else:
-        print(f"❌ DeepSeek: 测试失败")
+        print(f"[X] DeepSeek: 测试失败")
     
     if dashscope_result:
         has_data = any(keyword in dashscope_result['output'] for keyword in ["¥6.56", "RSI", "MACD", "万科A"])
         print(f"✅ 百炼ReAct: {'成功生成基于数据的分析' if has_data else '执行但分析不完整'}")
     else:
-        print(f"❌ 百炼ReAct: 测试失败")
+        print(f"[X] 百炼ReAct: 测试失败")
     
     print("\n🎯 测试完成！")
 

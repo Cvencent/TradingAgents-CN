@@ -2,6 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import time
 import json
 import traceback
+import re
 
 # 导入分析模块日志装饰器
 from tradingagents.utils.tool_logging import log_analyst_module
@@ -59,9 +60,9 @@ def _get_company_name(ticker: str, market_info: dict) -> str:
                         logger.info(f"✅ [技术面分析师] 降级方案成功获取股票名称: {ticker} -> {company_name}")
                         return company_name
                 except Exception as e:
-                    logger.error(f"❌ [技术面分析师] 降级方案也失败: {e}")
+                    logger.error(f"[X] [技术面分析师] 降级方案也失败: {e}")
 
-                logger.error(f"❌ [技术面分析师] 所有方案都无法获取股票名称: {ticker}")
+                logger.error(f"[X] [技术面分析师] 所有方案都无法获取股票名称: {ticker}")
                 return f"股票代码{ticker}"
 
         elif market_info['is_hk']:
@@ -98,7 +99,7 @@ def _get_company_name(ticker: str, market_info: dict) -> str:
             return f"股票{ticker}"
 
     except Exception as e:
-        logger.error(f"❌ [DEBUG] 获取公司名称失败: {e}")
+        logger.error(f"[X] [DEBUG] 获取公司名称失败: {e}")
         return f"股票{ticker}"
 
 
@@ -275,6 +276,28 @@ def create_market_analyst(llm, toolkit):
             analyst_name="技术面分析师"
         )
 
+        # 🔧 调试：检查当前 state 中是否已有报告
+        existing_report = state.get("market_report", "")
+        tool_call_count = state.get("market_tool_call_count", 0)
+        logger.info(f"📊 [技术面分析师] 节点开始执行:")
+        logger.info(f"  - 现有报告长度: {len(existing_report) if existing_report else 0}")
+        logger.info(f"  - 工具调用次数: {tool_call_count}")
+        logger.info(f"  - 消息数量: {len(state.get('messages', []))}")
+        
+        # 🔥 构建完整的请求prompt（用于保存和前端展示）
+        # 使用prompt.format_messages获取实际发送给LLM的完整消息
+        try:
+            formatted_messages = prompt.format_messages(messages=state["messages"])
+            full_request_prompt = ""
+            for msg in formatted_messages:
+                msg_type = type(msg).__name__
+                if hasattr(msg, 'content'):
+                    full_request_prompt += f"\n\n=== {msg_type} ===\n{msg.content}"
+            logger.info(f"📊 [技术面分析师] 构建完整请求prompt，长度: {len(full_request_prompt)}")
+        except Exception as e:
+            logger.warning(f"⚠️ [技术面分析师] 构建完整prompt失败: {e}")
+            full_request_prompt = system_prompt  # 降级使用system_prompt
+        
         logger.info(f"📊 [技术面分析师] 开始调用LLM...")
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
         result = chain.invoke({"messages": state["messages"]})
@@ -311,339 +334,37 @@ def create_market_analyst(llm, toolkit):
             )
 
             # 🔧 更新工具调用计数器
+            logger.info(f"📊 [技术面分析师] 准备返回结果:")
+            logger.info(f"  - market_report长度: {len(report) if report else 0}")
+            logger.info(f"  - market_request_prompt长度: {len(full_request_prompt) if full_request_prompt else 0}")
+            logger.info(f"  - tool_call_count: {tool_call_count + 1}")
+            
             return {
                 "messages": [result],
                 "market_report": report,
+                "market_request_prompt": full_request_prompt,  # 🔥 保存完整的请求prompt
                 "market_tool_call_count": tool_call_count + 1
             }
         else:
-            # 非Google模型的处理逻辑
-            logger.info(f"📊 [技术面分析师] 非Google模型 ({llm.__class__.__name__})，使用标准处理逻辑")
-            logger.info(f"📊 [技术面分析师] 检查LLM返回结果...")
-            logger.info(f"📊 [技术面分析师] - 是否有tool_calls: {hasattr(result, 'tool_calls')}")
-            if hasattr(result, 'tool_calls'):
-                logger.info(f"📊 [技术面分析师] - tool_calls数量: {len(result.tool_calls)}")
-                if result.tool_calls:
-                    for i, tc in enumerate(result.tool_calls):
-                        logger.info(f"📊 [技术面分析师] - tool_call[{i}]: {tc.get('name', 'unknown')}")
-
-            # 处理市场分析报告
-            # 检查是否有真正的tool_calls对象
-            has_real_tool_calls = hasattr(result, 'tool_calls') and len(result.tool_calls) > 0
+            # 🔥 关键修复：处理非Google模型的情况
+            logger.info(f"📊 [技术面分析师] 非Google模型，直接处理结果")
             
-            # 对于DeepSeek等模型，检查内容中是否包含工具调用格式的文本
-            content_str = str(result.content) if hasattr(result, 'content') else ""
-            has_tool_call_in_content = ('"ticker"' in content_str or '"stock_code"' in content_str) and \
-                                       ('get_china_stock_data' in content_str or 'get_stock_sentiment' in content_str or 
-                                        ('{' in content_str and '}' in content_str and ('start_date' in content_str or 'end_date' in content_str)))
-            
-            if not has_real_tool_calls and has_tool_call_in_content:
-                logger.info(f"📊 [技术面分析师] 🔍 检测到内容中包含工具调用格式（DeepSeek/302AI模型），尝试解析并执行工具...")
-                logger.info(f"📊 [技术面分析师] 内容预览: {content_str[:500]}...")
-                
-                # 🔥 修复：对于DeepSeek/302AI等模型，它们可能以文本形式输出工具调用
-                # 需要解析内容中的工具调用并执行，然后基于结果生成报告
-                try:
-                    import re
-                    from langchain_core.messages import ToolMessage, HumanMessage
-                    
-                    # 尝试从内容中提取JSON格式的工具调用
-                    # 查找类似 {"ticker": "...", "start_date": "...", "end_date": "..."} 的JSON
-                    json_pattern = r'\{[^{}]*"ticker"[^{}]*\}'
-                    json_matches = re.findall(json_pattern, content_str)
-                    
-                    if json_matches:
-                        logger.info(f"📊 [技术面分析师] 从内容中提取到 {len(json_matches)} 个JSON工具调用")
-                        tool_messages = []
-                        
-                        for json_str in json_matches:
-                            try:
-                                tool_args = json.loads(json_str)
-                                logger.info(f"📊 [技术面分析师] 解析工具参数: {tool_args}")
-                                
-                                # 执行工具
-                                tool_result = None
-                                for tool in tools:
-                                    tool_name = getattr(tool, 'name', getattr(tool, '__name__', str(tool)))
-                                    if 'get_stock_market_data_unified' in tool_name:
-                                        try:
-                                            # 🔧 修复：使用 invoke 方法调用 StructuredTool
-                                            tool_result = tool.invoke(tool_args)
-                                            logger.info(f"📊 [技术面分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
-                                            break
-                                        except Exception as tool_error:
-                                            logger.error(f"❌ [技术面分析师] 工具执行失败: {tool_error}")
-                                            tool_result = f"工具执行失败: {str(tool_error)}"
-                                
-                                if tool_result:
-                                    tool_message = ToolMessage(
-                                        content=str(tool_result),
-                                        tool_call_id=f"parsed_{len(tool_messages)}"
-                                    )
-                                    tool_messages.append(tool_message)
-                                    
-                            except json.JSONDecodeError as e:
-                                logger.warning(f"📊 [技术面分析师] JSON解析失败: {e}")
-                                continue
-                        
-                        if tool_messages:
-                            # 基于工具结果生成分析报告（复用已有的分析提示词）
-                            analysis_prompt = f"""现在请基于上述工具获取的数据，生成详细的技术分析报告。
-
-**分析对象：**
-- 公司名称：{company_name}
-- 股票代码：{ticker}
-- 所属市场：{market_info['market_name']}
-- 计价货币：{market_info['currency_name']}（{market_info['currency_symbol']}）
-
-请按照专业格式输出完整的技术分析报告，包括：
-1. 股票基本信息
-2. 技术指标分析（MA、MACD、RSI、布林带等）
-3. 价格趋势分析（短期、中期）
-4. 成交量分析
-5. 投资建议（买入/持有/卖出，目标价位，止损位等）
-
-报告必须基于工具返回的真实数据进行分析，包含具体的技术指标数值，长度不少于800字，使用中文撰写。"""
-                            
-                            messages = state["messages"] + [result] + tool_messages + [HumanMessage(content=analysis_prompt)]
-                            final_result = llm.invoke(messages)
-                            report = final_result.content
-                            
-                            logger.info(f"📊 [技术面分析师] ✅ 基于工具结果生成完整分析报告，长度: {len(report)}")
-                            
-                            # 返回包含工具调用和最终分析的完整消息序列
-                            return {
-                                "messages": [result] + tool_messages + [final_result],
-                                "market_report": report,
-                                "market_tool_call_count": tool_call_count + 1
-                            }
-                        else:
-                            logger.warning(f"📊 [技术面分析师] ⚠️ 未能成功执行任何工具，返回原始内容")
-                            report = content_str
-                    else:
-                        logger.warning(f"📊 [技术面分析师] ⚠️ 未能在内容中提取到JSON工具调用，返回原始内容")
-                        report = content_str
-                        
-                except Exception as e:
-                    logger.error(f"❌ [技术面分析师] 解析工具调用时发生错误: {e}")
-                    import traceback
-                    logger.error(f"异常堆栈: {traceback.format_exc()}")
-                    # 降级处理：返回原始内容
-                    report = content_str
-                    logger.info(f"📊 [技术面分析师] ⚠️ 降级处理，返回原始内容，长度: {len(report)}")
-            elif not has_real_tool_calls:
-                # 没有工具调用，直接使用LLM的回复
-                report = result.content
-                logger.info(f"📊 [技术面分析师] ✅ 直接回复（无工具调用），长度: {len(report)}")
-                logger.debug(f"📊 [DEBUG] 直接回复内容预览: {report[:200]}...")
+            # 提取报告内容
+            if hasattr(result, 'content'):
+                report = str(result.content)
             else:
-                # 有工具调用，执行工具并生成完整分析报告
-                logger.info(f"📊 [技术面分析师] 🔧 检测到工具调用: {[call.get('name', 'unknown') for call in result.tool_calls]}")
-
-                try:
-                    # 执行工具调用
-                    from langchain_core.messages import ToolMessage, HumanMessage
-
-                    tool_messages = []
-                    for tool_call in result.tool_calls:
-                        tool_name = tool_call.get('name')
-                        tool_args = tool_call.get('args', {})
-                        tool_id = tool_call.get('id')
-
-                        # 🔧 修复：处理不同格式的 tool_calls
-                        # 有些模型可能使用 'arguments' 字段（JSON 字符串）
-                        if not tool_args and 'arguments' in tool_call:
-                            import json
-                            try:
-                                tool_args = json.loads(tool_call['arguments'])
-                            except (json.JSONDecodeError, TypeError):
-                                logger.warning(f"⚠️ [工具调用] 无法解析 arguments 字段: {tool_call.get('arguments')}")
-                                tool_args = {}
-
-                        logger.debug(f"📊 [DEBUG] 执行工具: {tool_name}, 参数: {tool_args}")
-
-                        # 找到对应的工具并执行
-                        tool_result = None
-                        for tool in tools:
-                            # 安全地获取工具名称进行比较
-                            current_tool_name = None
-                            if hasattr(tool, 'name'):
-                                current_tool_name = tool.name
-                            elif hasattr(tool, '__name__'):
-                                current_tool_name = tool.__name__
-
-                            if current_tool_name == tool_name:
-                                try:
-                                    # 🔧 修复：使用 invoke 方法调用 StructuredTool
-                                    tool_result = tool.invoke(tool_args)
-                                    logger.debug(f"📊 [DEBUG] 工具执行成功，结果长度: {len(str(tool_result))}")
-                                    break
-                                except Exception as tool_error:
-                                    logger.error(f"❌ [DEBUG] 工具执行失败: {tool_error}")
-                                    tool_result = f"工具执行失败: {str(tool_error)}"
-
-                        if tool_result is None:
-                            tool_result = f"未找到工具: {tool_name}"
-
-                        # 创建工具消息
-                        tool_message = ToolMessage(
-                            content=str(tool_result),
-                            tool_call_id=tool_id
-                        )
-                        tool_messages.append(tool_message)
-
-                    # 基于工具结果生成完整分析报告
-                    # 🔥 重要：这里必须包含公司名称和输出格式要求，确保LLM生成正确的报告标题
-                    analysis_prompt = f"""现在请基于上述工具获取的数据，生成详细的技术分析报告。
-
-**分析对象：**
-- 公司名称：{company_name}
-- 股票代码：{ticker}
-- 所属市场：{market_info['market_name']}
-- 计价货币：{market_info['currency_name']}（{market_info['currency_symbol']}）
-
-**输出格式要求（必须严格遵守）：**
-
-请按照以下专业格式输出报告，不要使用emoji符号（如📊📈📉💭等），使用纯文本标题：
-
-# **{company_name}（{ticker}）技术分析报告**
-**分析日期：[当前日期]**
-
----
-
-## 一、股票基本信息
-
-- **公司名称**：{company_name}
-- **股票代码**：{ticker}
-- **所属市场**：{market_info['market_name']}
-- **当前价格**：[从工具数据中获取] {market_info['currency_symbol']}
-- **涨跌幅**：[从工具数据中获取]
-- **成交量**：[从工具数据中获取]
-
----
-
-## 二、技术指标分析
-
-### 1. 移动平均线（MA）分析
-
-[分析MA5、MA10、MA20、MA60等均线系统，包括：]
-- 当前各均线数值
-- 均线排列形态（多头/空头）
-- 价格与均线的位置关系
-- 均线交叉信号
-
-### 2. MACD指标分析
-
-[分析MACD指标，包括：]
-- DIF、DEA、MACD柱状图当前数值
-- 金叉/死叉信号
-- 背离现象
-- 趋势强度判断
-
-### 3. RSI相对强弱指标
-
-[分析RSI指标，包括：]
-- RSI当前数值
-- 超买/超卖区域判断
-- 背离信号
-- 趋势确认
-
-### 4. 布林带（BOLL）分析
-
-[分析布林带指标，包括：]
-- 上轨、中轨、下轨数值
-- 价格在布林带中的位置
-- 带宽变化趋势
-- 突破信号
-
----
-
-## 三、价格趋势分析
-
-### 1. 短期趋势（5-10个交易日）
-
-[分析短期价格走势，包括支撑位、压力位、关键价格区间]
-
-### 2. 中期趋势（20-60个交易日）
-
-[分析中期价格走势，结合均线系统判断趋势方向]
-
-### 3. 成交量分析
-
-[分析成交量变化，量价配合情况]
-
----
-
-## 四、投资建议
-
-### 1. 综合评估
-
-[基于上述技术指标，给出综合评估]
-
-### 2. 操作建议
-
-- **投资评级**：买入/持有/卖出
-- **目标价位**：[给出具体价格区间] {market_info['currency_symbol']}
-- **止损位**：[给出止损价格] {market_info['currency_symbol']}
-- **风险提示**：[列出主要风险因素]
-
-### 3. 关键价格区间
-
-- **支撑位**：[具体价格]
-- **压力位**：[具体价格]
-- **突破买入价**：[具体价格]
-- **跌破卖出价**：[具体价格]
-
----
-
-**重要提醒：**
-- 必须严格按照上述格式输出，使用标准的Markdown标题（#、##、###）
-- 不要使用emoji符号（📊📈📉💭等）
-- 所有价格数据使用{market_info['currency_name']}（{market_info['currency_symbol']}）表示
-- 确保在分析中正确使用公司名称"{company_name}"和股票代码"{ticker}"
-- 报告标题必须是：# **{company_name}（{ticker}）技术分析报告**
-- 报告必须基于工具返回的真实数据进行分析
-- 包含具体的技术指标数值和专业分析
-- 提供明确的投资建议和风险提示
-- 报告长度不少于800字
-- 使用中文撰写
-- 使用表格展示数据时，确保格式规范"""
-
-                    # 构建完整的消息序列
-                    messages = state["messages"] + [result] + tool_messages + [HumanMessage(content=analysis_prompt)]
-
-                    # 生成最终分析报告
-                    final_result = llm.invoke(messages)
-                    report = final_result.content
-
-                    logger.info(f"📊 [技术面分析师] 生成完整分析报告，长度: {len(report)}")
-
-                    # 返回包含工具调用和最终分析的完整消息序列
-                    # 🔧 更新工具调用计数器
-                    return {
-                        "messages": [result] + tool_messages + [final_result],
-                        "market_report": report,
-                        "market_tool_call_count": tool_call_count + 1
-                    }
-
-                except Exception as e:
-                    logger.error(f"❌ [技术面分析师] 工具执行或分析生成失败: {e}")
-                    traceback.print_exc()
-
-                    # 降级处理：返回工具调用信息
-                    report = f"技术面分析师调用了工具但分析生成失败: {[call.get('name', 'unknown') for call in result.tool_calls]}"
-
-                    # 🔧 更新工具调用计数器
-                    return {
-                        "messages": [result],
-                        "market_report": report,
-                        "market_tool_call_count": tool_call_count + 1
-                    }
-
+                report = str(result)
+            
             # 🔧 更新工具调用计数器
+            logger.info(f"📊 [技术面分析师] 准备返回结果:")
+            logger.info(f"  - market_report长度: {len(report) if report else 0}")
+            logger.info(f"  - market_request_prompt长度: {len(full_request_prompt) if full_request_prompt else 0}")
+            logger.info(f"  - tool_call_count: {tool_call_count + 1}")
+            
             return {
                 "messages": [result],
                 "market_report": report,
+                "market_request_prompt": full_request_prompt,  # 🔥 保存完整的请求prompt
                 "market_tool_call_count": tool_call_count + 1
             }
 

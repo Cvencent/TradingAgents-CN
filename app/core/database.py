@@ -67,7 +67,7 @@ class DatabaseManager:
             logger.info(f"⏱️  超时配置: connectTimeout={settings.MONGO_CONNECT_TIMEOUT_MS}ms, socketTimeout={settings.MONGO_SOCKET_TIMEOUT_MS}ms")
 
         except Exception as e:
-            logger.error(f"❌ MongoDB连接失败: {e}")
+            logger.error(f"[X] MongoDB连接失败: {e}")
             self._mongo_healthy = False
             raise
 
@@ -97,7 +97,7 @@ class DatabaseManager:
             logger.info(f"🔗 连接池大小: {settings.REDIS_MAX_CONNECTIONS}")
 
         except Exception as e:
-            logger.error(f"❌ Redis连接失败: {e}")
+            logger.error(f"[X] Redis连接失败: {e}")
             self._redis_healthy = False
             raise
 
@@ -112,7 +112,7 @@ class DatabaseManager:
                 self._mongo_healthy = False
                 logger.info("✅ MongoDB连接已关闭")
             except Exception as e:
-                logger.error(f"❌ 关闭MongoDB连接时出错: {e}")
+                logger.error(f"[X] 关闭MongoDB连接时出错: {e}")
 
         # 关闭Redis连接
         if self.redis_client:
@@ -121,7 +121,7 @@ class DatabaseManager:
                 self._redis_healthy = False
                 logger.info("✅ Redis连接已关闭")
             except Exception as e:
-                logger.error(f"❌ 关闭Redis连接时出错: {e}")
+                logger.error(f"[X] 关闭Redis连接时出错: {e}")
 
         # 关闭Redis连接池
         if self.redis_pool:
@@ -129,7 +129,7 @@ class DatabaseManager:
                 await self.redis_pool.disconnect()
                 logger.info("✅ Redis连接池已关闭")
             except Exception as e:
-                logger.error(f"❌ 关闭Redis连接池时出错: {e}")
+                logger.error(f"[X] 关闭Redis连接池时出错: {e}")
 
     async def health_check(self) -> dict:
         """数据库健康检查"""

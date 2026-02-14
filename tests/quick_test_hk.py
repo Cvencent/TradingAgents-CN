@@ -30,7 +30,7 @@ def test_stock_recognition():
         return True
         
     except Exception as e:
-        print(f"❌ 股票识别测试失败: {e}")
+        print(f"[X] 股票识别测试失败: {e}")
         return False
 
 def test_akshare_basic():
@@ -56,7 +56,7 @@ def test_akshare_basic():
             return False
         
     except Exception as e:
-        print(f"❌ AKShare基本功能测试失败: {e}")
+        print(f"[X] AKShare基本功能测试失败: {e}")
         return False
 
 def test_unified_interface():
@@ -79,11 +79,11 @@ def test_unified_interface():
             print("  ✅ 统一接口测试成功")
             return True
         else:
-            print("  ❌ 统一接口测试失败")
+            print("  [X] 统一接口测试失败")
             return False
         
     except Exception as e:
-        print(f"❌ 统一接口测试失败: {e}")
+        print(f"[X] 统一接口测试失败: {e}")
         return False
 
 def main():
@@ -105,7 +105,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试异常: {e}")
+            print(f"[X] 测试异常: {e}")
     
     print("\n" + "=" * 30)
     print(f"🇭🇰 测试完成: {passed}/{total} 通过")

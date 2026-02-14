@@ -97,7 +97,7 @@ def test_deepseek_tool_calling():
         return result
         
     except Exception as e:
-        print(f"❌ DeepSeek测试失败: {e}")
+        print(f"[X] DeepSeek测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -180,7 +180,7 @@ def test_dashscope_tool_calling():
         return result
         
     except Exception as e:
-        print(f"❌ 百炼测试失败: {e}")
+        print(f"[X] 百炼测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -214,8 +214,8 @@ def compare_results(deepseek_result, dashscope_result):
         deepseek_has_data = any(keyword in deepseek_result.content for keyword in ["¥6.56", "RSI", "MACD", "万科A"])
         dashscope_has_data = any(keyword in dashscope_result.content for keyword in ["¥6.56", "RSI", "MACD", "万科A"])
         
-        print(f"   DeepSeek包含实际数据: {'✅' if deepseek_has_data else '❌'}")
-        print(f"   百炼包含实际数据: {'✅' if dashscope_has_data else '❌'}")
+        print(f"   DeepSeek包含实际数据: {'✅' if deepseek_has_data else '[X]'}")
+        print(f"   百炼包含实际数据: {'✅' if dashscope_has_data else '[X]'}")
         
         # 检查是否只是描述过程
         deepseek_describes_process = any(keyword in deepseek_result.content for keyword in ["首先", "然后", "接下来", "步骤"])
@@ -229,12 +229,12 @@ def compare_results(deepseek_result, dashscope_result):
         if deepseek_tools > 0 and deepseek_has_data:
             print(f"   ✅ DeepSeek: 正确调用工具并分析数据")
         else:
-            print(f"   ❌ DeepSeek: 未正确执行工具调用或数据分析")
+            print(f"   [X] DeepSeek: 未正确执行工具调用或数据分析")
             
         if dashscope_tools > 0 and dashscope_has_data:
             print(f"   ✅ 百炼: 正确调用工具并分析数据")
         else:
-            print(f"   ❌ 百炼: 未正确执行工具调用或数据分析")
+            print(f"   [X] 百炼: 未正确执行工具调用或数据分析")
 
 def main():
     """主函数"""
@@ -261,7 +261,7 @@ def main():
     if deepseek_result or dashscope_result:
         compare_results(deepseek_result, dashscope_result)
     else:
-        print("❌ 无法进行对比，两个模型都测试失败")
+        print("[X] 无法进行对比，两个模型都测试失败")
     
     print("\n" + "=" * 80)
     print("🎯 测试完成！")

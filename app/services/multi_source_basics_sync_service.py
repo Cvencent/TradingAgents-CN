@@ -131,11 +131,11 @@ class MultiSourceBasicsSyncService:
                     logger.warning(f"⚠️ 批量写入超时 (第{retry_count}次重试)，等待{wait_time}秒后重试...")
                     await asyncio.sleep(wait_time)
                 else:
-                    logger.error(f"❌ 批量写入失败，已重试{max_retries}次: {e}")
+                    logger.error(f"[X] 批量写入失败，已重试{max_retries}次: {e}")
                     return 0, 0
 
             except Exception as e:
-                logger.error(f"❌ 批量写入失败: {e}")
+                logger.error(f"[X] 批量写入失败: {e}")
                 return 0, 0
 
         return inserted, updated

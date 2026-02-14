@@ -28,7 +28,7 @@ def test_002027_specifically():
         data = get_china_stock_data_tushare(test_ticker, "2025-07-01", "2025-07-15")
         
         if "002021" in data:
-            print("❌ 数据获取阶段发现错误代码 002021")
+            print("[X] 数据获取阶段发现错误代码 002021")
             return False
         else:
             print("✅ 数据获取阶段正确")
@@ -40,7 +40,7 @@ def test_002027_specifically():
         report = analyzer._generate_fundamentals_report(test_ticker, data)
         
         if "002021" in report:
-            print("❌ 基本面分析阶段发现错误代码 002021")
+            print("[X] 基本面分析阶段发现错误代码 002021")
             return False
         else:
             print("✅ 基本面分析阶段正确")
@@ -59,7 +59,7 @@ def test_002027_specifically():
             response = llm.invoke([HumanMessage(content=prompt)])
             
             if "002021" in response.content:
-                print("❌ LLM处理阶段发现错误代码 002021")
+                print("[X] LLM处理阶段发现错误代码 002021")
                 print(f"错误内容: {response.content[:200]}...")
                 return False
             else:
@@ -71,7 +71,7 @@ def test_002027_specifically():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 if __name__ == "__main__":

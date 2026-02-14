@@ -92,11 +92,11 @@ def test_deepseek_cost_calculation():
             print(f"   每次调用平均成本: ¥{cost_increase/len(test_cases):.6f}")
             return True
         else:
-            print(f"\n❌ 成本计算仍有问题")
+            print(f"\n[X] 成本计算仍有问题")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -131,7 +131,7 @@ def main():
     if success1:
         print("🎉 DeepSeek成本计算修复验证成功！")
     else:
-        print("❌ DeepSeek成本计算仍需修复")
+        print("[X] DeepSeek成本计算仍需修复")
     
     return success1
 

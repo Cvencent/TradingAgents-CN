@@ -232,7 +232,7 @@ class UnifiedNewsAnalyzer:
                             return news_data
 
                         except Exception as e:
-                            logger.error(f"[统一新闻工具] ❌ 获取新闻失败: {e}")
+                            logger.error(f"[统一新闻工具] [X] 获取新闻失败: {e}")
                             import traceback
                             logger.error(traceback.format_exc())
                             return None
@@ -271,10 +271,10 @@ class UnifiedNewsAnalyzer:
                 return result
 
         except concurrent.futures.TimeoutError:
-            logger.error(f"[统一新闻工具] ❌ 同步新闻超时（30秒）")
+            logger.error(f"[统一新闻工具] [X] 同步新闻超时（30秒）")
             return False
         except Exception as e:
-            logger.error(f"[统一新闻工具] ❌ 同步新闻失败: {e}")
+            logger.error(f"[统一新闻工具] [X] 同步新闻失败: {e}")
             import traceback
             logger.error(traceback.format_exc())
             return False
@@ -362,7 +362,7 @@ class UnifiedNewsAnalyzer:
         except Exception as e:
             logger.warning(f"[统一新闻工具] OpenAI新闻获取失败: {e}")
         
-        return "❌ 无法获取A股新闻数据，所有新闻源均不可用"
+        return "[X] 无法获取A股新闻数据，所有新闻源均不可用"
     
     def _get_hk_share_news(self, stock_code: str, max_news: int, model_info: str = "") -> str:
         """获取港股新闻"""
@@ -408,7 +408,7 @@ class UnifiedNewsAnalyzer:
         except Exception as e:
             logger.warning(f"[统一新闻工具] 实时港股新闻获取失败: {e}")
         
-        return "❌ 无法获取港股新闻数据，所有新闻源均不可用"
+        return "[X] 无法获取港股新闻数据，所有新闻源均不可用"
     
     def _get_us_share_news(self, stock_code: str, max_news: int, model_info: str = "") -> str:
         """获取美股新闻"""
@@ -454,7 +454,7 @@ class UnifiedNewsAnalyzer:
         except Exception as e:
             logger.warning(f"[统一新闻工具] FinnHub美股新闻获取失败: {e}")
         
-        return "❌ 无法获取美股新闻数据，所有新闻源均不可用"
+        return "[X] 无法获取美股新闻数据，所有新闻源均不可用"
     
     def _format_news_result(self, news_content: str, source: str, model_info: str = "") -> str:
         """格式化新闻结果"""
@@ -566,7 +566,7 @@ def create_unified_news_tool(toolkit):
             str: 格式化的新闻内容
         """
         if not stock_code:
-            return "❌ 错误: 未提供股票代码"
+            return "[X] 错误: 未提供股票代码"
         
         return analyzer.get_stock_news_unified(stock_code, max_news, model_info)
     

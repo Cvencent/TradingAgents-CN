@@ -54,11 +54,11 @@ def test_connections():
             return config
             
         except OperationFailure as e:
-            print(f"❌ 认证失败: {e}")
+            print(f"[X] 认证失败: {e}")
         except ServerSelectionTimeoutError as e:
-            print(f"❌ 连接超时: {e}")
+            print(f"[X] 连接超时: {e}")
         except Exception as e:
-            print(f"❌ 连接失败: {e}")
+            print(f"[X] 连接失败: {e}")
     
     return None
 
@@ -69,4 +69,4 @@ if __name__ == "__main__":
     if working_config:
         print(f"\n✅ 找到可用配置: {working_config['name']}")
     else:
-        print("\n❌ 没有找到可用的连接配置")
+        print("\n[X] 没有找到可用的连接配置")

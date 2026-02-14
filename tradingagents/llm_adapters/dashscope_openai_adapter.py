@@ -83,7 +83,7 @@ class ChatDashScopeOpenAI(ChatOpenAI):
         logger.info(f"🔍 [DashScope初始化] 最终使用的 base_url: {final_base_url}")
 
         if not final_api_key:
-            logger.error(f"❌ [DashScope初始化] API Key 检查失败，即将抛出异常")
+            logger.error(f"[X] [DashScope初始化] API Key 检查失败，即将抛出异常")
             raise ValueError(
                 "DashScope API key not found. Please configure API key in web interface "
                 "(Settings -> LLM Providers) or set DASHSCOPE_API_KEY environment variable."
@@ -226,11 +226,11 @@ def test_dashscope_openai_connection(
             logger.info(f"   响应: {response.content[:100]}...")
             return True
         else:
-            logger.error(f"❌ DashScope OpenAI 兼容接口响应为空")
+            logger.error(f"[X] DashScope OpenAI 兼容接口响应为空")
             return False
             
     except Exception as e:
-        logger.error(f"❌ DashScope OpenAI 兼容接口连接失败: {e}")
+        logger.error(f"[X] DashScope OpenAI 兼容接口连接失败: {e}")
         return False
 
 
@@ -282,7 +282,7 @@ def test_dashscope_openai_function_calling(
             return True  # 即使没有工具调用也算成功，因为模型可能选择不调用工具
             
     except Exception as e:
-        logger.error(f"❌ DashScope OpenAI Function Calling 测试失败: {e}")
+        logger.error(f"[X] DashScope OpenAI Function Calling 测试失败: {e}")
         return False
 
 
@@ -303,4 +303,4 @@ if __name__ == "__main__":
         else:
             logger.error(f"\n⚠️ Function Calling 测试失败")
     else:
-        logger.error(f"\n❌ 连接测试失败")
+        logger.error(f"\n[X] 连接测试失败")

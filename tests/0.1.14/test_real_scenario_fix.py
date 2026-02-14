@@ -102,7 +102,7 @@ def test_social_media_analyst_tools():
         }
         
     except Exception as e:
-        print(f"❌ 测试社交媒体分析师工具失败: {e}")
+        print(f"[X] 测试社交媒体分析师工具失败: {e}")
         return None
 
 def test_google_tool_handler_improvements():
@@ -155,7 +155,7 @@ def test_google_tool_handler_improvements():
             if validated_call:
                 print(f"  🔧 修复成功: {validated_call}")
             else:
-                print(f"  ❌ 修复失败，跳过")
+                print(f"  [X] 修复失败，跳过")
                 continue
         
         # 检查重复调用
@@ -225,7 +225,7 @@ def main():
         return True
         
     except Exception as e:
-        print(f"\n❌ 实际场景测试失败: {e}")
+        print(f"\n[X] 实际场景测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False

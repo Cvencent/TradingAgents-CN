@@ -29,7 +29,7 @@ async def test_async_analysis():
         })
         
         if login_response.status != 200:
-            print(f"❌ 登录失败: {login_response.status}")
+            print(f"[X] 登录失败: {login_response.status}")
             return
         
         login_data = await login_response.json()
@@ -55,7 +55,7 @@ async def test_async_analysis():
         print(f"⏱️ 任务提交耗时: {submit_time:.2f}秒")
         
         if analysis_response.status != 200:
-            print(f"❌ 任务提交失败: {analysis_response.status}")
+            print(f"[X] 任务提交失败: {analysis_response.status}")
             response_text = await analysis_response.text()
             print(f"错误信息: {response_text}")
             return
@@ -188,7 +188,7 @@ async def test_websocket_progress(task_id: str, ws_url: str):
             print("🔌 WebSocket 测试完成")
             
     except Exception as e:
-        print(f"❌ WebSocket 连接失败: {e}")
+        print(f"[X] WebSocket 连接失败: {e}")
 
 async def test_concurrent_requests():
     """测试并发请求能力"""

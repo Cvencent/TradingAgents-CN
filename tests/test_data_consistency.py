@@ -50,7 +50,7 @@ def test_data_consistency_checker():
             
             if consistency_report:
                 print(f"\n📊 一致性检查报告:")
-                print(f"   数据一致性: {'✅ 一致' if consistency_report['is_consistent'] else '❌ 不一致'}")
+                print(f"   数据一致性: {'✅ 一致' if consistency_report['is_consistent'] else '[X] 不一致'}")
                 print(f"   置信度分数: {consistency_report['confidence_score']:.2f}")
                 print(f"   推荐行动: {consistency_report['recommended_action']}")
                 print(f"   解决策略: {consistency_report['resolution_strategy']}")
@@ -72,7 +72,7 @@ def test_data_consistency_checker():
             else:
                 print("ℹ️ 未进行一致性检查（可能只有一个数据源可用）")
         else:
-            print("❌ 未能获取数据")
+            print("[X] 未能获取数据")
         
         # 3. 测试单独的一致性检查器
         print(f"\n3. 测试独立的一致性检查器...")
@@ -108,7 +108,7 @@ def test_data_consistency_checker():
         print(f"\n✅ 数据一致性检查测试完成")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -178,7 +178,7 @@ def test_mock_data_consistency():
         print(f"\n✅ 模拟数据测试完成")
         
     except Exception as e:
-        print(f"❌ 模拟数据测试失败: {e}")
+        print(f"[X] 模拟数据测试失败: {e}")
         import traceback
         traceback.print_exc()
 

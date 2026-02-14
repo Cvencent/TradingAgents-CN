@@ -97,13 +97,13 @@ def quick_redis_test(host=None, port=None, password=None):
         return True
         
     except redis.ConnectionError as e:
-        print(f"❌ Redis连接失败: {e}")
+        print(f"[X] Redis连接失败: {e}")
         return False
     except redis.TimeoutError as e:
-        print(f"❌ Redis连接超时: {e}")
+        print(f"[X] Redis连接超时: {e}")
         return False
     except Exception as e:
-        print(f"❌ 测试过程中出错: {e}")
+        print(f"[X] 测试过程中出错: {e}")
         return False
 
 def main():
@@ -128,7 +128,7 @@ def main():
     if success:
         print("\n✅ Redis连接测试完成!")
     else:
-        print("\n❌ Redis连接测试失败!")
+        print("\n[X] Redis连接测试失败!")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ def test_dashscope_token_tracking():
     # 检查API密钥
     api_key = os.getenv("DASHSCOPE_API_KEY")
     if not api_key:
-        print("❌ 未找到DASHSCOPE_API_KEY环境变量")
+        print("[X] 未找到DASHSCOPE_API_KEY环境变量")
         print("请在.env文件中设置DASHSCOPE_API_KEY")
         return False
     
@@ -100,11 +100,11 @@ def test_dashscope_token_tracking():
             
             return True
         else:
-            print("❌ Token统计功能未正常工作")
+            print("[X] Token统计功能未正常工作")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -135,7 +135,7 @@ def test_mongodb_storage():
         
         return True
     else:
-        print("❌ MongoDB连接失败")
+        print("[X] MongoDB连接失败")
         print("请检查MongoDB配置和连接字符串")
         return False
 
@@ -178,7 +178,7 @@ def main():
     if success:
         print("🎉 所有测试通过！")
     else:
-        print("❌ 部分测试失败")
+        print("[X] 部分测试失败")
     
     return success
 

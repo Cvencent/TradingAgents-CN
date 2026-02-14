@@ -33,7 +33,7 @@ def test_frontend_display():
             access_token = login_result["data"]["access_token"]
             print("✅ 登录成功，获取到token")
         else:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             return False
         
         # 2. 提交分析请求
@@ -69,7 +69,7 @@ def test_frontend_display():
             task_id = result["data"]["task_id"]
             print(f"✅ 分析任务已提交: {task_id}")
         else:
-            print(f"❌ 提交分析请求失败: {response.status_code}")
+            print(f"[X] 提交分析请求失败: {response.status_code}")
             return False
         
         # 3. 等待任务完成
@@ -88,7 +88,7 @@ def test_frontend_display():
                     print("✅ 分析任务完成!")
                     break
                 elif status == "failed":
-                    print(f"❌ 分析任务失败")
+                    print(f"[X] 分析任务失败")
                     return False
             
             time.sleep(5)
@@ -124,7 +124,7 @@ def test_frontend_display():
                     else:
                         print(f"   - {report_type}: {type(content)}")
             else:
-                print(f"❌ 未找到reports字段或为空")
+                print(f"[X] 未找到reports字段或为空")
                 
                 # 检查detailed_analysis字段
                 detailed_analysis = data.get('detailed_analysis')
@@ -136,16 +136,16 @@ def test_frontend_display():
                             if isinstance(value, str) and len(value) > 50:
                                 print(f"   - {key}: {len(value)} 字符 (可作为报告)")
                 else:
-                    print(f"❌ 也未找到detailed_analysis字段")
+                    print(f"[X] 也未找到detailed_analysis字段")
             
             return True
         else:
-            print(f"❌ 获取分析结果失败: {result_response.status_code}")
+            print(f"[X] 获取分析结果失败: {result_response.status_code}")
             print(f"   响应: {result_response.text}")
             return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 if __name__ == "__main__":

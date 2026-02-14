@@ -23,9 +23,9 @@ def test_deepseek_availability():
     enabled = os.getenv("DEEPSEEK_ENABLED", "false").lower() == "true"
     base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
     
-    print(f"API Key: {'✅ 已设置' if api_key else '❌ 未设置'}")
+    print(f"API Key: {'✅ 已设置' if api_key else '[X] 未设置'}")
     print(f"Base URL: {base_url}")
-    print(f"启用状态: {'✅ 已启用' if enabled else '❌ 未启用'}")
+    print(f"启用状态: {'✅ 已启用' if enabled else '[X] 未启用'}")
     
     if not api_key:
         print("\n⚠️ 请在.env文件中设置DEEPSEEK_API_KEY")
@@ -62,7 +62,7 @@ def test_deepseek_adapter():
         return True
         
     except Exception as e:
-        print(f"❌ 适配器测试失败: {e}")
+        print(f"[X] 适配器测试失败: {e}")
         return False
 
 def test_deepseek_connection():
@@ -88,7 +88,7 @@ def test_deepseek_connection():
         return True
         
     except Exception as e:
-        print(f"❌ 连接测试失败: {e}")
+        print(f"[X] 连接测试失败: {e}")
         return False
 
 def test_deepseek_tools():
@@ -127,7 +127,7 @@ def test_deepseek_tools():
         return True
         
     except Exception as e:
-        print(f"❌ 工具调用测试失败: {e}")
+        print(f"[X] 工具调用测试失败: {e}")
         return False
 
 def test_deepseek_trading_graph():
@@ -156,7 +156,7 @@ def test_deepseek_trading_graph():
         return True
         
     except Exception as e:
-        print(f"❌ 交易图集成测试失败: {e}")
+        print(f"[X] 交易图集成测试失败: {e}")
         return False
 
 def test_deepseek_models():
@@ -179,7 +179,7 @@ def test_deepseek_models():
         return True
         
     except Exception as e:
-        print(f"❌ 模型测试失败: {e}")
+        print(f"[X] 模型测试失败: {e}")
         return False
 
 def main():
@@ -203,7 +203,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结结果
@@ -213,7 +213,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

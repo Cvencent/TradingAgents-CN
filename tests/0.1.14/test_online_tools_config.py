@@ -45,7 +45,7 @@ def test_online_tools_config():
             print(f"   ✅ {key}: {value}")
             
     except Exception as e:
-        print(f"   ❌ 配置文件读取失败: {e}")
+        print(f"   [X] 配置文件读取失败: {e}")
         return False
     
     # 3. 测试配置逻辑
@@ -99,14 +99,14 @@ def test_toolkit_integration():
                 available_tools.append(tool_name)
                 print(f"   ✅ {tool_name} 可用")
             else:
-                print(f"   ❌ {tool_name} 不可用")
+                print(f"   [X] {tool_name} 不可用")
         
         print(f"\n   📊 可用在线工具: {len(available_tools)}/{len(online_tools)}")
         
         return len(available_tools) > 0
         
     except Exception as e:
-        print(f"   ❌ 工具包集成测试失败: {e}")
+        print(f"   [X] 工具包集成测试失败: {e}")
         return False
 
 def show_config_examples():
@@ -158,8 +158,8 @@ def main():
     # 总结
     print("\n📊 测试总结:")
     print("=" * 60)
-    print(f"   配置系统: {'✅ 正常' if config_success else '❌ 异常'}")
-    print(f"   工具包集成: {'✅ 正常' if toolkit_success else '❌ 异常'}")
+    print(f"   配置系统: {'✅ 正常' if config_success else '[X] 异常'}")
+    print(f"   工具包集成: {'✅ 正常' if toolkit_success else '[X] 异常'}")
     
     if config_success and toolkit_success:
         print("\n🎉 在线工具配置系统运行正常！")

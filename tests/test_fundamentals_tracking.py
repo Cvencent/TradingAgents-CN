@@ -59,7 +59,7 @@ def test_fundamentals_analyst():
                     if "002027" in report:
                         print("✅ 报告中包含正确的股票代码 002027")
                     else:
-                        print("❌ 报告中不包含正确的股票代码 002027")
+                        print("[X] 报告中不包含正确的股票代码 002027")
                         
                     if "002021" in report:
                         print("⚠️ 报告中包含错误的股票代码 002021")
@@ -72,14 +72,14 @@ def test_fundamentals_analyst():
                     print(report[:500])
                     print("-" * 60)
             else:
-                print("❌ 返回状态中没有 fundamentals_report")
+                print("[X] 返回状态中没有 fundamentals_report")
         else:
-            print(f"❌ 返回结果类型不正确: {type(result)}")
+            print(f"[X] 返回结果类型不正确: {type(result)}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -121,7 +121,7 @@ def test_unified_tool_direct():
             if "002027" in result:
                 print("✅ 结果中包含正确的股票代码 002027")
             else:
-                print("❌ 结果中不包含正确的股票代码 002027")
+                print("[X] 结果中不包含正确的股票代码 002027")
                 
             if "002021" in result:
                 print("⚠️ 结果中包含错误的股票代码 002021")
@@ -137,7 +137,7 @@ def test_unified_tool_direct():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -154,4 +154,4 @@ if __name__ == "__main__":
     if success1 and success2:
         print("\n✅ 所有测试通过")
     else:
-        print("\n❌ 部分测试失败")
+        print("\n[X] 部分测试失败")

@@ -139,7 +139,7 @@ def get_fundamentals(
             return format_response_as_string(data, f"Fundamentals for {ticker}")
             
     except Exception as e:
-        logger.error(f"❌ [Alpha Vantage] 获取基本面数据失败 {ticker}: {e}")
+        logger.error(f"[X] [Alpha Vantage] 获取基本面数据失败 {ticker}: {e}")
         return f"Error retrieving fundamentals for {ticker}: {str(e)}"
 
 
@@ -168,7 +168,7 @@ def get_balance_sheet(
         return format_response_as_string(data, f"Balance Sheet for {ticker}")
         
     except Exception as e:
-        logger.error(f"❌ [Alpha Vantage] 获取资产负债表失败 {ticker}: {e}")
+        logger.error(f"[X] [Alpha Vantage] 获取资产负债表失败 {ticker}: {e}")
         return f"Error retrieving balance sheet for {ticker}: {str(e)}"
 
 
@@ -197,7 +197,7 @@ def get_cashflow(
         return format_response_as_string(data, f"Cash Flow for {ticker}")
         
     except Exception as e:
-        logger.error(f"❌ [Alpha Vantage] 获取现金流量表失败 {ticker}: {e}")
+        logger.error(f"[X] [Alpha Vantage] 获取现金流量表失败 {ticker}: {e}")
         return f"Error retrieving cash flow for {ticker}: {str(e)}"
 
 
@@ -226,6 +226,6 @@ def get_income_statement(
         return format_response_as_string(data, f"Income Statement for {ticker}")
         
     except Exception as e:
-        logger.error(f"❌ [Alpha Vantage] 获取利润表失败 {ticker}: {e}")
+        logger.error(f"[X] [Alpha Vantage] 获取利润表失败 {ticker}: {e}")
         return f"Error retrieving income statement for {ticker}: {str(e)}"
 

@@ -473,7 +473,7 @@ def check_frontend_auth_cache():
                 logger.info("🔄 触发页面重新运行")
                 st.rerun()
             else:
-                logger.error("❌ 恢复登录状态失败")
+                logger.error("[X] 恢复登录状态失败")
                 # 恢复失败，清除URL参数
                 del st.query_params['restore_auth']
         else:
@@ -527,7 +527,7 @@ def inject_frontend_cache_check():
             
             // 验证数据结构
             if (!data.userInfo || !data.userInfo.username) {
-                console.log('❌ 认证数据结构无效，清除缓存');
+                console.log('[X] 认证数据结构无效，清除缓存');
                 localStorage.removeItem('tradingagents_auth');
                 return;
             }
@@ -578,7 +578,7 @@ def inject_frontend_cache_check():
             window.location.href = newUrl;
             
         } catch (e) {
-            console.error('❌ 前端缓存恢复失败:', e);
+            console.error('[X] 前端缓存恢复失败:', e);
             localStorage.removeItem('tradingagents_auth');
         }
     }
@@ -1065,7 +1065,7 @@ def main():
             if status['configured']:
                 st.success(f"✅ {key}: {status['display']}")
             else:
-                st.error(f"❌ {key}: 未配置")
+                st.error(f"[X] {key}: 未配置")
         
         return
     
@@ -1142,7 +1142,7 @@ def main():
                 form_data = {'submitted': False}
 
         except Exception as e:
-            st.error(f"❌ 表单渲染失败: {e}")
+            st.error(f"[X] 表单渲染失败: {e}")
             form_data = {'submitted': False}
 
         # 避免显示调试信息
@@ -1286,7 +1286,7 @@ def main():
                                 logger.warning(f"⚠️ [后台保存] 保存失败: {analysis_id}")
                                 
                         except Exception as save_error:
-                            logger.error(f"❌ [后台保存] 保存异常: {save_error}")
+                            logger.error(f"[X] [后台保存] 保存异常: {save_error}")
 
                         logger.info(f"✅ [分析完成] 股票分析成功完成: {analysis_id}")
 
@@ -1309,9 +1309,9 @@ def main():
                             logger.info(f"💾 [失败记录] 分析失败记录已保存: {analysis_id}")
                             
                         except Exception as save_error:
-                            logger.error(f"❌ [失败记录] 保存异常: {save_error}")
+                            logger.error(f"[X] [失败记录] 保存异常: {save_error}")
                         
-                        logger.error(f"❌ [分析失败] {analysis_id}: {e}")
+                        logger.error(f"[X] [分析失败] {analysis_id}: {e}")
 
                     finally:
                         # 分析结束后注销线程
@@ -1369,7 +1369,7 @@ def main():
                     st.success(f"✅ 分析完成: {current_analysis_id}")
 
                 elif actual_status == 'failed':
-                    st.error(f"❌ 分析失败: {current_analysis_id}")
+                    st.error(f"[X] 分析失败: {current_analysis_id}")
                 else:
                     st.warning(f"⚠️ 分析状态未知: {current_analysis_id}")
 
@@ -1421,7 +1421,7 @@ def main():
                                     logger.warning(f"⚠️ [结果保存] 保存失败: {current_analysis_id}")
                                     
                             except Exception as save_error:
-                                logger.error(f"❌ [结果保存] 保存异常: {save_error}")
+                                logger.error(f"[X] [结果保存] 保存异常: {save_error}")
 
                             # 检查是否已经刷新过，避免重复刷新
                             refresh_key = f"results_refreshed_{current_analysis_id}"

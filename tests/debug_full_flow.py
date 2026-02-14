@@ -55,9 +55,9 @@ def debug_full_flow():
             print(f"   ROE: {metrics.get('roe', 'N/A')}")
             print(f"   数据来源: {metrics.get('data_source', 'N/A')}")
         else:
-            print(f"❌ 解析失败，返回None")
+            print(f"[X] 解析失败，返回None")
     except Exception as e:
-        print(f"❌ 解析异常: {e}")
+        print(f"[X] 解析异常: {e}")
         import traceback
         traceback.print_exc()
     
@@ -74,9 +74,9 @@ def debug_full_flow():
             print(f"   ROE: {real_metrics.get('roe', 'N/A')}")
             print(f"   数据来源: {real_metrics.get('data_source', 'N/A')}")
         else:
-            print(f"❌ 真实财务指标获取失败")
+            print(f"[X] 真实财务指标获取失败")
     except Exception as e:
-        print(f"❌ 真实财务指标获取异常: {e}")
+        print(f"[X] 真实财务指标获取异常: {e}")
         import traceback
         traceback.print_exc()
     
@@ -93,9 +93,9 @@ def debug_full_flow():
             print(f"   ROE: {estimated_metrics.get('roe', 'N/A')}")
             print(f"   数据来源: {estimated_metrics.get('data_source', 'N/A')}")
         else:
-            print(f"❌ 财务指标估算失败")
+            print(f"[X] 财务指标估算失败")
     except Exception as e:
-        print(f"❌ 财务指标估算异常: {e}")
+        print(f"[X] 财务指标估算异常: {e}")
         import traceback
         traceback.print_exc()
     

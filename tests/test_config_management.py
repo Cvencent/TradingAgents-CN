@@ -260,7 +260,7 @@ def main():
         return True
         
     except Exception as e:
-        print(f"\n❌ 测试失败: {e}")
+        print(f"\n[X] 测试失败: {e}")
         import traceback
         print(f"错误详情: {traceback.format_exc()}")
         return False

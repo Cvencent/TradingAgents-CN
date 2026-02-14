@@ -73,11 +73,11 @@ def test_deepseek_adapter():
             print(f"   📊 DeepSeek统计存在: ✅")
             return True
         else:
-            print(f"   📊 DeepSeek统计缺失: ❌")
+            print(f"   📊 DeepSeek统计缺失: [X]")
             return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_trading_graph_integration():
@@ -116,7 +116,7 @@ def test_trading_graph_integration():
         return True
         
     except Exception as e:
-        print(f"❌ 集成测试失败: {e}")
+        print(f"[X] 集成测试失败: {e}")
         return False
 
 def main():
@@ -136,7 +136,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结结果
@@ -146,7 +146,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

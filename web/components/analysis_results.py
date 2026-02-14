@@ -23,7 +23,7 @@ try:
     print("✅ MongoDB模块导入成功")
 except ImportError as e:
     MONGODB_AVAILABLE = False
-    print(f"❌ MongoDB模块导入失败: {e}")
+    print(f"[X] MongoDB模块导入失败: {e}")
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -161,7 +161,7 @@ def load_analysis_results(start_date=None, end_date=None, stock_symbol=None, ana
             print(f"✅ 从MongoDB加载了 {len(mongodb_results)} 个分析结果")
 
         except Exception as e:
-            print(f"❌ MongoDB加载失败: {e}")
+            print(f"[X] MongoDB加载失败: {e}")
             logger.error(f"MongoDB加载失败: {e}")
             mongodb_loaded = False
     else:
@@ -342,11 +342,11 @@ def render_analysis_results():
         from utils.auth_manager import auth_manager
         
         if not auth_manager or not auth_manager.check_permission("analysis"):
-            st.error("❌ 您没有权限访问分析结果")
+            st.error("[X] 您没有权限访问分析结果")
             st.info("💡 提示：分析结果功能需要 'analysis' 权限")
             return
     except Exception as e:
-        st.error(f"❌ 权限检查失败: {e}")
+        st.error(f"[X] 权限检查失败: {e}")
         return
     
     st.title("📊 分析结果历史记录")
@@ -485,7 +485,7 @@ def render_results_table(results: List[Dict[str, Any]]):
             '时间': safe_timestamp_to_datetime(result.get('timestamp', 0)).strftime('%m-%d %H:%M'),
             '股票': result.get('stock_symbol', 'unknown'),
             '分析师': ', '.join(result.get('analysts', [])[:2]) + ('...' if len(result.get('analysts', [])) > 2 else ''),
-            '状态': '✅' if result.get('status') == 'completed' else '❌',
+            '状态': '✅' if result.get('status') == 'completed' else '[X]',
             '收藏': '⭐' if result.get('is_favorite', False) else '',
             '标签': ', '.join(result.get('tags', [])[:2]) + ('...' if len(result.get('tags', [])) > 2 else ''),
             '摘要': (result.get('summary', '')[:50] + '...') if len(result.get('summary', '')) > 50 else result.get('summary', '')
@@ -549,7 +549,7 @@ def render_results_cards(results: List[Dict[str, Any]]):
             
             with col4:
                 # 状态显示
-                status_icon = "✅" if result.get('status') == 'completed' else "❌"
+                status_icon = "✅" if result.get('status') == 'completed' else "[X]"
                 st.markdown(f"**状态**: {status_icon}")
             
             # 卡片内容
@@ -970,7 +970,7 @@ def render_results_export(results: List[Dict[str, Any]]):
             st.success(f"✅ {export_format} 文件准备完成，请点击下载按钮")
             
         except Exception as e:
-            st.error(f"❌ 导出失败: {e}")
+            st.error(f"[X] 导出失败: {e}")
 
 def render_results_comparison(results: List[Dict[str, Any]]):
     """渲染分析结果对比"""
@@ -1026,7 +1026,7 @@ def render_results_comparison(results: List[Dict[str, Any]]):
             safe_timestamp_to_datetime(result_a.get('timestamp', 0)).strftime('%Y-%m-%d %H:%M'),
             len(result_a.get('analysts', [])),
             result_a.get('research_depth', 'unknown'),
-            "✅ 完成" if result_a.get('status') == 'completed' else "❌ 失败",
+            "✅ 完成" if result_a.get('status') == 'completed' else "[X] 失败",
             len(result_a.get('tags', []))
         ],
         "分析结果 B": [
@@ -1034,7 +1034,7 @@ def render_results_comparison(results: List[Dict[str, Any]]):
             safe_timestamp_to_datetime(result_b.get('timestamp', 0)).strftime('%Y-%m-%d %H:%M'),
             len(result_b.get('analysts', [])),
             result_b.get('research_depth', 'unknown'),
-            "✅ 完成" if result_b.get('status') == 'completed' else "❌ 失败",
+            "✅ 完成" if result_b.get('status') == 'completed' else "[X] 失败",
             len(result_b.get('tags', []))
         ]
     }
@@ -1204,7 +1204,7 @@ def render_detailed_analysis(results: List[Dict[str, Any]]):
         with col2:
             analysis_time = safe_timestamp_to_datetime(selected_result.get('timestamp', 0))
             st.metric("分析时间", analysis_time.strftime('%m-%d %H:%M'))
-            status = "✅ 完成" if selected_result.get('status') == 'completed' else "❌ 失败"
+            status = "✅ 完成" if selected_result.get('status') == 'completed' else "[X] 失败"
             st.metric("状态", status)
         
         with col3:
@@ -1730,16 +1730,16 @@ def save_analysis_result(analysis_id: str, stock_symbol: str, analysts: List[str
                 if success:
                     print(f"✅ [MongoDB保存] 分析结果已保存到MongoDB: {analysis_id} (包含 {len(reports)} 个报告)")
                 else:
-                    print(f"❌ [MongoDB保存] 保存失败: {analysis_id}")
+                    print(f"[X] [MongoDB保存] 保存失败: {analysis_id}")
 
             except Exception as e:
-                print(f"❌ [MongoDB保存] 保存异常: {e}")
+                print(f"[X] [MongoDB保存] 保存异常: {e}")
                 logger.error(f"MongoDB保存异常: {e}")
 
         return True
 
     except Exception as e:
-        print(f"❌ [保存分析结果] 保存失败: {e}")
+        print(f"[X] [保存分析结果] 保存失败: {e}")
         logger.error(f"保存分析结果异常: {e}")
         return False
 

@@ -113,7 +113,7 @@ def create_risk_manager(llm, memory):
 
             except Exception as e:
                 elapsed_time = time.time() - start_time
-                logger.error(f"❌ [Risk Manager] LLM调用失败 (尝试 {retry_count + 1}): {str(e)}")
+                logger.error(f"[X] [Risk Manager] LLM调用失败 (尝试 {retry_count + 1}): {str(e)}")
                 logger.error(f"⏱️ [Risk Manager] 失败前耗时: {elapsed_time:.2f}秒")
                 response_content = ""
             
@@ -124,7 +124,7 @@ def create_risk_manager(llm, memory):
         
         # 如果所有重试都失败，生成默认决策
         if not response_content:
-            logger.error(f"❌ [Risk Manager] 所有LLM调用尝试失败，使用默认决策")
+            logger.error(f"[X] [Risk Manager] 所有LLM调用尝试失败，使用默认决策")
             response_content = f"""**默认建议：持有**
 
 由于技术原因无法生成详细分析，基于当前市场状况和风险控制原则，建议对{company_name}采取持有策略。
@@ -156,9 +156,13 @@ def create_risk_manager(llm, memory):
 
         logger.info(f"📋 [Risk Manager] 最终决策生成完成，内容长度: {len(response_content)} 字符")
         
+        # 🔥 关键修复：同时返回 final_request_prompt 字段（与 simple_analysis_service.py 期望的字段名一致）
+        logger.info(f"🔍 [Risk Manager] 返回 final_request_prompt，总长度: {len(prompt)} chars")
         return {
             "risk_debate_state": new_risk_debate_state,
             "final_trade_decision": response_content,
+            "risk_manager_prompt": prompt,  # 保存原始prompt（向后兼容）
+            "final_request_prompt": prompt  # 🔥 保存完整的请求prompt（与API期望的字段名一致）
         }
 
     return risk_manager_node

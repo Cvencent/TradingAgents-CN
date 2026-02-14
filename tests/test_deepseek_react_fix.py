@@ -74,12 +74,12 @@ def test_deepseek_react_market_analyst():
         not_placeholder = "正在调用工具" not in market_report and "(调用工具" not in market_report
         
         print(f"📊 报告质量检查:")
-        print(f"   包含实际数据: {'✅' if has_data else '❌'}")
-        print(f"   分析内容充实: {'✅' if has_analysis else '❌'}")
-        print(f"   非占位符内容: {'✅' if not_placeholder else '❌'}")
+        print(f"   包含实际数据: {'✅' if has_data else '[X]'}")
+        print(f"   分析内容充实: {'✅' if has_analysis else '[X]'}")
+        print(f"   非占位符内容: {'✅' if not_placeholder else '[X]'}")
         
         success = has_data and has_analysis and not_placeholder
-        print(f"   整体评估: {'✅ 成功' if success else '❌ 需要改进'}")
+        print(f"   整体评估: {'✅ 成功' if success else '[X] 需要改进'}")
         
         if success:
             print("\n🎉 DeepSeek ReAct市场分析师修复成功！")
@@ -98,7 +98,7 @@ def test_deepseek_react_market_analyst():
         return success
         
     except Exception as e:
-        print(f"❌ DeepSeek ReAct市场分析师测试失败: {e}")
+        print(f"[X] DeepSeek ReAct市场分析师测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -134,7 +134,7 @@ def test_graph_setup_logic():
         return True
         
     except Exception as e:
-        print(f"❌ 图设置逻辑测试失败: {e}")
+        print(f"[X] 图设置逻辑测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -154,8 +154,8 @@ def main():
     print("\n📋 测试总结")
     print("=" * 60)
     
-    print(f"图设置逻辑: {'✅ 正确' if setup_success else '❌ 有问题'}")
-    print(f"DeepSeek ReAct分析师: {'✅ 修复成功' if analyst_success else '❌ 仍需修复'}")
+    print(f"图设置逻辑: {'✅ 正确' if setup_success else '[X] 有问题'}")
+    print(f"DeepSeek ReAct分析师: {'✅ 修复成功' if analyst_success else '[X] 仍需修复'}")
     
     overall_success = setup_success and analyst_success
     

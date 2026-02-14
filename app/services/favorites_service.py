@@ -230,7 +230,7 @@ class FavoritesService:
                 logger.info(f"🔧 [add_favorite] 返回结果: True")
                 return True
         except Exception as e:
-            logger.error(f"❌ [add_favorite] 添加自选股异常: {type(e).__name__}: {str(e)}", exc_info=True)
+            logger.error(f"[X] [add_favorite] 添加自选股异常: {type(e).__name__}: {str(e)}", exc_info=True)
             raise
 
     async def remove_favorite(self, user_id: str, stock_code: str) -> bool:
@@ -358,7 +358,7 @@ class FavoritesService:
                 logger.info(f"🔧 [is_favorite] 字符串ID查询结果: {result}")
                 return result
         except Exception as e:
-            logger.error(f"❌ [is_favorite] 检查自选股异常: {type(e).__name__}: {str(e)}", exc_info=True)
+            logger.error(f"[X] [is_favorite] 检查自选股异常: {type(e).__name__}: {str(e)}", exc_info=True)
             raise
 
     async def get_user_tags(self, user_id: str) -> List[str]:

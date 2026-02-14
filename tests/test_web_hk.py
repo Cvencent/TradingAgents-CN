@@ -26,7 +26,7 @@ def test_analysis_form_hk_support():
         return True
         
     except Exception as e:
-        print(f"❌ 分析表单港股支持测试失败: {e}")
+        print(f"[X] 分析表单港股支持测试失败: {e}")
         return False
 
 def test_analysis_runner_hk_support():
@@ -52,7 +52,7 @@ def test_analysis_runner_hk_support():
             if not errors:
                 print(f"    ✅ {code} 验证通过")
             else:
-                print(f"    ❌ {code} 验证失败: {errors}")
+                print(f"    [X] {code} 验证失败: {errors}")
                 return False
         
         # 错误的港股代码
@@ -68,7 +68,7 @@ def test_analysis_runner_hk_support():
             if errors:
                 print(f"    ✅ {code} 正确识别为无效")
             else:
-                print(f"    ❌ {code} 应该被识别为无效")
+                print(f"    [X] {code} 应该被识别为无效")
                 return False
         
         print("  ✅ 港股代码验证测试通过")
@@ -105,7 +105,7 @@ def test_analysis_runner_hk_support():
         return True
         
     except Exception as e:
-        print(f"❌ 分析运行器港股支持测试失败: {e}")
+        print(f"[X] 分析运行器港股支持测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -139,14 +139,14 @@ def test_stock_symbol_formatting():
             if formatted == expected:
                 print(f"    ✅ {input_code} ({market_type}) -> {formatted}")
             else:
-                print(f"    ❌ {input_code} ({market_type}) -> {formatted}, 期望: {expected}")
+                print(f"    [X] {input_code} ({market_type}) -> {formatted}, 期望: {expected}")
                 return False
         
         print("  ✅ 股票代码格式化测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 股票代码格式化测试失败: {e}")
+        print(f"[X] 股票代码格式化测试失败: {e}")
         return False
 
 def test_market_type_integration():
@@ -186,13 +186,13 @@ def test_market_type_integration():
             if config['currency'] == market_info['currency_symbol']:
                 print(f"    ✅ 货币符号正确: {config['currency']}")
             else:
-                print(f"    ❌ 货币符号错误: 期望{config['currency']}, 实际{market_info['currency_symbol']}")
+                print(f"    [X] 货币符号错误: 期望{config['currency']}, 实际{market_info['currency_symbol']}")
         
         print("  ✅ 市场类型集成测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 市场类型集成测试失败: {e}")
+        print(f"[X] 市场类型集成测试失败: {e}")
         return False
 
 def main():
@@ -215,7 +215,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"🇭🇰 Web版本港股功能测试完成: {passed}/{total} 通过")

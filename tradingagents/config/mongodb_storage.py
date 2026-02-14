@@ -81,11 +81,11 @@ class MongoDBStorage:
             logger.info(f"✅ MongoDB连接成功: {self.database_name}.{self.collection_name}")
             
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:
-            logger.error(f"❌ MongoDB连接失败: {e}")
+            logger.error(f"[X] MongoDB连接失败: {e}")
             logger.info(f"将使用本地JSON文件存储")
             self._connected = False
         except Exception as e:
-            logger.error(f"❌ MongoDB初始化失败: {e}")
+            logger.error(f"[X] MongoDB初始化失败: {e}")
             self._connected = False
     
     def _create_indexes(self):
@@ -135,11 +135,11 @@ class MongoDBStorage:
                 logger.info(f"✅ [MongoDB存储] 记录已保存: ID={result.inserted_id}, {record.provider}/{record.model_name}, ¥{record.cost:.4f}")
                 return True
             else:
-                logger.error(f"❌ [MongoDB存储] 插入失败：未返回插入ID")
+                logger.error(f"[X] [MongoDB存储] 插入失败：未返回插入ID")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ [MongoDB存储] 保存记录失败: {e}")
+            logger.error(f"[X] [MongoDB存储] 保存记录失败: {e}")
             import traceback
             logger.error(f"   堆栈: {traceback.format_exc()}")
             return False

@@ -66,7 +66,7 @@ class ConnectionManager:
                 await connection.send_text(message_json)
                 logger.debug(f"📤 [WS] 发送消息给 user={user_id}")
             except Exception as e:
-                logger.warning(f"❌ [WS] 发送消息失败: {e}")
+                logger.warning(f"[X] [WS] 发送消息失败: {e}")
                 dead_connections.append(connection)
         
         # 清理死连接
@@ -91,7 +91,7 @@ class ConnectionManager:
             try:
                 await connection.send_text(message_json)
             except Exception as e:
-                logger.warning(f"❌ [WS] 广播消息失败: {e}")
+                logger.warning(f"[X] [WS] 广播消息失败: {e}")
     
     def get_stats(self) -> dict:
         """获取连接统计"""
@@ -181,7 +181,7 @@ async def websocket_notifications_endpoint(
                 logger.info(f"🔌 [WS] 客户端主动断开: user={user_id}")
                 break
             except Exception as e:
-                logger.error(f"❌ [WS] 接收消息错误: {e}")
+                logger.error(f"[X] [WS] 接收消息错误: {e}")
                 break
     
     finally:
@@ -255,7 +255,7 @@ async def websocket_task_progress_endpoint(
                 logger.info(f"🔌 [WS-Task] 客户端主动断开: task={task_id}")
                 break
             except Exception as e:
-                logger.error(f"❌ [WS-Task] 接收消息错误: {e}")
+                logger.error(f"[X] [WS-Task] 接收消息错误: {e}")
                 break
     
     finally:

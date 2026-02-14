@@ -39,7 +39,7 @@ def check_all_api_keys():
             print(f"✅ {name}: 已配置 ({value[:10]}...)")
             configured_apis.append(name)
         else:
-            print(f"❌ {name}: 未配置")
+            print(f"[X] {name}: 未配置")
             missing_apis.append(name)
     
     print(f"\n📊 配置状态:")
@@ -56,7 +56,7 @@ def test_google_api():
         
         google_key = os.getenv('GOOGLE_API_KEY')
         if not google_key:
-            print("❌ Google API密钥未配置")
+            print("[X] Google API密钥未配置")
             return False
         
         # 这里可以添加具体的Google API测试
@@ -67,7 +67,7 @@ def test_google_api():
         return True
         
     except Exception as e:
-        print(f"❌ Google API测试失败: {e}")
+        print(f"[X] Google API测试失败: {e}")
         return False
 
 def test_reddit_api():
@@ -81,10 +81,10 @@ def test_reddit_api():
         user_agent = os.getenv('REDDIT_USER_AGENT')
         
         if not all([client_id, client_secret, user_agent]):
-            print("❌ Reddit API配置不完整")
-            print(f"  CLIENT_ID: {'✅' if client_id else '❌'}")
-            print(f"  CLIENT_SECRET: {'✅' if client_secret else '❌'}")
-            print(f"  USER_AGENT: {'✅' if user_agent else '❌'}")
+            print("[X] Reddit API配置不完整")
+            print(f"  CLIENT_ID: {'✅' if client_id else '[X]'}")
+            print(f"  CLIENT_SECRET: {'✅' if client_secret else '[X]'}")
+            print(f"  USER_AGENT: {'✅' if user_agent else '[X]'}")
             return False
         
         # 测试Reddit API连接
@@ -110,11 +110,11 @@ def test_reddit_api():
             print("💡 运行: pip install praw")
             return False
         except Exception as e:
-            print(f"❌ Reddit API连接失败: {e}")
+            print(f"[X] Reddit API连接失败: {e}")
             return False
             
     except Exception as e:
-        print(f"❌ Reddit API测试失败: {e}")
+        print(f"[X] Reddit API测试失败: {e}")
         return False
 
 def test_tradingagents_with_new_apis():
@@ -134,19 +134,19 @@ def test_tradingagents_with_new_apis():
             from tradingagents.dataflows.googlenews_utils import get_google_news
             print("✅ Google News工具可用")
         except ImportError:
-            print("❌ Google News工具不可用")
+            print("[X] Google News工具不可用")
         
         # 检查Reddit相关工具  
         try:
             from tradingagents.dataflows.reddit_utils import get_reddit_sentiment
             print("✅ Reddit情绪分析工具可用")
         except ImportError:
-            print("❌ Reddit情绪分析工具不可用")
+            print("[X] Reddit情绪分析工具不可用")
         
         return True
         
     except Exception as e:
-        print(f"❌ TradingAgents集成测试失败: {e}")
+        print(f"[X] TradingAgents集成测试失败: {e}")
         return False
 
 def test_social_media_analyst():
@@ -169,7 +169,7 @@ def test_social_media_analyst():
         return True
         
     except Exception as e:
-        print(f"❌ 社交媒体分析师测试失败: {e}")
+        print(f"[X] 社交媒体分析师测试失败: {e}")
         return False
 
 def main():
@@ -198,7 +198,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())

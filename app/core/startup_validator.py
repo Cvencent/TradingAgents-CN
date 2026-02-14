@@ -188,10 +188,10 @@ class StartupValidator:
             
             if not value:
                 self.result.missing_required.append(config)
-                logger.error(f"❌ 缺少必需配置: {config.key}")
+                logger.error(f"[X] 缺少必需配置: {config.key}")
             elif config.validator and not config.validator(value):
                 self.result.invalid_configs.append((config, "配置值格式不正确"))
-                logger.error(f"❌ 配置格式错误: {config.key}")
+                logger.error(f"[X] 配置格式错误: {config.key}")
             else:
                 logger.debug(f"✅ {config.key}: 已配置")
     

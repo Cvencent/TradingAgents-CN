@@ -32,17 +32,17 @@ def test_akshare_hk_basic():
         
         for input_symbol, expected in test_symbols:
             normalized = provider._normalize_hk_symbol_for_akshare(input_symbol)
-            print(f"  标准化: {input_symbol} -> {normalized} {'✅' if normalized == expected else '❌'}")
+            print(f"  标准化: {input_symbol} -> {normalized} {'✅' if normalized == expected else '[X]'}")
             
             if normalized != expected:
-                print(f"❌ 港股代码标准化失败: {input_symbol} -> {normalized}, 期望: {expected}")
+                print(f"[X] 港股代码标准化失败: {input_symbol} -> {normalized}, 期望: {expected}")
                 return False
         
         print("✅ AKShare港股基本功能测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ AKShare港股基本功能测试失败: {e}")
+        print(f"[X] AKShare港股基本功能测试失败: {e}")
         return False
 
 def test_akshare_hk_data():
@@ -84,12 +84,12 @@ def test_akshare_hk_data():
             print("✅ AKShare港股数据获取测试通过")
             return True
         else:
-            print("❌ AKShare港股数据获取失败")
+            print("[X] AKShare港股数据获取失败")
             print(f"返回数据: {data[:200]}...")
             return False
             
     except Exception as e:
-        print(f"❌ AKShare港股数据获取测试失败: {e}")
+        print(f"[X] AKShare港股数据获取测试失败: {e}")
         return False
 
 def test_akshare_hk_info():
@@ -120,11 +120,11 @@ def test_akshare_hk_info():
             print("✅ AKShare港股信息获取测试通过")
             return True
         else:
-            print("❌ AKShare港股信息获取失败")
+            print("[X] AKShare港股信息获取失败")
             return False
             
     except Exception as e:
-        print(f"❌ AKShare港股信息获取测试失败: {e}")
+        print(f"[X] AKShare港股信息获取测试失败: {e}")
         return False
 
 def test_unified_interface():
@@ -166,7 +166,7 @@ def test_unified_interface():
         return True
         
     except Exception as e:
-        print(f"❌ 统一接口AKShare支持测试失败: {e}")
+        print(f"[X] 统一接口AKShare支持测试失败: {e}")
         return False
 
 def main():
@@ -189,7 +189,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"🇭🇰 AKShare港股功能测试完成: {passed}/{total} 通过")

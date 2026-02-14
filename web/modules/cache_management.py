@@ -53,7 +53,7 @@ def main():
     st.markdown("---")
     
     if not CACHE_AVAILABLE:
-        st.error("❌ 缓存管理器不可用，请检查系统配置")
+        st.error("[X] 缓存管理器不可用，请检查系统配置")
         return
     
     # 获取缓存实例
@@ -189,7 +189,7 @@ def main():
                             with st.expander("查看结果"):
                                 st.text(result[:500] + "..." if len(result) > 500 else result)
                         except Exception as e:
-                            st.error(f"❌ 美股缓存测试失败: {e}")
+                            st.error(f"[X] 美股缓存测试失败: {e}")
 
         with test_col2:
             st.markdown("**测试A股数据缓存**")
@@ -209,7 +209,7 @@ def main():
                             with st.expander("查看结果"):
                                 st.text(result[:500] + "..." if len(result) > 500 else result)
                         except Exception as e:
-                            st.error(f"❌ A股缓存测试失败: {e}")
+                            st.error(f"[X] A股缓存测试失败: {e}")
     else:
         st.warning("优化数据提供器不可用，无法进行缓存测试")
 

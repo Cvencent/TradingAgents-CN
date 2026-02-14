@@ -31,12 +31,12 @@ def test_analysis_fix():
             if len(market_report) > 0:
                 print("✅ Market report has content")
             else:
-                print("❌ Market report is empty")
+                print("[X] Market report is empty")
                 
             if len(fundamentals_report) > 0:
                 print("✅ Fundamentals report has content")
             else:
-                print("❌ Fundamentals report is empty")
+                print("[X] Fundamentals report is empty")
                 
         else:
             print(f"Error: {result.get('error', 'Unknown error')}")

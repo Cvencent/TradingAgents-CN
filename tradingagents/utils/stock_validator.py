@@ -253,7 +253,7 @@ class StockDataPreparer:
                     return line
 
         # 方法4: 如果信息看起来有效但无法解析名称，使用股票代码
-        if len(stock_info_str) > 50 and "❌" not in stock_info_str:
+        if len(stock_info_str) > 50 and "[X]" not in stock_info_str:
             # 信息看起来有效，但无法解析名称，使用代码作为名称
             return stock_code
 
@@ -280,7 +280,7 @@ class StockDataPreparer:
                     suggestion="请选择支持的市场类型：A股、港股、美股"
                 )
         except Exception as e:
-            logger.error(f"❌ [数据准备] 数据准备异常: {e}")
+            logger.error(f"[X] [数据准备] 数据准备异常: {e}")
             return StockDataPreparationResult(
                 is_valid=False,
                 stock_code=stock_code,
@@ -310,7 +310,7 @@ class StockDataPreparer:
                     suggestion="请选择支持的市场类型：A股、港股、美股"
                 )
         except Exception as e:
-            logger.error(f"❌ [数据准备-异步] 数据准备异常: {e}")
+            logger.error(f"[X] [数据准备-异步] 数据准备异常: {e}")
             return StockDataPreparationResult(
                 is_valid=False,
                 stock_code=stock_code,
@@ -373,7 +373,7 @@ class StockDataPreparer:
 
             stock_info = get_china_stock_info_unified(stock_code)
 
-            if stock_info and "❌" not in stock_info and "未能获取" not in stock_info:
+            if stock_info and "[X]" not in stock_info and "未能获取" not in stock_info:
                 # 解析股票名称
                 if "股票名称:" in stock_info:
                     lines = stock_info.split('\n')
@@ -412,7 +412,7 @@ class StockDataPreparer:
 
             historical_data = get_china_stock_data_unified(stock_code, extended_start_date_str, end_date_str)
 
-            if historical_data and "❌" not in historical_data and "获取失败" not in historical_data:
+            if historical_data and "[X]" not in historical_data and "获取失败" not in historical_data:
                 # 更宽松的数据有效性检查
                 data_indicators = [
                     "开盘价", "收盘价", "最高价", "最低价", "成交量",
@@ -467,7 +467,7 @@ class StockDataPreparer:
             )
 
         except Exception as e:
-            logger.error(f"❌ [A股数据] 数据准备失败: {e}")
+            logger.error(f"[X] [A股数据] 数据准备失败: {e}")
             import traceback
             logger.debug(f"详细错误: {traceback.format_exc()}")
             return StockDataPreparationResult(
@@ -527,7 +527,7 @@ class StockDataPreparer:
             from tradingagents.dataflows.interface import get_china_stock_info_unified
             stock_info = get_china_stock_info_unified(stock_code)
 
-            if stock_info and "❌" not in stock_info and "未能获取" not in stock_info:
+            if stock_info and "[X]" not in stock_info and "未能获取" not in stock_info:
                 if "股票名称:" in stock_info:
                     lines = stock_info.split('\n')
                     for line in lines:
@@ -545,7 +545,7 @@ class StockDataPreparer:
             from tradingagents.dataflows.interface import get_china_stock_data_unified
             historical_data = get_china_stock_data_unified(stock_code, extended_start_date_str, end_date_str)
 
-            if historical_data and "❌" not in historical_data and "获取失败" not in historical_data:
+            if historical_data and "[X]" not in historical_data and "获取失败" not in historical_data:
                 data_indicators = ["开盘价", "收盘价", "最高价", "最低价", "成交量"]
                 has_valid_data = (
                     len(historical_data) > 50 and
@@ -591,7 +591,7 @@ class StockDataPreparer:
             )
 
         except Exception as e:
-            logger.error(f"❌ [A股数据-异步] 数据准备失败: {e}")
+            logger.error(f"[X] [A股数据-异步] 数据准备失败: {e}")
             import traceback
             logger.debug(f"详细错误: {traceback.format_exc()}")
             return StockDataPreparationResult(
@@ -689,7 +689,7 @@ class StockDataPreparer:
             }
 
         except Exception as e:
-            logger.error(f"❌ [数据检查] 检查数据库数据失败: {e}")
+            logger.error(f"[X] [数据检查] 检查数据库数据失败: {e}")
             return {
                 "has_data": False,
                 "is_latest": False,
@@ -742,7 +742,7 @@ class StockDataPreparer:
                     self._trigger_data_sync_async(stock_code, start_date, end_date)
                 )
         except Exception as e:
-            logger.error(f"❌ [数据同步] 同步包装器失败: {e}", exc_info=True)
+            logger.error(f"[X] [数据同步] 同步包装器失败: {e}", exc_info=True)
             return {
                 "success": False,
                 "message": f"同步失败: {str(e)}",
@@ -891,7 +891,7 @@ class StockDataPreparer:
 
             # 所有数据源都失败
             message = f"所有数据源同步失败，最后错误: {last_error}"
-            logger.error(f"❌ [数据同步] {message}")
+            logger.error(f"[X] [数据同步] {message}")
             return {
                 "success": False,
                 "message": message,
@@ -903,7 +903,7 @@ class StockDataPreparer:
             }
 
         except Exception as e:
-            logger.error(f"❌ [数据同步] 同步数据失败: {e}")
+            logger.error(f"[X] [数据同步] 同步数据失败: {e}")
             import traceback
             logger.debug(f"详细错误: {traceback.format_exc()}")
             return {
@@ -937,7 +937,7 @@ class StockDataPreparer:
                 return ['tushare', 'akshare', 'baostock']
 
         except Exception as e:
-            logger.error(f"❌ [数据源优先级] 获取失败: {e}")
+            logger.error(f"[X] [数据源优先级] 获取失败: {e}")
             # 返回默认顺序
             return ['tushare', 'akshare', 'baostock']
 
@@ -975,7 +975,7 @@ class StockDataPreparer:
 
             stock_info = get_hk_stock_info_unified(formatted_code)
 
-            if stock_info and "❌" not in stock_info and "未找到" not in stock_info:
+            if stock_info and "[X]" not in stock_info and "未找到" not in stock_info:
                 # 解析股票名称 - 支持多种格式
                 stock_name = self._extract_hk_stock_name(stock_info, formatted_code)
 
@@ -1027,7 +1027,7 @@ class StockDataPreparer:
 
             historical_data = get_hk_stock_data_unified(formatted_code, start_date_str, end_date_str)
 
-            if historical_data and "❌" not in historical_data and "获取失败" not in historical_data:
+            if historical_data and "[X]" not in historical_data and "获取失败" not in historical_data:
                 # 更宽松的数据有效性检查
                 data_indicators = [
                     "开盘价", "收盘价", "最高价", "最低价", "成交量",
@@ -1102,7 +1102,7 @@ class StockDataPreparer:
             )
 
         except Exception as e:
-            logger.error(f"❌ [港股数据] 数据准备失败: {e}")
+            logger.error(f"[X] [港股数据] 数据准备失败: {e}")
             return StockDataPreparationResult(
                 is_valid=False,
                 stock_code=formatted_code,
@@ -1156,7 +1156,7 @@ class StockDataPreparer:
                     end_date_str
                 )
 
-            if historical_data and "❌" not in historical_data and "错误" not in historical_data and "无法获取" not in historical_data:
+            if historical_data and "[X]" not in historical_data and "错误" not in historical_data and "无法获取" not in historical_data:
                 # 更宽松的数据有效性检查
                 data_indicators = [
                     "开盘价", "收盘价", "最高价", "最低价", "成交量",
@@ -1208,7 +1208,7 @@ class StockDataPreparer:
                 )
 
         except Exception as e:
-            logger.error(f"❌ [美股数据] 数据准备失败: {e}")
+            logger.error(f"[X] [美股数据] 数据准备失败: {e}")
             return StockDataPreparationResult(
                 is_valid=False,
                 stock_code=formatted_code,
@@ -1286,7 +1286,7 @@ def get_stock_preparation_message(stock_code: str, market_type: str = "auto",
     if result.is_valid:
         return f"✅ 数据准备成功: {result.stock_code} ({result.market_type}) - {result.stock_name}\n📊 {result.cache_status}"
     else:
-        return f"❌ 数据准备失败: {result.error_message}\n💡 建议: {result.suggestion}"
+        return f"[X] 数据准备失败: {result.error_message}\n💡 建议: {result.suggestion}"
 
 
 async def prepare_stock_data_async(stock_code: str, market_type: str = "auto",

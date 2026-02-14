@@ -64,7 +64,7 @@ class GoogleToolCallHandler:
         
         # 检查API调用是否成功
         if not hasattr(result, 'content'):
-            logger.error(f"[{analyst_name}] ❌ Google模型API调用失败，无返回内容")
+            logger.error(f"[{analyst_name}] [X] Google模型API调用失败，无返回内容")
             logger.debug(f"[{analyst_name}] 🔍 结果对象缺少content属性")
             return "Google模型API调用失败", []
         
@@ -191,18 +191,18 @@ class GoogleToolCallHandler:
                                 logger.info(f"[{analyst_name}] ✅ Python函数工具执行成功，结果长度: {len(str(tool_result))} 字符")
                                 logger.debug(f"[{analyst_name}] 🔧 工具结果类型: {type(tool_result)}")
                             else:
-                                logger.error(f"[{analyst_name}] ❌ 工具类型不支持: {type(tool)}")
+                                logger.error(f"[{analyst_name}] [X] 工具类型不支持: {type(tool)}")
                                 tool_result = f"工具类型不支持: {type(tool)}"
                             break
                         except Exception as tool_error:
-                            logger.error(f"[{analyst_name}] ❌ 工具执行失败: {tool_error}")
-                            logger.error(f"[{analyst_name}] ❌ 异常类型: {type(tool_error).__name__}")
-                            logger.error(f"[{analyst_name}] ❌ 异常详情: {str(tool_error)}")
+                            logger.error(f"[{analyst_name}] [X] 工具执行失败: {tool_error}")
+                            logger.error(f"[{analyst_name}] [X] 异常类型: {type(tool_error).__name__}")
+                            logger.error(f"[{analyst_name}] [X] 异常详情: {str(tool_error)}")
                             
                             # 记录详细的异常堆栈
                             import traceback
                             error_traceback = traceback.format_exc()
-                            logger.error(f"[{analyst_name}] ❌ 工具执行异常堆栈:\n{error_traceback}")
+                            logger.error(f"[{analyst_name}] [X] 工具执行异常堆栈:\n{error_traceback}")
                             
                             tool_result = f"工具执行失败: {str(tool_error)}"
                 
@@ -263,7 +263,7 @@ class GoogleToolCallHandler:
             
             # 检查消息序列是否为空
             if not safe_messages:
-                logger.error(f"[{analyst_name}] ❌ 消息序列为空，无法生成分析报告")
+                logger.error(f"[{analyst_name}] [X] 消息序列为空，无法生成分析报告")
                 tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{str(result)}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 return report, [result] + tool_messages
@@ -327,14 +327,14 @@ class GoogleToolCallHandler:
                 return report, [result] + tool_messages
                 
             except Exception as final_error:
-                logger.error(f"[{analyst_name}] ❌ 最终分析报告生成失败: {final_error}")
-                logger.error(f"[{analyst_name}] ❌ 异常类型: {type(final_error).__name__}")
-                logger.error(f"[{analyst_name}] ❌ 异常详情: {str(final_error)}")
+                logger.error(f"[{analyst_name}] [X] 最终分析报告生成失败: {final_error}")
+                logger.error(f"[{analyst_name}] [X] 异常类型: {type(final_error).__name__}")
+                logger.error(f"[{analyst_name}] [X] 异常详情: {str(final_error)}")
                 
                 # 记录详细的异常堆栈
                 import traceback
                 error_traceback = traceback.format_exc()
-                logger.error(f"[{analyst_name}] ❌ 异常堆栈:\n{error_traceback}")
+                logger.error(f"[{analyst_name}] [X] 异常堆栈:\n{error_traceback}")
                 
                 # 降级处理：基于工具结果生成简单报告
                 tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{str(result)}" for i, result in enumerate(tool_results)])
@@ -343,7 +343,7 @@ class GoogleToolCallHandler:
                 return report, [result] + tool_messages
                 
         except Exception as e:
-            logger.error(f"[{analyst_name}] ❌ Google模型工具调用处理失败: {e}")
+            logger.error(f"[{analyst_name}] [X] Google模型工具调用处理失败: {e}")
             import traceback
             traceback.print_exc()
             
@@ -399,7 +399,7 @@ class GoogleToolCallHandler:
             return True
             
         except Exception as e:
-            logger.error(f"[{analyst_name}] ❌ 工具调用 {index} 验证异常: {e}")
+            logger.error(f"[{analyst_name}] [X] 工具调用 {index} 验证异常: {e}")
             return False
     
     @staticmethod
@@ -409,7 +409,7 @@ class GoogleToolCallHandler:
             logger.info(f"[{analyst_name}] 🔧 尝试修复工具调用 {index}: {tool_call}")
             
             if not isinstance(tool_call, dict):
-                logger.warning(f"[{analyst_name}] ❌ 无法修复非字典格式的工具调用: {type(tool_call)}")
+                logger.warning(f"[{analyst_name}] [X] 无法修复非字典格式的工具调用: {type(tool_call)}")
                 return None
             
             fixed_tool_call = tool_call.copy()
@@ -431,7 +431,7 @@ class GoogleToolCallHandler:
                             except json.JSONDecodeError:
                                 fixed_tool_call['args'] = {}
                 else:
-                    logger.warning(f"[{analyst_name}] ❌ 无法确定工具名称")
+                    logger.warning(f"[{analyst_name}] [X] 无法确定工具名称")
                     return None
             
             # 修复参数
@@ -457,11 +457,11 @@ class GoogleToolCallHandler:
                 logger.info(f"[{analyst_name}] ✅ 工具调用 {index} 修复成功: {fixed_tool_call['name']}")
                 return fixed_tool_call
             else:
-                logger.warning(f"[{analyst_name}] ❌ 工具调用 {index} 修复失败")
+                logger.warning(f"[{analyst_name}] [X] 工具调用 {index} 修复失败")
                 return None
                 
         except Exception as e:
-            logger.error(f"[{analyst_name}] ❌ 工具调用 {index} 修复异常: {e}")
+            logger.error(f"[{analyst_name}] [X] 工具调用 {index} 修复异常: {e}")
             return None
     
     @staticmethod
@@ -595,7 +595,7 @@ class GoogleToolCallHandler:
                         logger.info(f"[{analyst_name}] ✅ 成功生成分析报告，长度: {len(content)} 字符")
                         return content
                 else:
-                    logger.error(f"[{analyst_name}] ❌ 返回结果没有content属性 (尝试 {attempt + 1}/{max_retries})")
+                    logger.error(f"[{analyst_name}] [X] 返回结果没有content属性 (尝试 {attempt + 1}/{max_retries})")
                     
                     if attempt < max_retries - 1:
                         logger.info(f"[{analyst_name}] 🔄 等待{retry_delay}秒后重试...")
@@ -607,9 +607,9 @@ class GoogleToolCallHandler:
                         return fallback_report
                         
             except Exception as e:
-                logger.error(f"[{analyst_name}] ❌ LLM调用异常 (尝试 {attempt + 1}/{max_retries}): {e}")
-                logger.error(f"[{analyst_name}] ❌ 异常类型: {type(e).__name__}")
-                logger.error(f"[{analyst_name}] ❌ 完整异常信息:\n{traceback.format_exc()}")
+                logger.error(f"[{analyst_name}] [X] LLM调用异常 (尝试 {attempt + 1}/{max_retries}): {e}")
+                logger.error(f"[{analyst_name}] [X] 异常类型: {type(e).__name__}")
+                logger.error(f"[{analyst_name}] [X] 完整异常信息:\n{traceback.format_exc()}")
                 
                 if attempt < max_retries - 1:
                     logger.info(f"[{analyst_name}] 🔄 等待{retry_delay}秒后重试...")

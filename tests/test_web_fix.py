@@ -69,7 +69,7 @@ def test_render_decision_summary():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -93,7 +93,7 @@ def test_currency_detection():
             print(f"  {stock}: {'中国A股' if is_china else '非A股'} -> {currency}")
             
             if not is_china:
-                print(f"❌ {stock} 应该被识别为中国A股")
+                print(f"[X] {stock} 应该被识别为中国A股")
                 return False
         
         # 测试非中国股票代码
@@ -104,14 +104,14 @@ def test_currency_detection():
             print(f"  {stock}: {'中国A股' if is_china else '非A股'} -> {currency}")
             
             if is_china:
-                print(f"❌ {stock} 不应该被识别为中国A股")
+                print(f"[X] {stock} 不应该被识别为中国A股")
                 return False
         
         print("✅ 货币检测逻辑测试通过！")
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 if __name__ == "__main__":
@@ -131,5 +131,5 @@ if __name__ == "__main__":
         print("   - 不再出现 NameError")
         sys.exit(0)
     else:
-        print("❌ 部分测试失败")
+        print("[X] 部分测试失败")
         sys.exit(1)

@@ -113,7 +113,7 @@ class UserService:
             return User(**user_doc)
             
         except Exception as e:
-            logger.error(f"❌ 创建用户失败: {e}")
+            logger.error(f"[X] 创建用户失败: {e}")
             return None
     
     async def authenticate_user(self, username: str, password: str) -> Optional[User]:
@@ -126,7 +126,7 @@ class UserService:
             logger.info(f"🔍 [authenticate_user] 数据库查询结果: {'找到用户' if user_doc else '用户不存在'}")
 
             if not user_doc:
-                logger.warning(f"❌ [authenticate_user] 用户不存在: {username}")
+                logger.warning(f"[X] [authenticate_user] 用户不存在: {username}")
                 return None
 
             logger.info(f"🔍 [authenticate_user] 用户信息: username={user_doc.get('username')}, email={user_doc.get('email')}, is_active={user_doc.get('is_active')}")
@@ -140,12 +140,12 @@ class UserService:
             logger.info(f"   哈希匹配: {input_password_hash == stored_password_hash}")
 
             if not self.verify_password(password, user_doc["hashed_password"]):
-                logger.warning(f"❌ [authenticate_user] 密码错误: {username}")
+                logger.warning(f"[X] [authenticate_user] 密码错误: {username}")
                 return None
 
             # 检查用户是否激活
             if not user_doc.get("is_active", True):
-                logger.warning(f"❌ [authenticate_user] 用户已禁用: {username}")
+                logger.warning(f"[X] [authenticate_user] 用户已禁用: {username}")
                 return None
 
             # 更新最后登录时间
@@ -158,7 +158,7 @@ class UserService:
             return User(**user_doc)
             
         except Exception as e:
-            logger.error(f"❌ 用户认证失败: {e}")
+            logger.error(f"[X] 用户认证失败: {e}")
             return None
     
     async def get_user_by_username(self, username: str) -> Optional[User]:
@@ -169,7 +169,7 @@ class UserService:
                 return User(**user_doc)
             return None
         except Exception as e:
-            logger.error(f"❌ 获取用户失败: {e}")
+            logger.error(f"[X] 获取用户失败: {e}")
             return None
     
     async def get_user_by_id(self, user_id: str) -> Optional[User]:
@@ -183,7 +183,7 @@ class UserService:
                 return User(**user_doc)
             return None
         except Exception as e:
-            logger.error(f"❌ 获取用户失败: {e}")
+            logger.error(f"[X] 获取用户失败: {e}")
             return None
     
     async def update_user(self, username: str, user_data: UserUpdate) -> Optional[User]:
@@ -225,7 +225,7 @@ class UserService:
                 return None
                 
         except Exception as e:
-            logger.error(f"❌ 更新用户信息失败: {e}")
+            logger.error(f"[X] 更新用户信息失败: {e}")
             return None
     
     async def change_password(self, username: str, old_password: str, new_password: str) -> bool:
@@ -253,11 +253,11 @@ class UserService:
                 logger.info(f"✅ 密码修改成功: {username}")
                 return True
             else:
-                logger.error(f"❌ 密码修改失败: {username}")
+                logger.error(f"[X] 密码修改失败: {username}")
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ 修改密码失败: {e}")
+            logger.error(f"[X] 修改密码失败: {e}")
             return False
     
     async def reset_password(self, username: str, new_password: str) -> bool:
@@ -278,11 +278,11 @@ class UserService:
                 logger.info(f"✅ 密码重置成功: {username}")
                 return True
             else:
-                logger.error(f"❌ 密码重置失败: {username}")
+                logger.error(f"[X] 密码重置失败: {username}")
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ 重置密码失败: {e}")
+            logger.error(f"[X] 重置密码失败: {e}")
             return False
     
     async def create_admin_user(self, username: str = "admin", password: str = "admin123", email: str = "admin@tradingagents.cn") -> Optional[User]:
@@ -331,7 +331,7 @@ class UserService:
             return User(**admin_doc)
             
         except Exception as e:
-            logger.error(f"❌ 创建管理员用户失败: {e}")
+            logger.error(f"[X] 创建管理员用户失败: {e}")
             return None
     
     async def list_users(self, skip: int = 0, limit: int = 100) -> List[UserResponse]:
@@ -361,7 +361,7 @@ class UserService:
             return users
             
         except Exception as e:
-            logger.error(f"❌ 获取用户列表失败: {e}")
+            logger.error(f"[X] 获取用户列表失败: {e}")
             return []
     
     async def deactivate_user(self, username: str) -> bool:
@@ -385,7 +385,7 @@ class UserService:
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ 禁用用户失败: {e}")
+            logger.error(f"[X] 禁用用户失败: {e}")
             return False
     
     async def activate_user(self, username: str) -> bool:
@@ -409,7 +409,7 @@ class UserService:
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ 激活用户失败: {e}")
+            logger.error(f"[X] 激活用户失败: {e}")
             return False
 
 

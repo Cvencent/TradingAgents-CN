@@ -38,14 +38,14 @@ async def login():
                         print(f"✅ 登录成功，获取访问令牌")
                         return True
                     else:
-                        print(f"❌ 登录失败: {result.get('message', '未知错误')}")
+                        print(f"[X] 登录失败: {result.get('message', '未知错误')}")
                         return False
                 else:
                     error_text = await response.text()
-                    print(f"❌ 登录失败 ({response.status}): {error_text}")
+                    print(f"[X] 登录失败 ({response.status}): {error_text}")
                     return False
         except Exception as e:
-            print(f"❌ 登录请求异常: {e}")
+            print(f"[X] 登录请求异常: {e}")
             return False
 
 def get_auth_headers():
@@ -98,10 +98,10 @@ async def test_add_llm_config():
                     return True
                 else:
                     error_text = await response.text()
-                    print(f"❌ 添加配置失败 ({response.status}): {error_text}")
+                    print(f"[X] 添加配置失败 ({response.status}): {error_text}")
                     return False
         except Exception as e:
-            print(f"❌ 请求异常: {e}")
+            print(f"[X] 请求异常: {e}")
             return False
 
 async def test_get_llm_configs():
@@ -136,14 +136,14 @@ async def test_get_llm_configs():
                         print(f"   - 性能指标: {test_model.get('performance_metrics')}")
                         return True
                     else:
-                        print("❌ 未找到测试模型配置")
+                        print("[X] 未找到测试模型配置")
                         return False
                 else:
                     error_text = await response.text()
-                    print(f"❌ 获取配置失败 ({response.status}): {error_text}")
+                    print(f"[X] 获取配置失败 ({response.status}): {error_text}")
                     return False
         except Exception as e:
-            print(f"❌ 请求异常: {e}")
+            print(f"[X] 请求异常: {e}")
             return False
 
 async def test_model_capability_service():
@@ -167,10 +167,10 @@ async def test_model_capability_service():
                     return True
                 else:
                     error_text = await response.text()
-                    print(f"❌ 模型推荐失败 ({response.status}): {error_text}")
+                    print(f"[X] 模型推荐失败 ({response.status}): {error_text}")
                     return False
         except Exception as e:
-            print(f"❌ 请求异常: {e}")
+            print(f"[X] 请求异常: {e}")
             return False
 
 async def test_delete_test_config():
@@ -202,7 +202,7 @@ async def main():
     
     # 首先登录
     if not await login():
-        print("❌ 登录失败，无法继续测试")
+        print("[X] 登录失败，无法继续测试")
         return
     
     # 测试步骤
@@ -226,7 +226,7 @@ async def main():
     print("📊 测试结果总结:")
     passed = 0
     for test_name, success in results:
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"   {test_name}: {status}")
         if success:
             passed += 1

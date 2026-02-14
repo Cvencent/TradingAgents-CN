@@ -53,9 +53,9 @@ async def test_middleware():
                     logs = logs_data["data"]["logs"]
                     print("📝 最近的日志:")
                     for log in logs[:5]:
-                        print(f"  - {log['timestamp']} | {log['username']} | {log['action']} | {'✅' if log['success'] else '❌'}")
+                        print(f"  - {log['timestamp']} | {log['username']} | {log['action']} | {'✅' if log['success'] else '[X]'}")
                 else:
-                    print(f"❌ 获取日志失败: {logs_response.text}")
+                    print(f"[X] 获取日志失败: {logs_response.text}")
                 
                 # 测试3: 登出请求
                 print("\n🚪 测试3: 登出请求")
@@ -68,13 +68,13 @@ async def test_middleware():
                 if logout_response.status_code == 200:
                     print("✅ 登出成功")
                 else:
-                    print(f"❌ 登出失败: {logout_response.text}")
+                    print(f"[X] 登出失败: {logout_response.text}")
                 
             else:
-                print(f"❌ 登录失败: {response.text}")
+                print(f"[X] 登录失败: {response.text}")
                 
         except Exception as e:
-            print(f"❌ 测试失败: {e}")
+            print(f"[X] 测试失败: {e}")
             import traceback
             traceback.print_exc()
 

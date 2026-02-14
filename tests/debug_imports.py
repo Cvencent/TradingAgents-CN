@@ -31,20 +31,20 @@ def test_google_news_import():
         if hasattr(googlenews_utils, 'get_google_news'):
             print("✅ get_google_news函数存在")
         else:
-            print("❌ get_google_news函数不存在")
+            print("[X] get_google_news函数不存在")
             
         if hasattr(googlenews_utils, 'getNewsData'):
             print("✅ getNewsData函数存在")
         else:
-            print("❌ getNewsData函数不存在")
+            print("[X] getNewsData函数不存在")
             
         return True
         
     except ImportError as e:
-        print(f"❌ 导入失败: {e}")
+        print(f"[X] 导入失败: {e}")
         return False
     except Exception as e:
-        print(f"❌ 其他错误: {e}")
+        print(f"[X] 其他错误: {e}")
         return False
 
 def test_reddit_import():
@@ -68,7 +68,7 @@ def test_reddit_import():
         if hasattr(reddit_utils, 'get_reddit_sentiment'):
             print("✅ get_reddit_sentiment函数存在")
         else:
-            print("❌ get_reddit_sentiment函数不存在")
+            print("[X] get_reddit_sentiment函数不存在")
             
         # 检查其他可能的函数名
         possible_functions = ['get_reddit_data', 'fetch_reddit_posts', 'analyze_reddit_sentiment']
@@ -79,10 +79,10 @@ def test_reddit_import():
         return True
         
     except ImportError as e:
-        print(f"❌ 导入失败: {e}")
+        print(f"[X] 导入失败: {e}")
         return False
     except Exception as e:
-        print(f"❌ 其他错误: {e}")
+        print(f"[X] 其他错误: {e}")
         return False
 
 def check_dependencies():
@@ -106,7 +106,7 @@ def check_dependencies():
                 __import__(package)
                 print(f"✅ {description}: 已安装")
         except ImportError:
-            print(f"❌ {description}: 未安装 (pip install {package})")
+            print(f"[X] {description}: 未安装 (pip install {package})")
 
 def check_actual_file_contents():
     """检查实际文件内容"""
@@ -128,9 +128,9 @@ def check_actual_file_contents():
                 else:
                     print("   文件中没有函数定义")
         else:
-            print(f"❌ Google News文件不存在: {google_file}")
+            print(f"[X] Google News文件不存在: {google_file}")
     except Exception as e:
-        print(f"❌ 检查Google News文件失败: {e}")
+        print(f"[X] 检查Google News文件失败: {e}")
     
     # 检查Reddit文件
     try:
@@ -147,9 +147,9 @@ def check_actual_file_contents():
                 else:
                     print("   文件中没有函数定义")
         else:
-            print(f"❌ Reddit文件不存在: {reddit_file}")
+            print(f"[X] Reddit文件不存在: {reddit_file}")
     except Exception as e:
-        print(f"❌ 检查Reddit文件失败: {e}")
+        print(f"[X] 检查Reddit文件失败: {e}")
 
 def main():
     """主函数"""
@@ -167,8 +167,8 @@ def main():
     reddit_success = test_reddit_import()
     
     print(f"\n📊 诊断结果:")
-    print(f"  Google News工具: {'✅ 可用' if google_success else '❌ 不可用'}")
-    print(f"  Reddit工具: {'✅ 可用' if reddit_success else '❌ 不可用'}")
+    print(f"  Google News工具: {'✅ 可用' if google_success else '[X] 不可用'}")
+    print(f"  Reddit工具: {'✅ 可用' if reddit_success else '[X] 不可用'}")
 
 if __name__ == "__main__":
     main()

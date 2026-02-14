@@ -108,7 +108,7 @@ async def add_favorite(
         if success:
             return ok({"stock_code": request.stock_code}, "添加成功")
         else:
-            logger.error(f"❌ 添加失败: success=False")
+            logger.error(f"[X] 添加失败: success=False")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="添加失败"
@@ -117,7 +117,7 @@ async def add_favorite(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 添加自选股异常: {type(e).__name__}: {str(e)}", exc_info=True)
+        logger.error(f"[X] 添加自选股异常: {type(e).__name__}: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"添加自选股失败: {str(e)}"
@@ -294,7 +294,7 @@ async def sync_favorites_realtime(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 同步自选股实时行情失败: {e}", exc_info=True)
+        logger.error(f"[X] 同步自选股实时行情失败: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"同步失败: {str(e)}"

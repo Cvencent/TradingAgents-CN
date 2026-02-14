@@ -91,7 +91,7 @@ def test_time_estimation_display():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -109,7 +109,7 @@ def test_user_expectation_management():
         print("📊 对比有无时间预估的用户体验:")
         print("-" * 50)
         
-        print("\n❌ 没有时间预估的体验:")
+        print("\n[X] 没有时间预估的体验:")
         print("   步骤 3: 智能分析阶段")
         print("   🔄 启动分析师团队...")
         print("   [用户不知道要等多久，可能会焦虑]")
@@ -128,7 +128,7 @@ def test_user_expectation_management():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_time_estimation_scenarios():
@@ -184,7 +184,7 @@ def test_time_estimation_scenarios():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_progress_communication():
@@ -252,7 +252,7 @@ def test_progress_communication():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def main():
@@ -290,7 +290,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")

@@ -139,7 +139,7 @@ def create_fundamentals_analyst(llm, toolkit):
             chain = prompt | llm.bind_tools(tools)
             print(f"📊 [DEBUG] ✅ 工具绑定成功，绑定了 {len(tools)} 个工具")
         except Exception as e:
-            print(f"📊 [DEBUG] ❌ 工具绑定失败: {e}")
+            print(f"📊 [DEBUG] [X] 工具绑定失败: {e}")
             raise e
 
         print(f"📊 [DEBUG] 调用LLM链...")
@@ -231,7 +231,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 print(f"📊 [基本面分析师] 强制工具调用完成，报告长度: {len(report)}")
                 
             except Exception as e:
-                print(f"❌ [DEBUG] 强制工具调用分析失败: {e}")
+                print(f"[X] [DEBUG] 强制工具调用分析失败: {e}")
                 report = f"基本面分析失败：{str(e)}"
             
             return {"fundamentals_report": report}

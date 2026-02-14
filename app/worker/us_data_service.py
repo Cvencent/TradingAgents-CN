@@ -88,7 +88,7 @@ class USDataService:
             # 从数据源获取
             provider = self.providers.get(source)
             if not provider:
-                logger.error(f"❌ 不支持的数据源: {source}")
+                logger.error(f"[X] 不支持的数据源: {source}")
                 return None
             
             logger.info(f"🔄 从 {source} 获取美股信息: {stock_code}")
@@ -110,7 +110,7 @@ class USDataService:
             return normalized_info
             
         except Exception as e:
-            logger.error(f"❌ 获取美股信息失败: {stock_code} ({source}): {e}")
+            logger.error(f"[X] 获取美股信息失败: {stock_code} ({source}): {e}")
             return None
     
     async def _get_cached_info(self, code: str, source: str) -> Optional[Dict[str, Any]]:
@@ -127,7 +127,7 @@ class USDataService:
             return cached
             
         except Exception as e:
-            logger.error(f"❌ 读取缓存失败: {code} ({source}): {e}")
+            logger.error(f"[X] 读取缓存失败: {code} ({source}): {e}")
             return None
     
     async def _save_to_cache(self, stock_info: Dict[str, Any]) -> bool:
@@ -141,7 +141,7 @@ class USDataService:
             return True
             
         except Exception as e:
-            logger.error(f"❌ 保存缓存失败: {stock_info.get('code')} ({stock_info.get('source')}): {e}")
+            logger.error(f"[X] 保存缓存失败: {stock_info.get('code')} ({stock_info.get('source')}): {e}")
             return False
     
     def _normalize_stock_info(self, stock_info: Dict, source: str) -> Dict:

@@ -407,7 +407,7 @@ class StockDataCache:
                 continue
 
         desc = self.cache_config.get(f"{market_type}_stock_data", {}).get('description', '数据')
-        logger.error(f"❌ 未找到有效的{desc}缓存: {symbol}")
+        logger.error(f"[X] 未找到有效的{desc}缓存: {symbol}")
         return None
     
     def save_news_data(self, symbol: str, news_data: str, 
@@ -548,7 +548,7 @@ class StockDataCache:
                 continue
         
         desc = self.cache_config.get(f"{market_type}_fundamentals", {}).get('description', '基本面数据')
-        logger.error(f"❌ 未找到有效的{desc}缓存: {symbol} ({data_source})")
+        logger.error(f"[X] 未找到有效的{desc}缓存: {symbol} ({data_source})")
         return None
     
     def clear_old_cache(self, max_age_days: int = 7):

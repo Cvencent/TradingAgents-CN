@@ -82,7 +82,7 @@ def test_full_fundamentals_flow():
                         count_002027 = report.count("002027")
                         print(f"   002027 出现次数: {count_002027}")
                     else:
-                        print("❌ 报告中不包含正确的股票代码 002027")
+                        print("[X] 报告中不包含正确的股票代码 002027")
                         
                     if "002021" in report:
                         print("⚠️ 报告中包含错误的股票代码 002021")
@@ -109,17 +109,17 @@ def test_full_fundamentals_flow():
                     print(report[:1000])
                     print("-" * 80)
             else:
-                print("❌ 返回结果中没有 fundamentals_report")
+                print("[X] 返回结果中没有 fundamentals_report")
                 print(f"   返回结果键: {list(result.keys())}")
         else:
-            print(f"❌ 返回结果类型不正确: {type(result)}")
+            print(f"[X] 返回结果类型不正确: {type(result)}")
             if hasattr(result, 'content'):
                 print(f"   内容: {result.content[:200]}...")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -133,4 +133,4 @@ if __name__ == "__main__":
     if success:
         print("\n✅ 测试完成")
     else:
-        print("\n❌ 测试失败")
+        print("\n[X] 测试失败")

@@ -51,13 +51,13 @@ def test_web_components():
             if chinese_action in ['买入', '卖出', '持有']:
                 print(f"   ✅ 正确转换为中文")
             else:
-                print(f"   ❌ 转换失败")
+                print(f"   [X] 转换失败")
                 return False
         
         return True
         
     except Exception as e:
-        print(f"❌ Web组件测试失败: {e}")
+        print(f"[X] Web组件测试失败: {e}")
         return False
 
 def test_analysis_runner():
@@ -120,13 +120,13 @@ def test_analysis_runner():
             if result_action in ['买入', '卖出', '持有']:
                 print(f"✅ 正确转换为中文")
             else:
-                print(f"❌ 转换失败: {result_action}")
+                print(f"[X] 转换失败: {result_action}")
                 return False
         
         return True
         
     except Exception as e:
-        print(f"❌ analysis_runner测试失败: {e}")
+        print(f"[X] analysis_runner测试失败: {e}")
         return False
 
 def test_demo_data():
@@ -161,11 +161,11 @@ def test_demo_data():
             print("✅ 演示数据使用中文")
             return True
         else:
-            print(f"❌ 演示数据仍使用英文: {action}")
+            print(f"[X] 演示数据仍使用英文: {action}")
             return False
         
     except Exception as e:
-        print(f"❌ 演示数据测试失败: {e}")
+        print(f"[X] 演示数据测试失败: {e}")
         return False
 
 def main():
@@ -186,7 +186,7 @@ def main():
         print("   - 演示数据生成中文内容")
         print("\n现在所有投资建议都应该显示为中文：买入/卖出/持有")
     else:
-        print("❌ 投资建议中文化修复测试失败")
+        print("[X] 投资建议中文化修复测试失败")
         print("   需要进一步检查和修复")
     
     return success1 and success2 and success3

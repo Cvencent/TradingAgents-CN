@@ -100,7 +100,7 @@ async def test_sync_history_api():
                 print(f"      数据源: {first_record.get('data_sources_used', [])}")
                 
         except Exception as e:
-            print(f"   ❌ API调用失败: {e}")
+            print(f"   [X] API调用失败: {e}")
         
         # 4. 测试状态筛选
         print("\n4. 🔍 测试状态筛选...")
@@ -108,7 +108,7 @@ async def test_sync_history_api():
             response = await get_sync_history(page=1, page_size=10, status="success")
             print(f"   ✅ 成功状态筛选: {len(response.data['records'])} 条记录")
         except Exception as e:
-            print(f"   ❌ 状态筛选失败: {e}")
+            print(f"   [X] 状态筛选失败: {e}")
         
         # 5. 运行一次新的同步，创建新的历史记录
         print("\n5. 🚀 运行新同步创建历史记录...")
@@ -124,7 +124,7 @@ async def test_sync_history_api():
             print(f"   📈 新的历史记录数: {new_count}")
             
         except Exception as e:
-            print(f"   ❌ 同步失败: {e}")
+            print(f"   [X] 同步失败: {e}")
         
         # 6. 最终验证
         print("\n6. ✅ 最终验证...")
@@ -145,7 +145,7 @@ async def test_sync_history_api():
         }
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None

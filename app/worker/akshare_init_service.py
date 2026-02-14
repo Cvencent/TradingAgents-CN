@@ -171,7 +171,7 @@ class AKShareInitService:
             return self._get_initialization_summary()
             
         except Exception as e:
-            logger.error(f"❌ AKShare数据初始化失败: {e}")
+            logger.error(f"[X] AKShare数据初始化失败: {e}")
             self.stats.errors.append({
                 "step": self.stats.current_step,
                 "error": str(e),
@@ -458,5 +458,5 @@ async def run_akshare_full_initialization(
         logger.info(f"✅ AKShare完整初始化完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ AKShare完整初始化失败: {e}")
+        logger.error(f"[X] AKShare完整初始化失败: {e}")
         raise

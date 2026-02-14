@@ -104,7 +104,7 @@ def test_detailed_data_display():
         print("\n🎉 数据显示完成！")
         
     except Exception as e:
-        print(f"❌ 测试失败: {str(e)}")
+        print(f"[X] 测试失败: {str(e)}")
         import traceback
         print("🔍 详细错误信息:")
         traceback.print_exc()

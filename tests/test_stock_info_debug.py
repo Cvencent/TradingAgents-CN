@@ -31,7 +31,7 @@ def test_stock_code_normalization():
         return True
         
     except Exception as e:
-        print(f"❌ 股票代码标准化测试失败: {e}")
+        print(f"[X] 股票代码标准化测试失败: {e}")
         return False
 
 
@@ -46,7 +46,7 @@ def test_tushare_api_direct():
         
         token = os.getenv('TUSHARE_TOKEN')
         if not token:
-            print("❌ TUSHARE_TOKEN未设置")
+            print("[X] TUSHARE_TOKEN未设置")
             return False
         
         ts.set_token(token)
@@ -70,7 +70,7 @@ def test_tushare_api_direct():
                 print(f"   地区: {info.get('area', 'N/A')}")
                 return True
             else:
-                print("❌ 未找到000858.SZ的信息")
+                print("[X] 未找到000858.SZ的信息")
                 
                 # 尝试搜索所有包含858的股票
                 print("🔄 搜索所有包含858的股票...")
@@ -86,16 +86,16 @@ def test_tushare_api_direct():
                     for idx, row in matches.iterrows():
                         print(f"   {row['ts_code']} - {row['name']}")
                 else:
-                    print("❌ 未找到任何包含858的股票")
+                    print("[X] 未找到任何包含858的股票")
                 
                 return False
                 
         except Exception as e:
-            print(f"❌ API调用失败: {e}")
+            print(f"[X] API调用失败: {e}")
             return False
         
     except Exception as e:
-        print(f"❌ Tushare API测试失败: {e}")
+        print(f"[X] Tushare API测试失败: {e}")
         return False
 
 
@@ -110,7 +110,7 @@ def test_stock_list_search():
         provider = get_tushare_provider()
         
         if not provider.connected:
-            print("❌ Tushare未连接")
+            print("[X] Tushare未连接")
             return False
         
         # 获取股票列表
@@ -118,7 +118,7 @@ def test_stock_list_search():
         stock_list = provider.get_stock_list()
         
         if stock_list.empty:
-            print("❌ 股票列表为空")
+            print("[X] 股票列表为空")
             return False
         
         print(f"✅ 获取到{len(stock_list)}只股票")
@@ -132,7 +132,7 @@ def test_stock_list_search():
             for idx, row in matches.iterrows():
                 print(f"   {row['ts_code']} - {row['name']} - {row.get('industry', 'N/A')}")
         else:
-            print("❌ 在股票列表中未找到000858")
+            print("[X] 在股票列表中未找到000858")
             
             # 搜索包含858的股票
             partial_matches = stock_list[stock_list['symbol'].str.contains('858', na=False)]
@@ -144,7 +144,7 @@ def test_stock_list_search():
         return True
         
     except Exception as e:
-        print(f"❌ 股票列表搜索失败: {e}")
+        print(f"[X] 股票列表搜索失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -181,12 +181,12 @@ def test_alternative_stock_codes():
                 else:
                     print(f"   ⚠️ 名称不匹配，期望: {expected_name}")
             else:
-                print(f"❌ {code}: 获取失败或返回未知")
+                print(f"[X] {code}: 获取失败或返回未知")
         
         return True
         
     except Exception as e:
-        print(f"❌ 其他股票代码测试失败: {e}")
+        print(f"[X] 其他股票代码测试失败: {e}")
         return False
 
 
@@ -215,7 +215,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -224,7 +224,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

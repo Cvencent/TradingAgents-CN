@@ -56,13 +56,13 @@ def test_us_stock_market_analysis():
             print(f"报告前300字符:")
             print(result['market_report'][:300])
         else:
-            print(f"❌ 报告内容异常:")
+            print(f"[X] 报告内容异常:")
             print(result['market_report'])
             
         return result
         
     except Exception as e:
-        print(f"❌ 美股市场分析失败: {e}")
+        print(f"[X] 美股市场分析失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -117,13 +117,13 @@ def test_us_stock_fundamentals_analysis():
             print(f"报告前300字符:")
             print(result['fundamentals_report'][:300])
         else:
-            print(f"❌ 报告内容异常:")
+            print(f"[X] 报告内容异常:")
             print(result['fundamentals_report'])
             
         return result
         
     except Exception as e:
-        print(f"❌ 美股基本面分析失败: {e}")
+        print(f"[X] 美股基本面分析失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     # 检查API密钥
     api_key = os.getenv("DASHSCOPE_API_KEY")
     if not api_key:
-        print("❌ 请设置 DASHSCOPE_API_KEY 环境变量")
+        print("[X] 请设置 DASHSCOPE_API_KEY 环境变量")
         sys.exit(1)
     
     print(f"✅ API密钥已配置: {api_key[:10]}...")
@@ -148,5 +148,5 @@ if __name__ == "__main__":
     
     print("\n" + "="*50)
     print("🎯 测试总结:")
-    print(f"市场分析测试: {'✅ 成功' if result1 else '❌ 失败'}")
-    print(f"基本面分析测试: {'✅ 成功' if result2 else '❌ 失败'}")
+    print(f"市场分析测试: {'✅ 成功' if result1 else '[X] 失败'}")
+    print(f"基本面分析测试: {'✅ 成功' if result2 else '[X] 失败'}")

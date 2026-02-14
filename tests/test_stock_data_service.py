@@ -44,8 +44,8 @@ class TestStockDataService(unittest.TestCase):
         self.assertIsNotNone(self.service)
         
         # 检查各组件的初始化状态
-        print(f"  📊 数据库管理器: {'✅' if self.service.db_manager else '❌'}")
-        print(f"  📡 统一数据接口: {'✅' if hasattr(self.service, 'get_stock_data') else '❌'}")
+        print(f"  📊 数据库管理器: {'✅' if self.service.db_manager else '[X]'}")
+        print(f"  📡 统一数据接口: {'✅' if hasattr(self.service, 'get_stock_data') else '[X]'}")
         
         print("  ✅ 服务初始化测试通过")
     
@@ -249,7 +249,7 @@ class TestStockAPI(unittest.TestCase):
         self.assertIsInstance(result, str)
         
         # 检查结果是否包含预期内容
-        if "❌" in result:
+        if "[X]" in result:
             print(f"    ⚠️ 获取失败（预期情况）")
         else:
             print(f"    ✅ 获取成功（数据长度: {len(result)} 字符）")
@@ -320,7 +320,7 @@ def run_comprehensive_test():
     print("=" * 60)
     
     if not SERVICES_AVAILABLE:
-        print("❌ 服务不可用，无法运行测试")
+        print("[X] 服务不可用，无法运行测试")
         return
     
     # 创建测试套件
@@ -339,12 +339,12 @@ def run_comprehensive_test():
     print("\n" + "=" * 60)
     print("📊 测试结果摘要:")
     print(f"  ✅ 成功: {result.testsRun - len(result.failures) - len(result.errors)}")
-    print(f"  ❌ 失败: {len(result.failures)}")
+    print(f"  [X] 失败: {len(result.failures)}")
     print(f"  💥 错误: {len(result.errors)}")
     print(f"  ⏭️ 跳过: {len(result.skipped)}")
     
     if result.failures:
-        print("\n❌ 失败的测试:")
+        print("\n[X] 失败的测试:")
         for test, traceback in result.failures:
             print(f"  - {test}: {traceback.split('AssertionError:')[-1].strip()}")
     
@@ -367,7 +367,7 @@ def run_manual_test():
     print("=" * 40)
     
     if not SERVICES_AVAILABLE:
-        print("❌ 服务不可用")
+        print("[X] 服务不可用")
         return
     
     try:
@@ -407,7 +407,7 @@ def run_manual_test():
         print("\n✅ 手动测试完成")
         
     except Exception as e:
-        print(f"\n❌ 手动测试失败: {e}")
+        print(f"\n[X] 手动测试失败: {e}")
         import traceback
         traceback.print_exc()
 

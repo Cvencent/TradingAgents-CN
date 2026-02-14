@@ -54,7 +54,7 @@ class AgentConfigManager:
             
             return config
         except Exception as e:
-            logger.error(f"❌ 获取Agent配置失败: {e}")
+            logger.error(f"[X] 获取Agent配置失败: {e}")
             return None
     
     def clear_cache(self):

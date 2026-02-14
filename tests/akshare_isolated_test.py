@@ -39,7 +39,7 @@ def test_akshare_direct():
         return True
         
     except Exception as e:
-        print(f"❌ AKShare测试失败: {e}")
+        print(f"[X] AKShare测试失败: {e}")
         return False
 
 def test_akshare_utils_direct():
@@ -75,7 +75,7 @@ def test_akshare_utils_direct():
                     if stock_data is not None and not stock_data.empty:
                         print(f"✅ 获取股票数据成功，{len(stock_data)}条记录")
                     else:
-                        print("❌ 获取股票数据失败")
+                        print("[X] 获取股票数据失败")
                     
                     # 测试获取股票信息
                     stock_info = provider.get_stock_info("000001")
@@ -83,14 +83,14 @@ def test_akshare_utils_direct():
                 
                 return True
             else:
-                print("❌ AKShareProvider类未找到")
+                print("[X] AKShareProvider类未找到")
                 return False
         else:
-            print(f"❌ akshare_utils.py文件不存在: {akshare_utils_path}")
+            print(f"[X] akshare_utils.py文件不存在: {akshare_utils_path}")
             return False
             
     except Exception as e:
-        print(f"❌ akshare_utils测试失败: {e}")
+        print(f"[X] akshare_utils测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -112,7 +112,7 @@ def check_data_source_enum():
             if 'AKSHARE' in content:
                 print("✅ 找到AKSHARE枚举定义")
             else:
-                print("❌ 未找到AKSHARE枚举定义")
+                print("[X] 未找到AKSHARE枚举定义")
             
             if 'akshare' in content.lower():
                 print("✅ 找到akshare相关代码")
@@ -121,15 +121,15 @@ def check_data_source_enum():
                 akshare_count = content.lower().count('akshare')
                 print(f"   akshare在代码中出现{akshare_count}次")
             else:
-                print("❌ 未找到akshare相关代码")
+                print("[X] 未找到akshare相关代码")
             
             return True
         else:
-            print(f"❌ data_source_manager.py文件不存在")
+            print(f"[X] data_source_manager.py文件不存在")
             return False
             
     except Exception as e:
-        print(f"❌ 数据源枚举检查失败: {e}")
+        print(f"[X] 数据源枚举检查失败: {e}")
         return False
 
 def analyze_yfinance_issue():
@@ -143,21 +143,21 @@ def analyze_yfinance_issue():
         print("✅ yfinance可以独立导入")
         return True
     except Exception as e:
-        print(f"❌ yfinance导入失败: {e}")
+        print(f"[X] yfinance导入失败: {e}")
         
         # 检查curl_cffi
         try:
             import curl_cffi
             print("✅ curl_cffi可以导入")
         except Exception as e2:
-            print(f"❌ curl_cffi导入失败: {e2}")
+            print(f"[X] curl_cffi导入失败: {e2}")
         
         # 检查cffi
         try:
             import cffi
             print("✅ cffi可以导入")
         except Exception as e3:
-            print(f"❌ cffi导入失败: {e3}")
+            print(f"[X] cffi导入失败: {e3}")
         
         return False
 
@@ -188,7 +188,7 @@ def main():
     total = len(test_results)
     
     for test_name, result in test_results.items():
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name:25} {status}")
     
     print(f"\n🎯 总体结果: {passed}/{total} 项测试通过")

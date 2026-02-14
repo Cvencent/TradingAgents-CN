@@ -158,11 +158,11 @@ def render_operation_logs():
         from utils.auth_manager import auth_manager
         
         if not auth_manager or not auth_manager.check_permission("admin"):
-            st.error("❌ 您没有权限访问操作日志")
+            st.error("[X] 您没有权限访问操作日志")
             st.info("💡 提示：操作日志功能需要 'admin' 权限")
             return
     except Exception as e:
-        st.error(f"❌ 权限检查失败: {e}")
+        st.error(f"[X] 权限检查失败: {e}")
         return
     
     st.title("📋 操作日志管理")
@@ -393,7 +393,7 @@ def render_logs_list(logs: List[Dict[str, Any]]):
                 '角色': log.get('user_role', 'unknown'),
                 '操作类型': log.get('action_type', 'unknown'),
                 '操作描述': action_desc,
-                '状态': '✅ 成功' if log.get('success', True) else '❌ 失败',
+                '状态': '✅ 成功' if log.get('success', True) else '[X] 失败',
                 '详情': str(log.get('details', ''))[:50] + '...' if len(str(log.get('details', ''))) > 50 else str(log.get('details', ''))
             })
         
@@ -530,7 +530,7 @@ def render_logs_export(logs: List[Dict[str, Any]]):
             st.success(f"✅ {export_format} 文件准备完成，请点击下载按钮")
             
         except Exception as e:
-            st.error(f"❌ 导出失败: {e}")
+            st.error(f"[X] 导出失败: {e}")
 
 def log_operation(username: str, action_type: str, action: str, details: Dict = None, success: bool = True):
     """记录操作日志"""

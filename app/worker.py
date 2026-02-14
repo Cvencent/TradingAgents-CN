@@ -141,7 +141,7 @@ async def process_task(task_id: str) -> None:
                     "success": False
                 }
                 status = "failed"
-                await progress_callback(f"❌ 任务失败: {error_msg}")
+                await progress_callback(f"[X] 任务失败: {error_msg}")
 
         except Exception as analysis_error:
             logger.exception(f"Analysis execution failed for task {task_id}: {analysis_error}")
@@ -152,7 +152,7 @@ async def process_task(task_id: str) -> None:
                 "success": False
             }
             status = "failed"
-            await progress_callback(f"❌ 分析执行异常: {str(analysis_error)}")
+            await progress_callback(f"[X] 分析执行异常: {str(analysis_error)}")
 
         # Mark completed/failed
         finished = int(time.time())
@@ -179,7 +179,7 @@ async def process_task(task_id: str) -> None:
         })
         await r.srem(SET_PROCESSING, task_id)
         await r.sadd(SET_FAILED, task_id)
-        await publish_progress(task_id, f"❌ 处理失败: {str(e)}")
+        await publish_progress(task_id, f"[X] 处理失败: {str(e)}")
 
 
 async def worker_loop(stop_event: asyncio.Event):

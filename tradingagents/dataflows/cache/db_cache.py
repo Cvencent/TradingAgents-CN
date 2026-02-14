@@ -75,8 +75,8 @@ class DatabaseCacheManager:
         self._init_redis()
 
         logger.info(f"🗄️ 数据库缓存管理器初始化完成")
-        logger.error(f"   MongoDB: {'✅ 已连接' if self.mongodb_client else '❌ 未连接'}")
-        logger.error(f"   Redis: {'✅ 已连接' if self.redis_client else '❌ 未连接'}")
+        logger.error(f"   MongoDB: {'✅ 已连接' if self.mongodb_client else '[X] 未连接'}")
+        logger.error(f"   Redis: {'✅ 已连接' if self.redis_client else '[X] 未连接'}")
 
     def _init_mongodb(self):
         """初始化MongoDB连接"""
@@ -107,7 +107,7 @@ class DatabaseCacheManager:
             logger.info(f"⏱️  超时配置: connectTimeout={connect_timeout}ms, socketTimeout={socket_timeout}ms")
 
         except Exception as e:
-            logger.error(f"❌ MongoDB连接失败: {e}")
+            logger.error(f"[X] MongoDB连接失败: {e}")
             self.mongodb_client = None
             self.mongodb_db = None
 
@@ -130,7 +130,7 @@ class DatabaseCacheManager:
             logger.info(f"✅ Redis连接成功: {self.redis_url}")
 
         except Exception as e:
-            logger.error(f"❌ Redis连接失败: {e}")
+            logger.error(f"[X] Redis连接失败: {e}")
             self.redis_client = None
 
     def _create_mongodb_indexes(self):
@@ -364,7 +364,7 @@ class DatabaseCacheManager:
             except Exception as e:
                 logger.error(f"⚠️ MongoDB查询失败: {e}")
 
-        logger.error(f"❌ 未找到有效缓存: {symbol}")
+        logger.error(f"[X] 未找到有效缓存: {symbol}")
         return None
 
     def save_news_data(self, symbol: str, news_data: str,

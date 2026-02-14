@@ -39,7 +39,7 @@ def test_akshare_spot_data():
             print(f"\n🔍 检查需要的列:")
             for col in required_cols:
                 exists = col in spot_data.columns
-                print(f"   {col}: {'✅ 存在' if exists else '❌ 不存在'}")
+                print(f"   {col}: {'✅ 存在' if exists else '[X] 不存在'}")
             
             # 显示实际的列名（可能有变化）
             print(f"\n📋 实际列名（前20个）:")
@@ -61,10 +61,10 @@ def test_akshare_spot_data():
             print(f"   市值相关列: {mv_cols}")
             
         else:
-            print("❌ 实时行情数据获取失败或为空")
+            print("[X] 实时行情数据获取失败或为空")
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -80,7 +80,7 @@ def test_akshare_adapter():
         adapter = AKShareAdapter()
         
         if not adapter.is_available():
-            print("❌ AKShare适配器不可用")
+            print("[X] AKShare适配器不可用")
             return
         
         print("✅ AKShare适配器可用")
@@ -117,10 +117,10 @@ def test_akshare_adapter():
             print(f"     有总市值数据的股票: {mv_count}只")
             
         else:
-            print("❌ daily_basic数据获取失败")
+            print("[X] daily_basic数据获取失败")
         
     except Exception as e:
-        print(f"❌ 适配器测试失败: {e}")
+        print(f"[X] 适配器测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -156,13 +156,13 @@ def test_akshare_alternative_apis():
                     print(f"   ✅ 成功: {len(data)}条记录")
                     print(f"   列名: {list(data.columns)[:10]}...")  # 只显示前10个列名
                 else:
-                    print(f"   ❌ 无数据")
+                    print(f"   [X] 无数据")
                     
             except Exception as e:
-                print(f"   ❌ 失败: {e}")
+                print(f"   [X] 失败: {e}")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
 
 if __name__ == "__main__":
     test_akshare_spot_data()

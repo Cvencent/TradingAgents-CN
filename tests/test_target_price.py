@@ -52,7 +52,7 @@ def test_signal_processor():
         return True
         
     except Exception as e:
-        print(f"❌ 信号处理器测试失败: {e}")
+        print(f"[X] 信号处理器测试失败: {e}")
         return False
 
 def test_smart_price_estimation():
@@ -78,7 +78,7 @@ def test_smart_price_estimation():
         return True
         
     except Exception as e:
-        print(f"❌ 智能推算测试失败: {e}")
+        print(f"[X] 智能推算测试失败: {e}")
         return False
 
 def test_trader_prompt():
@@ -110,7 +110,7 @@ def test_trader_prompt():
             return False
             
     except Exception as e:
-        print(f"❌ 交易员提示词检查失败: {e}")
+        print(f"[X] 交易员提示词检查失败: {e}")
         return False
 
 def main():

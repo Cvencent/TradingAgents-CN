@@ -20,7 +20,7 @@ def test_finnhub_api_key():
         print(f"✅ Finnhub API密钥已配置: {api_key[:8]}...")
         return True
     else:
-        print("❌ 未配置FINNHUB_API_KEY环境变量")
+        print("[X] 未配置FINNHUB_API_KEY环境变量")
         return False
 
 def test_finnhub_fundamentals_with_cache():
@@ -62,12 +62,12 @@ def test_finnhub_fundamentals_with_cache():
                 print(f"⚠️ 缓存可能未生效")
                 return False
         else:
-            print(f"❌ {test_ticker} 基本面数据获取失败或数据过短")
+            print(f"[X] {test_ticker} 基本面数据获取失败或数据过短")
             print(f"📄 返回内容: {result1}")
             return False
         
     except Exception as e:
-        print(f"❌ Finnhub基本面数据测试失败: {str(e)}")
+        print(f"[X] Finnhub基本面数据测试失败: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
@@ -120,7 +120,7 @@ def test_openai_fallback_with_cache():
                 print(f"⚠️ 缓存可能未生效")
                 success = False
         else:
-            print("❌ OpenAI fallback机制可能有问题")
+            print("[X] OpenAI fallback机制可能有问题")
             print(f"📄 返回内容: {result1[:500]}...")
             success = False
         
@@ -133,7 +133,7 @@ def test_openai_fallback_with_cache():
         return success
         
     except Exception as e:
-        print(f"❌ OpenAI fallback测试失败: {str(e)}")
+        print(f"[X] OpenAI fallback测试失败: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
@@ -160,7 +160,7 @@ def test_cache_management():
         return True
         
     except Exception as e:
-        print(f"❌ 缓存管理测试失败: {str(e)}")
+        print(f"[X] 缓存管理测试失败: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
@@ -189,13 +189,13 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试 '{test_name}' 执行失败: {str(e)}")
+            print(f"[X] 测试 '{test_name}' 执行失败: {str(e)}")
             results.append((test_name, False))
     
     # 输出测试结果
     print(f"\n{'='*20} 测试结果汇总 {'='*20}")
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{status} {test_name}")
     
     passed = sum(1 for _, result in results if result)

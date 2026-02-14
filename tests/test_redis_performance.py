@@ -38,10 +38,10 @@ class RedisPerformanceTester:
             print(f"✅ 成功连接到Redis: {self.host}:{self.port}")
             return True
         except redis.ConnectionError as e:
-            print(f"❌ Redis连接失败: {e}")
+            print(f"[X] Redis连接失败: {e}")
             return False
         except Exception as e:
-            print(f"❌ 连接错误: {e}")
+            print(f"[X] 连接错误: {e}")
             return False
     
     def test_connection_latency(self, iterations=100):
@@ -88,7 +88,7 @@ class RedisPerformanceTester:
                 'success_rate': (iterations - failed_count) / iterations * 100
             }
         else:
-            print("❌ 所有ping测试都失败了")
+            print("[X] 所有ping测试都失败了")
             return None
     
     def test_throughput(self, operations=1000, operation_type='set'):
@@ -148,7 +148,7 @@ class RedisPerformanceTester:
             }
             
         except Exception as e:
-            print(f"❌ 吞吐量测试失败: {e}")
+            print(f"[X] 吞吐量测试失败: {e}")
             return None
     
     def test_concurrent_connections(self, num_threads=10, operations_per_thread=100):
@@ -261,7 +261,7 @@ class RedisPerformanceTester:
             }
             
         except Exception as e:
-            print(f"❌ 获取内存信息失败: {e}")
+            print(f"[X] 获取内存信息失败: {e}")
             return None
     
     def run_full_test(self):
@@ -336,7 +336,7 @@ def main():
                 json.dump(results, f, indent=2, ensure_ascii=False)
             print(f"\n💾 测试结果已保存到: {args.output}")
         except Exception as e:
-            print(f"❌ 保存结果失败: {e}")
+            print(f"[X] 保存结果失败: {e}")
     
     print("\n✅ Redis性能测试完成!")
 

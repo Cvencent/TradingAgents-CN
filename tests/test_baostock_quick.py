@@ -19,7 +19,7 @@ def test_baostock_import():
         print(f"   版本: {bs.__version__}")
         return True
     except ImportError as e:
-        print(f"❌ BaoStock导入失败: {e}")
+        print(f"[X] BaoStock导入失败: {e}")
         return False
 
 def test_baostock_connection():
@@ -31,7 +31,7 @@ def test_baostock_connection():
         # 登录系统
         lg = bs.login()
         if lg.error_code != '0':
-            print(f"❌ BaoStock登录失败: {lg.error_msg}")
+            print(f"[X] BaoStock登录失败: {lg.error_msg}")
             return False
         
         print(f"✅ BaoStock登录成功")
@@ -46,7 +46,7 @@ def test_baostock_connection():
         )
         
         if rs.error_code != '0':
-            print(f"❌ BaoStock数据获取失败: {rs.error_msg}")
+            print(f"[X] BaoStock数据获取失败: {rs.error_msg}")
             bs.logout()
             return False
         
@@ -65,7 +65,7 @@ def test_baostock_connection():
         return True
         
     except Exception as e:
-        print(f"❌ BaoStock连接异常: {e}")
+        print(f"[X] BaoStock连接异常: {e}")
         try:
             import baostock as bs
             bs.logout()
@@ -90,11 +90,11 @@ def test_data_source_manager():
             print(f"✅ BaoStock已被识别为可用数据源")
             return True
         else:
-            print(f"❌ BaoStock未被识别为可用数据源")
+            print(f"[X] BaoStock未被识别为可用数据源")
             return False
             
     except Exception as e:
-        print(f"❌ 数据源管理器测试异常: {e}")
+        print(f"[X] 数据源管理器测试异常: {e}")
         return False
 
 def main():
@@ -125,7 +125,7 @@ def main():
     print("=" * 40)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
     
     print(f"\n📈 总体结果: {passed}/{total}")
@@ -139,7 +139,7 @@ def main():
         print(f"   4. TDX (将被淘汰)")
     else:
         print(f"⚠️ BaoStock配置存在问题")
-        print(f"❌ 请检查网络连接和库安装")
+        print(f"[X] 请检查网络连接和库安装")
     
     return passed == total
 

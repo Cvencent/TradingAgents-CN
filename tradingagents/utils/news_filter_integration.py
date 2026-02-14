@@ -176,7 +176,7 @@ def create_filtered_realtime_news_function():
                 
         except Exception as e:
             logger.error(f"[增强实时新闻] 增强新闻获取失败: {e}")
-            return f"❌ 新闻获取失败: {str(e)}"
+            return f"[X] 新闻获取失败: {str(e)}"
     
     return get_filtered_realtime_stock_news
 

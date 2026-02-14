@@ -139,10 +139,10 @@ def test_word_conversion(md_content):
                     print(f"💾 文件已保存为: {success_file}")
                     return True
                 else:
-                    print(f"❌ 转换失败: 文件未生成或为空")
+                    print(f"[X] 转换失败: 文件未生成或为空")
                     
             except Exception as e:
-                print(f"❌ 转换失败: {e}")
+                print(f"[X] 转换失败: {e}")
                 
             # 清理临时文件
             if os.path.exists(output_file):
@@ -151,7 +151,7 @@ def test_word_conversion(md_content):
         return False
         
     except Exception as e:
-        print(f"❌ Word转换测试失败: {e}")
+        print(f"[X] Word转换测试失败: {e}")
         return False
 
 def test_pdf_conversion(md_content):
@@ -202,10 +202,10 @@ def test_pdf_conversion(md_content):
                     print(f"💾 文件已保存为: {success_file}")
                     return True
                 else:
-                    print(f"❌ 转换失败: 文件未生成或为空")
+                    print(f"[X] 转换失败: 文件未生成或为空")
                     
             except Exception as e:
-                print(f"❌ 转换失败: {e}")
+                print(f"[X] 转换失败: {e}")
                 
             # 清理临时文件
             if os.path.exists(output_file):
@@ -214,7 +214,7 @@ def test_pdf_conversion(md_content):
         return False
         
     except Exception as e:
-        print(f"❌ PDF转换测试失败: {e}")
+        print(f"[X] PDF转换测试失败: {e}")
         return False
 
 def main():
@@ -237,8 +237,8 @@ def main():
     print("\n" + "=" * 50)
     print("📊 测试结果总结")
     print("=" * 50)
-    print(f"Word转换: {'✅ 成功' if word_success else '❌ 失败'}")
-    print(f"PDF转换:  {'✅ 成功' if pdf_success else '❌ 失败'}")
+    print(f"Word转换: {'✅ 成功' if word_success else '[X] 失败'}")
+    print(f"PDF转换:  {'✅ 成功' if pdf_success else '[X] 失败'}")
     
     if word_success or pdf_success:
         print("\n🎉 至少有一种格式转换成功!")

@@ -48,7 +48,7 @@ class BaoStockSyncService:
 
             logger.info("✅ BaoStock同步服务初始化成功")
         except Exception as e:
-            logger.error(f"❌ BaoStock同步服务初始化失败: {e}")
+            logger.error(f"[X] BaoStock同步服务初始化失败: {e}")
             raise
 
     async def initialize(self):
@@ -65,7 +65,7 @@ class BaoStockSyncService:
 
             logger.info("✅ BaoStock同步服务异步初始化完成")
         except Exception as e:
-            logger.error(f"❌ BaoStock同步服务异步初始化失败: {e}")
+            logger.error(f"[X] BaoStock同步服务异步初始化失败: {e}")
             raise
     
     async def sync_stock_basic_info(self, batch_size: int = 100) -> BaoStockSyncStats:
@@ -110,7 +110,7 @@ class BaoStockSyncService:
             return stats
             
         except Exception as e:
-            logger.error(f"❌ BaoStock基础信息同步失败: {e}")
+            logger.error(f"[X] BaoStock基础信息同步失败: {e}")
             stats.errors.append(str(e))
             return stats
     
@@ -248,7 +248,7 @@ class BaoStockSyncService:
             )
 
         except Exception as e:
-            logger.error(f"❌ 更新基础信息到数据库失败: {e}")
+            logger.error(f"[X] 更新基础信息到数据库失败: {e}")
             raise
     
     async def sync_daily_quotes(self, batch_size: int = 50) -> BaoStockSyncStats:
@@ -299,7 +299,7 @@ class BaoStockSyncService:
             return stats
 
         except Exception as e:
-            logger.error(f"❌ BaoStock日K线同步失败: {e}")
+            logger.error(f"[X] BaoStock日K线同步失败: {e}")
             stats.errors.append(str(e))
             return stats
     
@@ -342,7 +342,7 @@ class BaoStockSyncService:
             )
 
         except Exception as e:
-            logger.error(f"❌ 更新日K线到数据库失败: {e}")
+            logger.error(f"[X] 更新日K线到数据库失败: {e}")
             raise
     
     async def sync_historical_data(self, days: int = 30, batch_size: int = 20, period: str = "daily", incremental: bool = True) -> BaoStockSyncStats:
@@ -406,7 +406,7 @@ class BaoStockSyncService:
             return stats
             
         except Exception as e:
-            logger.error(f"❌ BaoStock历史数据同步失败: {e}")
+            logger.error(f"[X] BaoStock历史数据同步失败: {e}")
             stats.errors.append(str(e))
             return stats
     
@@ -487,7 +487,7 @@ class BaoStockSyncService:
             return saved_count
 
         except Exception as e:
-            logger.error(f"❌ 更新历史数据到数据库失败: {e}")
+            logger.error(f"[X] 更新历史数据到数据库失败: {e}")
             return 0
     
     async def _get_last_sync_date(self, symbol: str = None) -> str:
@@ -521,7 +521,7 @@ class BaoStockSyncService:
             return (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
 
         except Exception as e:
-            logger.error(f"❌ 获取最后同步日期失败 {symbol}: {e}")
+            logger.error(f"[X] 获取最后同步日期失败 {symbol}: {e}")
             # 出错时返回30天前，确保不漏数据
             return (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
 
@@ -553,7 +553,7 @@ class BaoStockSyncService:
             }
             
         except Exception as e:
-            logger.error(f"❌ BaoStock服务状态检查失败: {e}")
+            logger.error(f"[X] BaoStock服务状态检查失败: {e}")
             return {
                 "service": "BaoStock同步服务",
                 "status": "error",
@@ -571,7 +571,7 @@ async def run_baostock_basic_info_sync():
         stats = await service.sync_stock_basic_info()
         logger.info(f"🎯 BaoStock基础信息同步完成: {stats.basic_info_count}条记录, {len(stats.errors)}个错误")
     except Exception as e:
-        logger.error(f"❌ BaoStock基础信息同步任务失败: {e}")
+        logger.error(f"[X] BaoStock基础信息同步任务失败: {e}")
 
 
 async def run_baostock_daily_quotes_sync():
@@ -582,7 +582,7 @@ async def run_baostock_daily_quotes_sync():
         stats = await service.sync_daily_quotes()
         logger.info(f"🎯 BaoStock日K线同步完成: {stats.quotes_count}条记录, {len(stats.errors)}个错误")
     except Exception as e:
-        logger.error(f"❌ BaoStock日K线同步任务失败: {e}")
+        logger.error(f"[X] BaoStock日K线同步任务失败: {e}")
 
 
 async def run_baostock_historical_sync():
@@ -593,7 +593,7 @@ async def run_baostock_historical_sync():
         stats = await service.sync_historical_data()
         logger.info(f"🎯 BaoStock历史数据同步完成: {stats.historical_records}条记录, {len(stats.errors)}个错误")
     except Exception as e:
-        logger.error(f"❌ BaoStock历史数据同步任务失败: {e}")
+        logger.error(f"[X] BaoStock历史数据同步任务失败: {e}")
 
 
 async def run_baostock_status_check():
@@ -604,4 +604,4 @@ async def run_baostock_status_check():
         status = await service.check_service_status()
         logger.info(f"🔍 BaoStock服务状态: {status['status']}")
     except Exception as e:
-        logger.error(f"❌ BaoStock状态检查任务失败: {e}")
+        logger.error(f"[X] BaoStock状态检查任务失败: {e}")

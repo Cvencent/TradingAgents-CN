@@ -32,7 +32,7 @@ def main():
         # 检查API密钥
         api_key = os.getenv("DASHSCOPE_API_KEY")
         if not api_key:
-            flush_print("❌ 未找到DASHSCOPE_API_KEY环境变量")
+            flush_print("[X] 未找到DASHSCOPE_API_KEY环境变量")
             return False
         
         flush_print(f"✅ API密钥已配置: {api_key[:10]}...")
@@ -115,11 +115,11 @@ def main():
                     tool_call_success = True
                     break
                 else:
-                    flush_print(f"   ❌ 策略{i}失败: 未触发工具调用")
+                    flush_print(f"   [X] 策略{i}失败: 未触发工具调用")
                     flush_print(f"   直接响应: {response.content[:100]}...")
                     
             except Exception as e:
-                flush_print(f"   ❌ 策略{i}异常: {e}")
+                flush_print(f"   [X] 策略{i}异常: {e}")
         
         # 测试6: 不同模型测试
         flush_print("\n🔧 测试6: 不同模型测试")
@@ -149,10 +149,10 @@ def main():
                 if len(tool_calls) > 0:
                     flush_print(f"   ✅ {model}: 支持工具调用")
                 else:
-                    flush_print(f"   ❌ {model}: 不支持工具调用")
+                    flush_print(f"   [X] {model}: 不支持工具调用")
                     
             except Exception as e:
-                flush_print(f"   ❌ {model}: 测试异常 - {str(e)[:100]}")
+                flush_print(f"   [X] {model}: 测试异常 - {str(e)[:100]}")
         
         # 总结
         flush_print("\n📋 测试总结")
@@ -164,14 +164,14 @@ def main():
             flush_print("   ✅ OpenAI兼容适配器工作正常")
         else:
             flush_print("⚠️ 阿里百炼工具调用存在问题")
-            flush_print("   ❌ 模型不主动调用工具")
+            flush_print("   [X] 模型不主动调用工具")
             flush_print("   💡 建议: 使用手动工具调用作为备用方案")
         
         flush_print("\n🔍 问题分析:")
         flush_print("   1. 适配器创建: ✅ 正常")
         flush_print("   2. 工具绑定: ✅ 正常")
         flush_print("   3. API调用: ✅ 正常")
-        flush_print(f"   4. 工具调用: {'✅ 正常' if tool_call_success else '❌ 异常'}")
+        flush_print(f"   4. 工具调用: {'✅ 正常' if tool_call_success else '[X] 异常'}")
         
         if not tool_call_success:
             flush_print("\n💡 解决方案:")

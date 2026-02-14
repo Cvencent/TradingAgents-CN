@@ -45,7 +45,7 @@ def test_available_tools():
         print("\n  旧工具移除检查:")
         for tool_name in removed_tools:
             if tool_name in all_tools:
-                print(f"    ❌ {tool_name}: 仍然可用（应该已移除）")
+                print(f"    [X] {tool_name}: 仍然可用（应该已移除）")
                 return False
             else:
                 print(f"    ✅ {tool_name}: 已移除")
@@ -55,7 +55,7 @@ def test_available_tools():
             if tool_name in all_tools:
                 print(f"    ✅ {tool_name}: 可用")
             else:
-                print(f"    ❌ {tool_name}: 不可用")
+                print(f"    [X] {tool_name}: 不可用")
                 return False
         
         print(f"\n  所有可用工具:")
@@ -66,7 +66,7 @@ def test_available_tools():
         return True
         
     except Exception as e:
-        print(f"❌ 工具移除测试失败: {e}")
+        print(f"[X] 工具移除测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -115,7 +115,7 @@ def test_fundamentals_analyst_tool_selection():
                 if len(tools) == 1 and tools[0].name == 'get_stock_fundamentals_unified':
                     print(f"    ✅ 正确选择统一基本面工具")
                 else:
-                    print(f"    ❌ 工具选择错误")
+                    print(f"    [X] 工具选择错误")
                     return False
             else:
                 print(f"    跳过（online_tools=False）")
@@ -124,7 +124,7 @@ def test_fundamentals_analyst_tool_selection():
         return True
         
     except Exception as e:
-        print(f"❌ 基本面分析师工具选择测试失败: {e}")
+        print(f"[X] 基本面分析师工具选择测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -171,7 +171,7 @@ def test_market_analyst_tool_selection():
                 if len(tools) == 1 and tools[0].name == 'get_stock_market_data_unified':
                     print(f"    ✅ 正确选择统一市场数据工具")
                 else:
-                    print(f"    ❌ 工具选择错误")
+                    print(f"    [X] 工具选择错误")
                     return False
             else:
                 print(f"    跳过（online_tools=False）")
@@ -180,7 +180,7 @@ def test_market_analyst_tool_selection():
         return True
         
     except Exception as e:
-        print(f"❌ 市场分析师工具选择测试失败: {e}")
+        print(f"[X] 市场分析师工具选择测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -205,9 +205,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

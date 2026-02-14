@@ -66,7 +66,7 @@ def test_tool_isolation():
                 # 检查是否调用了未绑定的工具
                 unexpected_tools = [tool for tool in called_tools if tool not in [t.name for t in hk_tools]]
                 if unexpected_tools:
-                    print(f"  ❌ 调用了未绑定的工具: {unexpected_tools}")
+                    print(f"  [X] 调用了未绑定的工具: {unexpected_tools}")
                     return False
                 else:
                     print(f"  ✅ 只调用了绑定的工具")
@@ -74,7 +74,7 @@ def test_tool_isolation():
                 print(f"  ℹ️ 没有工具调用")
                 
         except Exception as e:
-            print(f"  ❌ 调用失败: {e}")
+            print(f"  [X] 调用失败: {e}")
             return False
         
         print(f"\n🔧 测试2: 创建新的LLM实例")
@@ -103,7 +103,7 @@ def test_tool_isolation():
                 # 检查是否调用了未绑定的工具
                 unexpected_tools2 = [tool for tool in called_tools2 if tool not in [t.name for t in china_tools]]
                 if unexpected_tools2:
-                    print(f"  ❌ 调用了未绑定的工具: {unexpected_tools2}")
+                    print(f"  [X] 调用了未绑定的工具: {unexpected_tools2}")
                     return False
                 else:
                     print(f"  ✅ 只调用了绑定的工具")
@@ -111,14 +111,14 @@ def test_tool_isolation():
                 print(f"  ℹ️ 没有工具调用")
                 
         except Exception as e:
-            print(f"  ❌ 调用失败: {e}")
+            print(f"  [X] 调用失败: {e}")
             return False
         
         print(f"\n✅ 工具隔离测试完成")
         return True
         
     except Exception as e:
-        print(f"❌ 工具隔离测试失败: {e}")
+        print(f"[X] 工具隔离测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -165,7 +165,7 @@ def test_llm_instance_reuse():
         return True
         
     except Exception as e:
-        print(f"❌ LLM实例复用测试失败: {e}")
+        print(f"[X] LLM实例复用测试失败: {e}")
         return False
 
 
@@ -187,9 +187,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

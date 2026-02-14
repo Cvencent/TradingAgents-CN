@@ -138,7 +138,7 @@ class UserActivityLogger:
             self._write_activity(activity)
             
         except Exception as e:
-            logger.error(f"❌ 记录用户活动失败: {e}")
+            logger.error(f"[X] 记录用户活动失败: {e}")
     
     def _write_activity(self, activity: UserActivity) -> None:
         """写入活动记录到文件"""
@@ -155,7 +155,7 @@ class UserActivityLogger:
                     f.write(json.dumps(activity_dict, ensure_ascii=False) + '\n')
                 
             except Exception as e:
-                logger.error(f"❌ 写入活动记录失败: {e}")
+                logger.error(f"[X] 写入活动记录失败: {e}")
     
     def log_login(self, username: str, success: bool, error_message: str = None) -> None:
         """记录登录活动"""
@@ -286,7 +286,7 @@ class UserActivityLogger:
             return activities[:limit]
             
         except Exception as e:
-            logger.error(f"❌ 获取用户活动记录失败: {e}")
+            logger.error(f"[X] 获取用户活动记录失败: {e}")
             return []
     
     def _read_activities_from_file(self, file_path: Path, username: str = None,
@@ -317,7 +317,7 @@ class UserActivityLogger:
                         activities.append(activity)
                         
         except Exception as e:
-            logger.error(f"❌ 读取活动文件失败 {file_path}: {e}")
+            logger.error(f"[X] 读取活动文件失败 {file_path}: {e}")
         
         return activities
     
@@ -406,7 +406,7 @@ class UserActivityLogger:
                     continue
                     
         except Exception as e:
-            logger.error(f"❌ 清理旧活动记录失败: {e}")
+            logger.error(f"[X] 清理旧活动记录失败: {e}")
         
         return deleted_count
 

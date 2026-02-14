@@ -26,7 +26,7 @@ async def test_industry_screening():
     })
     
     if auth_response.status_code != 200:
-        print(f"❌ 登录失败: {auth_response.status_code}")
+        print(f"[X] 登录失败: {auth_response.status_code}")
         return False
     
     token = auth_response.json()["access_token"]
@@ -68,7 +68,7 @@ async def test_industry_screening():
         
         print(f"   行业分布: {industries}")
     else:
-        print(f"❌ 市值筛选失败: {response.status_code}")
+        print(f"[X] 市值筛选失败: {response.status_code}")
         return False
     
     # 3. 测试加入行业条件的筛选（修复后应该工作）
@@ -103,7 +103,7 @@ async def test_industry_screening():
         for item in items:
             industry = item.get("industry", "")
             is_bank = "银行" in industry
-            print(f"   {item['code']} - {item['name']} - {industry} {'✅' if is_bank else '❌'}")
+            print(f"   {item['code']} - {item['name']} - {industry} {'✅' if is_bank else '[X]'}")
             if not is_bank:
                 all_banks = False
         
@@ -114,10 +114,10 @@ async def test_industry_screening():
             print("⚠️  没有找到银行股，可能数据库中没有银行行业数据")
             return False
         else:
-            print("❌ 修复失败！返回了非银行股")
+            print("[X] 修复失败！返回了非银行股")
             return False
     else:
-        print(f"❌ 银行行业筛选失败: {response.status_code}")
+        print(f"[X] 银行行业筛选失败: {response.status_code}")
         print(f"   响应内容: {response.text}")
         return False
 
@@ -156,5 +156,5 @@ if __name__ == "__main__":
         print("\n🎉 行业筛选修复验证成功！")
         print("现在用户选择银行行业时，应该只返回银行股了。")
     else:
-        print("\n❌ 行业筛选修复验证失败！")
+        print("\n[X] 行业筛选修复验证失败！")
         print("需要进一步检查数据库数据或后端逻辑。")

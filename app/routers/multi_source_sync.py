@@ -250,21 +250,21 @@ async def _test_single_adapter(adapter) -> dict:
                 logger.info(f"✅ {adapter.name} 连通性测试成功，Token来源: {token_source}")
             else:
                 result["available"] = False
-                result["message"] = "❌ 数据源不可用"
+                result["message"] = "[X] 数据源不可用"
                 logger.warning(f"⚠️ {adapter.name} 不可用")
         except asyncio.TimeoutError:
             result["available"] = False
-            result["message"] = f"❌ 连接超时 ({test_timeout}秒)"
+            result["message"] = f"[X] 连接超时 ({test_timeout}秒)"
             logger.warning(f"⚠️ {adapter.name} 连接超时")
         except Exception as e:
             result["available"] = False
-            result["message"] = f"❌ 连接失败: {str(e)}"
-            logger.error(f"❌ {adapter.name} 连接失败: {e}")
+            result["message"] = f"[X] 连接失败: {str(e)}"
+            logger.error(f"[X] {adapter.name} 连接失败: {e}")
 
     except Exception as e:
         result["available"] = False
-        result["message"] = f"❌ 测试异常: {str(e)}"
-        logger.error(f"❌ 测试 {adapter.name} 时出错: {e}")
+        result["message"] = f"[X] 测试异常: {str(e)}"
+        logger.error(f"[X] 测试 {adapter.name} 时出错: {e}")
 
     return result
 
@@ -316,12 +316,12 @@ async def test_data_sources(request: TestSourceRequest = TestSourceRequest()):
         final_results = []
         for i, result in enumerate(test_results):
             if isinstance(result, Exception):
-                logger.error(f"❌ 测试适配器 {adapters_to_test[i].name} 时出错: {result}")
+                logger.error(f"[X] 测试适配器 {adapters_to_test[i].name} 时出错: {result}")
                 final_results.append({
                     "name": adapters_to_test[i].name,
                     "priority": adapters_to_test[i].priority,
                     "available": False,
-                    "message": f"❌ 测试异常: {str(result)}"
+                    "message": f"[X] 测试异常: {str(result)}"
                 })
             else:
                 final_results.append(result)
@@ -342,7 +342,7 @@ async def test_data_sources(request: TestSourceRequest = TestSourceRequest()):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 测试数据源时出错: {e}", exc_info=True)
+        logger.error(f"[X] 测试数据源时出错: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to test data sources: {str(e)}")
 
 

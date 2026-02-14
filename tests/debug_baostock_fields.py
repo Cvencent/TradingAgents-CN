@@ -28,7 +28,7 @@ def debug_baostock_fields():
         # 登录BaoStock
         lg = bs.login()
         if lg.error_code != '0':
-            print(f"❌ BaoStock登录失败: {lg.error_msg}")
+            print(f"[X] BaoStock登录失败: {lg.error_msg}")
             return
         
         print("✅ BaoStock登录成功")
@@ -87,7 +87,7 @@ def debug_baostock_fields():
         print("\n✅ BaoStock登出成功")
         
     except Exception as e:
-        print(f"❌ 调试失败: {e}")
+        print(f"[X] 调试失败: {e}")
         import traceback
         traceback.print_exc()
 

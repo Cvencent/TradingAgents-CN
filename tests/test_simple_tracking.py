@@ -41,7 +41,7 @@ def test_data_flow():
             if "002027" in result:
                 print("✅ 结果中包含正确的股票代码 002027")
             else:
-                print("❌ 结果中不包含正确的股票代码 002027")
+                print("[X] 结果中不包含正确的股票代码 002027")
                 
             if "002021" in result:
                 print("⚠️ 结果中包含错误的股票代码 002021")
@@ -57,7 +57,7 @@ def test_data_flow():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -90,7 +90,7 @@ def test_tushare_direct():
             if "002027" in result:
                 print("✅ 结果中包含正确的股票代码 002027")
             else:
-                print("❌ 结果中不包含正确的股票代码 002027")
+                print("[X] 结果中不包含正确的股票代码 002027")
                 
             if "002021" in result:
                 print("⚠️ 结果中包含错误的股票代码 002021")
@@ -106,7 +106,7 @@ def test_tushare_direct():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -147,12 +147,12 @@ def test_tushare_provider():
                     unique_codes = stock_data['ts_code'].unique()
                     print(f"📊 数据中的ts_code: {unique_codes}")
         else:
-            print("❌ Tushare提供器连接失败")
+            print("[X] Tushare提供器连接失败")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -172,4 +172,4 @@ if __name__ == "__main__":
     if success1 and success2 and success3:
         print("\n✅ 所有测试通过")
     else:
-        print("\n❌ 部分测试失败")
+        print("\n[X] 部分测试失败")

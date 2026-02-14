@@ -60,15 +60,15 @@ def test_tushare_adapter_volume_mapping():
                 print(f"✅ 数据映射正确: 原始vol总和={original_vol_sum}, 映射后volume总和={mapped_volume_sum}")
                 return True
             else:
-                print(f"❌ 数据映射错误: 原始vol总和={original_vol_sum}, 映射后volume总和={mapped_volume_sum}")
+                print(f"[X] 数据映射错误: 原始vol总和={original_vol_sum}, 映射后volume总和={mapped_volume_sum}")
                 return False
         else:
-            print(f"❌ volume列不存在，映射失败")
-            print(f"❌ 可用列: {list(standardized_data.columns)}")
+            print(f"[X] volume列不存在，映射失败")
+            print(f"[X] 可用列: {list(standardized_data.columns)}")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -110,12 +110,12 @@ def test_data_source_manager_volume_access():
             return True
             
         except KeyError as e:
-            print(f"❌ KeyError: {e}")
-            print(f"❌ 这就是PR中提到的问题！")
+            print(f"[X] KeyError: {e}")
+            print(f"[X] 这就是PR中提到的问题！")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -154,7 +154,7 @@ def test_real_tushare_data():
                 return True
                 
             except Exception as e:
-                print(f"❌ 真实数据获取失败: {e}")
+                print(f"[X] 真实数据获取失败: {e}")
                 if "KeyError: 'volume'" in str(e):
                     print(f"🎯 确认存在PR中提到的问题！")
                 return False
@@ -163,7 +163,7 @@ def test_real_tushare_data():
             return True
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -231,14 +231,14 @@ def test_column_mapping_logic():
                 print(f"✅ 成功访问volume值: {volume_value}")
                 return True
             except KeyError as e:
-                print(f"❌ 访问volume失败: {e}")
+                print(f"[X] 访问volume失败: {e}")
                 return False
         else:
-            print(f"❌ volume列不存在")
+            print(f"[X] volume列不存在")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -265,7 +265,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试{test_name}异常: {e}")
+            print(f"[X] 测试{test_name}异常: {e}")
             results.append((test_name, False))
     
     # 总结结果
@@ -276,7 +276,7 @@ def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"  {test_name}: {status}")
         if result:
             passed += 1
@@ -297,7 +297,7 @@ def main():
         print("  1. 进一步调查失败的测试场景")
         print("  2. 与PR作者确认具体的错误场景")
     else:
-        print("❌ 多数测试失败，确实存在volume映射问题")
+        print("[X] 多数测试失败，确实存在volume映射问题")
         print("💡 建议:")
         print("  1. PR #173 的修复是必要的")
         print("  2. 需要进一步优化修复方案")

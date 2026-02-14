@@ -40,7 +40,7 @@ def test_optimized_fundamentals_logic():
             print(f"📏 价格数据长度: {len(current_price_data):,} 字符")
             print(f"📝 价格数据预览:\n{current_price_data[:300]}...")
         else:
-            print(f"❌ 未获取到价格数据")
+            print(f"[X] 未获取到价格数据")
             current_price_data = ""
         
         # 2. 获取基本面财务数据
@@ -55,7 +55,7 @@ def test_optimized_fundamentals_logic():
             print(f"📏 基本面数据长度: {len(fundamentals_data):,} 字符")
             print(f"📝 基本面数据预览:\n{fundamentals_data[:300]}...")
         else:
-            print(f"❌ 未获取到基本面数据")
+            print(f"[X] 未获取到基本面数据")
             fundamentals_data = ""
         
         # 3. 合并结果
@@ -78,9 +78,9 @@ def test_optimized_fundamentals_logic():
         has_company = "公司" in final_result or "企业" in final_result
         
         print(f"\n🔍 数据质量检查:")
-        print(f"   - 包含价格信息: {'✅' if has_price else '❌'}")
-        print(f"   - 包含基本面信息: {'✅' if has_fundamentals else '❌'}")
-        print(f"   - 包含公司信息: {'✅' if has_company else '❌'}")
+        print(f"   - 包含价格信息: {'✅' if has_price else '[X]'}")
+        print(f"   - 包含基本面信息: {'✅' if has_fundamentals else '[X]'}")
+        print(f"   - 包含公司信息: {'✅' if has_company else '[X]'}")
         
         print(f"\n💡 优化效果:")
         print(f"   - ✅ 只获取最近2天价格数据，避免了7-30天的历史数据")
@@ -91,7 +91,7 @@ def test_optimized_fundamentals_logic():
         return True
         
     except Exception as e:
-        print(f"❌ 测试过程中出错: {e}")
+        print(f"[X] 测试过程中出错: {e}")
         import traceback
         traceback.print_exc()
         return False

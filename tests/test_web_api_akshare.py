@@ -28,7 +28,7 @@ def test_akshare_web_api():
         adapter = AKShareAdapter()
         
         if not adapter.is_available():
-            print("❌ AKShare适配器不可用")
+            print("[X] AKShare适配器不可用")
             return
         
         print("✅ AKShare适配器可用")
@@ -59,7 +59,7 @@ def test_akshare_web_api():
                     'duration': duration,
                     'message': 'No stock data returned'
                 }
-                print(f"   ❌ 失败: 无数据返回，耗时: {duration:.1f}秒")
+                print(f"   [X] 失败: 无数据返回，耗时: {duration:.1f}秒")
         except Exception as e:
             duration = time.time() - start
             results['stock_list'] = {
@@ -68,7 +68,7 @@ def test_akshare_web_api():
                 'duration': duration,
                 'message': f'Error: {str(e)}'
             }
-            print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
+            print(f"   [X] 错误: {e}，耗时: {duration:.1f}秒")
         
         # 2. 交易日期测试
         print("\n2. 📅 交易日期测试...")
@@ -92,7 +92,7 @@ def test_akshare_web_api():
                     'duration': duration,
                     'message': 'No trade date found'
                 }
-                print(f"   ❌ 失败: 无交易日期，耗时: {duration:.1f}秒")
+                print(f"   [X] 失败: 无交易日期，耗时: {duration:.1f}秒")
         except Exception as e:
             duration = time.time() - start
             results['trade_date'] = {
@@ -101,7 +101,7 @@ def test_akshare_web_api():
                 'duration': duration,
                 'message': f'Error: {str(e)}'
             }
-            print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
+            print(f"   [X] 错误: {e}，耗时: {duration:.1f}秒")
         
         # 3. 财务数据测试
         print("\n3. 💰 财务数据测试...")
@@ -126,7 +126,7 @@ def test_akshare_web_api():
                     'duration': duration,
                     'message': 'No daily basic data available or not supported'
                 }
-                print(f"   ❌ 失败: 无财务数据，耗时: {duration:.1f}秒")
+                print(f"   [X] 失败: 无财务数据，耗时: {duration:.1f}秒")
         except Exception as e:
             duration = time.time() - start
             results['daily_basic'] = {
@@ -135,7 +135,7 @@ def test_akshare_web_api():
                 'duration': duration,
                 'message': f'Error: {str(e)}'
             }
-            print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
+            print(f"   [X] 错误: {e}，耗时: {duration:.1f}秒")
         
         total_duration = time.time() - total_start
         
@@ -162,7 +162,7 @@ def test_akshare_web_api():
             duration = test_result.get('duration', 0)
             message = test_result.get('message', 'No message')
             
-            status_icon = "✅" if status == 'success' else "❌"
+            status_icon = "✅" if status == 'success' else "[X]"
             print(f"   {status_icon} {test_name}: {message} ({duration:.1f}s)")
         
         # Web超时评估
@@ -172,12 +172,12 @@ def test_akshare_web_api():
         elif total_duration < 60:
             print(f"   ⚠️ 可接受: 总耗时 {total_duration:.1f}秒 < 60秒")
         else:
-            print(f"   ❌ 超时风险: 总耗时 {total_duration:.1f}秒 > 60秒")
+            print(f"   [X] 超时风险: 总耗时 {total_duration:.1f}秒 > 60秒")
         
         return web_result
         
     except Exception as e:
-        print(f"❌ Web API测试失败: {e}")
+        print(f"[X] Web API测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -187,4 +187,4 @@ if __name__ == "__main__":
     if result:
         print(f"\n✅ 测试完成，AKShare Web API兼容性: {'良好' if result['total_duration'] < 60 else '需要优化'}")
     else:
-        print(f"\n❌ 测试失败")
+        print(f"\n[X] 测试失败")

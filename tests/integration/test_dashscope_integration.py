@@ -29,7 +29,7 @@ def test_import():
         
         return True
     except ImportError as e:
-        print(f"❌ 导入失败: {e}")
+        print(f"[X] 导入失败: {e}")
         return False
 
 def test_api_key():
@@ -40,14 +40,14 @@ def test_api_key():
     finnhub_key = os.getenv('FINNHUB_API_KEY')
     
     if not dashscope_key:
-        print("❌ 未找到 DASHSCOPE_API_KEY 环境变量")
+        print("[X] 未找到 DASHSCOPE_API_KEY 环境变量")
         print("💡 请设置: set DASHSCOPE_API_KEY=your_api_key")
         return False
     else:
         print(f"✅ DASHSCOPE_API_KEY: {dashscope_key[:10]}...")
     
     if not finnhub_key:
-        print("❌ 未找到 FINNHUB_API_KEY 环境变量")
+        print("[X] 未找到 FINNHUB_API_KEY 环境变量")
         print("💡 请设置: set FINNHUB_API_KEY=your_api_key")
         return False
     else:
@@ -78,11 +78,11 @@ def test_dashscope_connection():
             print(f"✅ 阿里百炼连接成功: {content}")
             return True
         else:
-            print(f"❌ 阿里百炼连接失败: {response.code} - {response.message}")
+            print(f"[X] 阿里百炼连接失败: {response.code} - {response.message}")
             return False
             
     except Exception as e:
-        print(f"❌ 阿里百炼连接测试失败: {e}")
+        print(f"[X] 阿里百炼连接测试失败: {e}")
         return False
 
 def test_langchain_adapter():
@@ -104,7 +104,7 @@ def test_langchain_adapter():
         return True
         
     except Exception as e:
-        print(f"❌ LangChain适配器测试失败: {e}")
+        print(f"[X] LangChain适配器测试失败: {e}")
         return False
 
 def test_trading_graph_config():
@@ -130,7 +130,7 @@ def test_trading_graph_config():
         return True
         
     except Exception as e:
-        print(f"❌ TradingGraph 配置失败: {e}")
+        print(f"[X] TradingGraph 配置失败: {e}")
         return False
 
 def main():
@@ -154,7 +154,7 @@ def main():
             if test():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试异常: {e}")
+            print(f"[X] 测试异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"📊 测试结果: {passed}/{total} 通过")

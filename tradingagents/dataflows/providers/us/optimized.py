@@ -159,7 +159,7 @@ class OptimizedUSDataProvider:
                     logger.warning(f"⚠️ 未知的数据源类型: {source_name}")
                     continue
 
-                if formatted_data and "❌" not in formatted_data:
+                if formatted_data and "[X]" not in formatted_data:
                     data_source = source_name
                     logger.info(f"✅ [数据来源: API调用成功-{source_name.upper()}] {source_name.upper()} 数据获取成功: {symbol}")
                     break  # 成功获取数据，跳出循环
@@ -168,7 +168,7 @@ class OptimizedUSDataProvider:
                     formatted_data = None
 
             except Exception as e:
-                logger.error(f"❌ [数据来源: API异常-{source.value.upper()}] {source.value.upper()} API调用失败: {e}")
+                logger.error(f"[X] [数据来源: API异常-{source.value.upper()}] {source.value.upper()} API调用失败: {e}")
                 formatted_data = None
                 continue  # 尝试下一个数据源
 
@@ -186,7 +186,7 @@ class OptimizedUSDataProvider:
                         from tradingagents.dataflows.interface import get_hk_stock_data_unified
                         hk_data_text = get_hk_stock_data_unified(symbol, start_date, end_date)
 
-                        if hk_data_text and "❌" not in hk_data_text:
+                        if hk_data_text and "[X]" not in hk_data_text:
                             formatted_data = hk_data_text
                             data_source = "akshare_hk"
                             logger.info(f"✅ [数据来源: API调用成功-AKShare] AKShare港股数据获取成功: {symbol}")
@@ -207,7 +207,7 @@ class OptimizedUSDataProvider:
                             data_source = "yfinance_hk"
                             logger.info(f"✅ [数据来源: API调用成功-Yahoo Finance] Yahoo Finance港股数据获取成功: {symbol}")
                         else:
-                            logger.error(f"❌ [数据来源: API失败-Yahoo Finance] Yahoo Finance港股数据为空: {symbol}")
+                            logger.error(f"[X] [数据来源: API失败-Yahoo Finance] Yahoo Finance港股数据为空: {symbol}")
                 else:
                     # 美股使用Yahoo Finance
                     logger.info(f"🇺🇸 [数据来源: API调用-Yahoo Finance] 从Yahoo Finance API获取美股数据: {symbol}")
@@ -219,7 +219,7 @@ class OptimizedUSDataProvider:
 
                     if data.empty:
                         error_msg = f"未找到股票 '{symbol}' 在 {start_date} 到 {end_date} 期间的数据"
-                        logger.error(f"❌ [数据来源: API失败-Yahoo Finance] {error_msg}")
+                        logger.error(f"[X] [数据来源: API失败-Yahoo Finance] {error_msg}")
                     else:
                         # 格式化数据
                         formatted_data = self._format_stock_data(symbol, data, start_date, end_date)
@@ -227,13 +227,13 @@ class OptimizedUSDataProvider:
                         logger.info(f"✅ [数据来源: API调用成功-Yahoo Finance] Yahoo Finance美股数据获取成功: {symbol}")
 
             except Exception as e:
-                logger.error(f"❌ [数据来源: API异常] 数据获取失败: {e}")
+                logger.error(f"[X] [数据来源: API异常] 数据获取失败: {e}")
                 formatted_data = None
 
         # 如果所有API都失败，生成备用数据
         if not formatted_data:
             error_msg = "所有美股数据源都不可用"
-            logger.error(f"❌ [数据来源: 所有API失败] {error_msg}")
+            logger.error(f"[X] [数据来源: 所有API失败] {error_msg}")
             logger.warning(f"⚠️ [数据来源: 备用数据] 生成备用数据: {symbol}")
             return self._generate_fallback_data(symbol, start_date, end_date, error_msg)
 
@@ -399,7 +399,7 @@ class OptimizedUSDataProvider:
             return formatted_data
 
         except Exception as e:
-            logger.error(f"❌ FINNHUB数据获取失败: {e}")
+            logger.error(f"[X] FINNHUB数据获取失败: {e}")
             return None
 
     def _get_data_from_yfinance(self, symbol: str, start_date: str, end_date: str) -> str:
@@ -411,7 +411,7 @@ class OptimizedUSDataProvider:
 
             if data.empty:
                 error_msg = f"未找到股票 '{symbol}' 在 {start_date} 到 {end_date} 期间的数据"
-                logger.error(f"❌ Yahoo Finance数据为空: {error_msg}")
+                logger.error(f"[X] Yahoo Finance数据为空: {error_msg}")
                 return None
 
             # 格式化数据
@@ -419,7 +419,7 @@ class OptimizedUSDataProvider:
             return formatted_data
 
         except Exception as e:
-            logger.error(f"❌ Yahoo Finance数据获取失败: {e}")
+            logger.error(f"[X] Yahoo Finance数据获取失败: {e}")
             return None
 
     def _get_data_from_alpha_vantage(self, symbol: str, start_date: str, end_date: str) -> str:
@@ -450,7 +450,7 @@ class OptimizedUSDataProvider:
 
             # 检查错误
             if "Error Message" in data_json:
-                logger.error(f"❌ Alpha Vantage API 错误: {data_json['Error Message']}")
+                logger.error(f"[X] Alpha Vantage API 错误: {data_json['Error Message']}")
                 return None
 
             if "Note" in data_json:
@@ -460,7 +460,7 @@ class OptimizedUSDataProvider:
             # 解析时间序列数据
             time_series = data_json.get("Time Series (Daily)", {})
             if not time_series:
-                logger.error("❌ Alpha Vantage 返回数据为空")
+                logger.error("[X] Alpha Vantage 返回数据为空")
                 return None
 
             # 转换为 DataFrame
@@ -476,7 +476,7 @@ class OptimizedUSDataProvider:
             df = df[(df.index >= start_date) & (df.index <= end_date)]
 
             if df.empty:
-                logger.error(f"❌ Alpha Vantage 数据在指定日期范围内为空")
+                logger.error(f"[X] Alpha Vantage 数据在指定日期范围内为空")
                 return None
 
             # 格式化数据
@@ -484,14 +484,14 @@ class OptimizedUSDataProvider:
             return formatted_data
 
         except Exception as e:
-            logger.error(f"❌ Alpha Vantage数据获取失败: {e}")
+            logger.error(f"[X] Alpha Vantage数据获取失败: {e}")
             return None
 
     def _generate_fallback_data(self, symbol: str, start_date: str, end_date: str, error_msg: str) -> str:
         """生成备用数据"""
         return f"""# {symbol} 美股数据获取失败
 
-## ❌ 错误信息
+## [X] 错误信息
 {error_msg}
 
 ## 📊 模拟数据（仅供演示）

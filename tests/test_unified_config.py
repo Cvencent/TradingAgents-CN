@@ -44,7 +44,7 @@ def test_config_unification():
             for config in deepseek_configs:
                 print(f"   - {config.model_name}: 输入¥{config.input_price_per_1k}/1K, 输出¥{config.output_price_per_1k}/1K")
         else:
-            print("❌ 未找到DeepSeek配置")
+            print("[X] 未找到DeepSeek配置")
         
         # 测试成本计算
         print(f"\n💰 测试成本计算:")
@@ -60,11 +60,11 @@ def test_config_unification():
             print("✅ DeepSeek成本计算正常")
             return True
         else:
-            print("❌ DeepSeek成本计算仍为0")
+            print("[X] DeepSeek成本计算仍为0")
             return False
         
     except Exception as e:
-        print(f"❌ 配置统一测试失败: {e}")
+        print(f"[X] 配置统一测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -99,11 +99,11 @@ def test_web_config_access():
             print("✅ Web界面找到DeepSeek配置")
             return True
         else:
-            print("❌ Web界面未找到DeepSeek配置")
+            print("[X] Web界面未找到DeepSeek配置")
             return False
         
     except Exception as e:
-        print(f"❌ Web配置访问测试失败: {e}")
+        print(f"[X] Web配置访问测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -141,14 +141,14 @@ def test_config_consistency():
                 print("✅ 配置数量一致")
                 return True
             else:
-                print("❌ 配置数量不一致")
+                print("[X] 配置数量不一致")
                 return False
         else:
-            print("❌ 配置目录不一致")
+            print("[X] 配置目录不一致")
             return False
         
     except Exception as e:
-        print(f"❌ 配置一致性测试失败: {e}")
+        print(f"[X] 配置一致性测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -174,9 +174,9 @@ def main():
     print("\n📋 测试总结")
     print("=" * 60)
     
-    print(f"配置统一: {'✅ 成功' if unification_success else '❌ 失败'}")
-    print(f"Web配置访问: {'✅ 成功' if web_access_success else '❌ 失败'}")
-    print(f"配置一致性: {'✅ 成功' if consistency_success else '❌ 失败'}")
+    print(f"配置统一: {'✅ 成功' if unification_success else '[X] 失败'}")
+    print(f"Web配置访问: {'✅ 成功' if web_access_success else '[X] 失败'}")
+    print(f"配置一致性: {'✅ 成功' if consistency_success else '[X] 失败'}")
     
     overall_success = unification_success and web_access_success and consistency_success
     
@@ -185,7 +185,7 @@ def main():
         print("   现在所有组件都使用项目根目录的统一配置")
         print("   不再需要维护多套配置文件")
     else:
-        print("\n❌ 配置统一失败")
+        print("\n[X] 配置统一失败")
         print("   需要进一步调试")
     
     print("\n🎯 测试完成！")

@@ -71,7 +71,7 @@ def test_final_integration():
                 if "新闻数据来源" in result:
                     print(f"  ✅ 包含数据来源信息")
             else:
-                print(f"  ❌ 获取失败")
+                print(f"  [X] 获取失败")
         
         print(f"\n✅ 统一新闻工具测试完成")
         
@@ -101,7 +101,7 @@ def test_final_integration():
             if check_pattern in content:
                 print(f"  ✅ {check_name}: 已正确集成")
             else:
-                print(f"  ❌ {check_name}: 未找到")
+                print(f"  [X] {check_name}: 未找到")
         
         # 4. 总结
         print(f"\n🎉 集成验证总结")
@@ -122,7 +122,7 @@ def test_final_integration():
         print(f"\n✨ 集成测试完成！统一新闻工具已成功集成到新闻分析师中。")
         
     except Exception as e:
-        print(f"❌ 测试过程中出现错误: {e}")
+        print(f"[X] 测试过程中出现错误: {e}")
         import traceback
         traceback.print_exc()
 

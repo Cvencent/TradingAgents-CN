@@ -112,7 +112,7 @@ def test_save_analysis_result():
             if json_file.exists():
                 print(f"✅ JSON文件已创建: {json_file}")
             else:
-                print(f"❌ JSON文件未找到: {json_file}")
+                print(f"[X] JSON文件未找到: {json_file}")
             
             # 检查详细报告目录
             import os
@@ -144,15 +144,15 @@ def test_save_analysis_result():
                 else:
                     print("⚠️ 报告目录存在但无文件")
             else:
-                print(f"❌ 详细报告目录未创建: {reports_dir}")
+                print(f"[X] 详细报告目录未创建: {reports_dir}")
             
         else:
-            print("❌ 分析结果保存失败")
+            print("[X] 分析结果保存失败")
         
         return success
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -165,7 +165,7 @@ def test_mongodb_save():
         from web.utils.mongodb_report_manager import mongodb_report_manager
         
         if not mongodb_report_manager.connected:
-            print("❌ MongoDB未连接")
+            print("[X] MongoDB未连接")
             return False
         
         # 获取当前记录数
@@ -187,7 +187,7 @@ def test_mongodb_save():
             return False
             
     except Exception as e:
-        print(f"❌ MongoDB测试失败: {e}")
+        print(f"[X] MongoDB测试失败: {e}")
         return False
 
 def main():
@@ -202,8 +202,8 @@ def main():
     mongodb_success = test_mongodb_save()
     
     print(f"\n🎉 测试完成")
-    print(f"📄 文件保存: {'✅ 成功' if save_success else '❌ 失败'}")
-    print(f"🗄️ MongoDB保存: {'✅ 成功' if mongodb_success else '❌ 失败'}")
+    print(f"📄 文件保存: {'✅ 成功' if save_success else '[X] 失败'}")
+    print(f"🗄️ MongoDB保存: {'✅ 成功' if mongodb_success else '[X] 失败'}")
 
 if __name__ == "__main__":
     main()

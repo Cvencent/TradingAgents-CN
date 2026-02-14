@@ -101,7 +101,7 @@ def main():
     # 获取目标版本号
     target_version = get_target_version()
     if not target_version:
-        logger.error(f"❌ 无法读取VERSION文件")
+        logger.error(f"[X] 无法读取VERSION文件")
         return
 
     logger.info(f"🎯 目标版本: {target_version}")
@@ -129,9 +129,9 @@ def main():
         else:
             for issue in issues:
                 if 'error' in issue:
-                    logger.error(f"   ❌ 检查错误: {issue['error']}")
+                    logger.error(f"   [X] 检查错误: {issue['error']}")
                 else:
-                    logger.error(f"   ❌ 第{issue['line']}行: 发现 '{issue['found']}', 期望 '{issue['expected']}'")
+                    logger.error(f"   [X] 第{issue['line']}行: 发现 '{issue['found']}', 期望 '{issue['expected']}'")
                     logger.info(f"      上下文: ...{issue['context']}...")
                 total_issues += len(issues)
 

@@ -30,11 +30,11 @@ def test_toolkit_hk_method():
             print("  ✅ 工具包港股方法存在")
             return True
         else:
-            print("  ❌ 工具包港股方法不存在")
+            print("  [X] 工具包港股方法不存在")
             return False
         
     except Exception as e:
-        print(f"❌ 工具包港股方法测试失败: {e}")
+        print(f"[X] 工具包港股方法测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -66,7 +66,7 @@ def test_market_analyst_tools():
         if market_info['is_hk']:
             print("  ✅ 港股识别正确")
         else:
-            print("  ❌ 港股识别失败")
+            print("  [X] 港股识别失败")
             return False
         
         # 检查工具包方法
@@ -76,7 +76,7 @@ def test_market_analyst_tools():
         return True
         
     except Exception as e:
-        print(f"❌ 市场分析师工具配置测试失败: {e}")
+        print(f"[X] 市场分析师工具配置测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -113,7 +113,7 @@ def test_akshare_hk_availability():
         return True
         
     except Exception as e:
-        print(f"❌ AKShare港股可用性测试失败: {e}")
+        print(f"[X] AKShare港股可用性测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -144,7 +144,7 @@ def test_data_source_priority():
         return True
         
     except Exception as e:
-        print(f"❌ 数据源优先级测试失败: {e}")
+        print(f"[X] 数据源优先级测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -169,11 +169,11 @@ def test_market_analyst_modification():
             print("  ✅ 市场分析师修改正确")
             return True
         else:
-            print("  ❌ 市场分析师修改不完整")
+            print("  [X] 市场分析师修改不完整")
             return False
         
     except Exception as e:
-        print(f"❌ 市场分析师修改测试失败: {e}")
+        print(f"[X] 市场分析师修改测试失败: {e}")
         return False
 
 def main():
@@ -197,7 +197,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"🔧 港股数据源修复测试完成: {passed}/{total} 通过")

@@ -253,7 +253,7 @@ class MemoryStateManager:
             if task:
                 logger.debug(f"✅ 找到任务: {task_id}")
             else:
-                logger.debug(f"❌ 未找到任务: {task_id}")
+                logger.debug(f"[X] 未找到任务: {task_id}")
             return task
     
     async def get_task_dict(self, task_id: str) -> Optional[Dict[str, Any]]:

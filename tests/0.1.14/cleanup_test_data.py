@@ -33,7 +33,7 @@ def cleanup_mongodb_test_data():
         from web.utils.mongodb_report_manager import mongodb_report_manager
         
         if not mongodb_report_manager.connected:
-            print("❌ MongoDB未连接")
+            print("[X] MongoDB未连接")
             return
         
         # 删除测试数据
@@ -47,7 +47,7 @@ def cleanup_mongodb_test_data():
         print(f"✅ 已删除 {result2.deleted_count} 条TEST001相关记录")
         
     except Exception as e:
-        print(f"❌ MongoDB清理失败: {e}")
+        print(f"[X] MongoDB清理失败: {e}")
 
 def main():
     """主函数"""

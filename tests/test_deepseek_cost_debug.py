@@ -22,7 +22,7 @@ def test_deepseek_cost_debug():
     
     # 检查API密钥
     if not os.getenv("DEEPSEEK_API_KEY"):
-        print("❌ 未找到DEEPSEEK_API_KEY，无法测试")
+        print("[X] 未找到DEEPSEEK_API_KEY，无法测试")
         return False
     
     try:
@@ -54,7 +54,7 @@ def test_deepseek_cost_debug():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -72,7 +72,7 @@ def main():
         print("\n🎉 测试完成！")
         print("请查看上面的详细日志，找出成本计算为0的原因。")
     else:
-        print("\n❌ 测试失败")
+        print("\n[X] 测试失败")
     
     return success
 

@@ -60,7 +60,7 @@ class BaoStockInitService:
             self.sync_service = BaoStockSyncService()
             logger.info("✅ BaoStock初始化服务初始化成功")
         except Exception as e:
-            logger.error(f"❌ BaoStock初始化服务初始化失败: {e}")
+            logger.error(f"[X] BaoStock初始化服务初始化失败: {e}")
             raise
 
     async def initialize(self):
@@ -75,7 +75,7 @@ class BaoStockInitService:
 
             logger.info("✅ BaoStock初始化服务异步初始化完成")
         except Exception as e:
-            logger.error(f"❌ BaoStock初始化服务异步初始化失败: {e}")
+            logger.error(f"[X] BaoStock初始化服务异步初始化失败: {e}")
             raise
     
     async def check_database_status(self) -> Dict[str, Any]:
@@ -112,7 +112,7 @@ class BaoStockInitService:
             }
             
         except Exception as e:
-            logger.error(f"❌ 检查数据库状态失败: {e}")
+            logger.error(f"[X] 检查数据库状态失败: {e}")
             return {"status": "error", "error": str(e)}
     
     async def full_initialization(self, historical_days: int = 365,
@@ -228,7 +228,7 @@ class BaoStockInitService:
         except Exception as e:
             stats.end_time = datetime.now()
             error_msg = f"BaoStock初始化失败: {e}"
-            logger.error(f"❌ {error_msg}")
+            logger.error(f"[X] {error_msg}")
             stats.errors.append(error_msg)
             return stats
     
@@ -272,7 +272,7 @@ class BaoStockInitService:
             return financial_count
             
         except Exception as e:
-            logger.error(f"❌ 财务数据同步失败: {e}")
+            logger.error(f"[X] 财务数据同步失败: {e}")
             return 0
     
     async def _verify_data_integrity(self, stats: BaoStockInitializationStats):
@@ -291,7 +291,7 @@ class BaoStockInitService:
             logger.info("✅ 数据完整性验证完成")
             
         except Exception as e:
-            logger.error(f"❌ 数据完整性验证失败: {e}")
+            logger.error(f"[X] 数据完整性验证失败: {e}")
             stats.errors.append(f"数据完整性验证失败: {e}")
     
     async def basic_initialization(self) -> BaoStockInitializationStats:
@@ -336,7 +336,7 @@ class BaoStockInitService:
         except Exception as e:
             stats.end_time = datetime.now()
             error_msg = f"BaoStock基础初始化失败: {e}"
-            logger.error(f"❌ {error_msg}")
+            logger.error(f"[X] {error_msg}")
             stats.errors.append(error_msg)
             return stats
 
@@ -350,7 +350,7 @@ async def run_baostock_full_initialization():
         stats = await service.full_initialization()
         logger.info(f"🎯 BaoStock完整初始化完成: {stats.progress}, 耗时: {stats.duration:.1f}秒")
     except Exception as e:
-        logger.error(f"❌ BaoStock完整初始化任务失败: {e}")
+        logger.error(f"[X] BaoStock完整初始化任务失败: {e}")
 
 
 async def run_baostock_basic_initialization():
@@ -361,4 +361,4 @@ async def run_baostock_basic_initialization():
         stats = await service.basic_initialization()
         logger.info(f"🎯 BaoStock基础初始化完成: {stats.progress}, 耗时: {stats.duration:.1f}秒")
     except Exception as e:
-        logger.error(f"❌ BaoStock基础初始化任务失败: {e}")
+        logger.error(f"[X] BaoStock基础初始化任务失败: {e}")

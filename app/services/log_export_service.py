@@ -38,7 +38,7 @@ class LogExportService:
                 self.log_dir.mkdir(parents=True, exist_ok=True)
                 logger.info(f"✅ [LogExportService] 已创建日志目录: {self.log_dir}")
             except Exception as e:
-                logger.error(f"❌ [LogExportService] 创建日志目录失败: {e}")
+                logger.error(f"[X] [LogExportService] 创建日志目录失败: {e}")
         else:
             logger.info(f"✅ [LogExportService] 日志目录存在")
 
@@ -59,11 +59,11 @@ class LogExportService:
             logger.info(f"🔍 [list_log_files] 是否为目录: {self.log_dir.is_dir()}")
 
             if not self.log_dir.exists():
-                logger.error(f"❌ [list_log_files] 日志目录不存在: {self.log_dir}")
+                logger.error(f"[X] [list_log_files] 日志目录不存在: {self.log_dir}")
                 return []
 
             if not self.log_dir.is_dir():
-                logger.error(f"❌ [list_log_files] 路径不是目录: {self.log_dir}")
+                logger.error(f"[X] [list_log_files] 路径不是目录: {self.log_dir}")
                 return []
 
             # 列出目录中的所有文件（调试用）
@@ -73,7 +73,7 @@ class LogExportService:
                 for item in all_items[:10]:  # 只显示前10个
                     logger.info(f"🔍 [list_log_files]   - {item.name} (is_file: {item.is_file()})")
             except Exception as e:
-                logger.error(f"❌ [list_log_files] 列出目录内容失败: {e}")
+                logger.error(f"[X] [list_log_files] 列出目录内容失败: {e}")
 
             # 搜索日志文件
             logger.info(f"🔍 [list_log_files] 搜索模式: *.log*")
@@ -101,7 +101,7 @@ class LogExportService:
             return log_files
 
         except Exception as e:
-            logger.error(f"❌ [list_log_files] 列出日志文件失败: {e}", exc_info=True)
+            logger.error(f"[X] [list_log_files] 列出日志文件失败: {e}", exc_info=True)
             return []
 
     def _get_log_type(self, filename: str) -> str:
@@ -211,7 +211,7 @@ class LogExportService:
             }
             
         except Exception as e:
-            logger.error(f"❌ 读取日志文件失败: {e}")
+            logger.error(f"[X] 读取日志文件失败: {e}")
             raise
 
     def export_logs(
@@ -311,7 +311,7 @@ class LogExportService:
                 raise ValueError(f"不支持的导出格式: {format}")
                 
         except Exception as e:
-            logger.error(f"❌ 导出日志失败: {e}")
+            logger.error(f"[X] 导出日志失败: {e}")
             raise
 
     def get_log_statistics(self, days: int = 7) -> Dict[str, Any]:
@@ -368,7 +368,7 @@ class LogExportService:
             return stats
             
         except Exception as e:
-            logger.error(f"❌ 获取日志统计失败: {e}")
+            logger.error(f"[X] 获取日志统计失败: {e}")
             return {}
 
 
@@ -473,6 +473,6 @@ def _get_log_directory() -> str:
         return "./logs"
 
     except Exception as e:
-        logger.error(f"❌ [_get_log_directory] 获取日志目录失败: {e}，使用默认值 ./logs", exc_info=True)
+        logger.error(f"[X] [_get_log_directory] 获取日志目录失败: {e}，使用默认值 ./logs", exc_info=True)
         return "./logs"
 

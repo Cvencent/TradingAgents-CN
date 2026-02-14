@@ -88,7 +88,7 @@ async def test_operation_logs():
         print(f"✅ 查询成功，总数: {total}, 返回: {len(logs)} 条")
         
         for log in logs[:3]:  # 显示前3条
-            print(f"  - {log.timestamp} | {log.username} | {log.action} | {'✅' if log.success else '❌'}")
+            print(f"  - {log.timestamp} | {log.username} | {log.action} | {'✅' if log.success else '[X]'}")
         
         # 测试4: 获取统计信息
         print("\n📊 测试4: 获取统计信息")
@@ -116,7 +116,7 @@ async def test_operation_logs():
         print("\n🎉 所有测试完成！操作日志功能正常工作。")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 

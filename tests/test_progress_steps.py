@@ -35,14 +35,14 @@ async def login() -> str:
                 elif "access_token" in result:
                     token = result["access_token"]
                 else:
-                    print(f"❌ 无法从响应中提取token")
+                    print(f"[X] 无法从响应中提取token")
                     return None
 
                 print(f"✅ 登录成功，token: {token[:20]}...")
                 return token
             else:
                 error = await response.text()
-                print(f"❌ 登录失败: {error}")
+                print(f"[X] 登录失败: {error}")
                 return None
 
 async def start_analysis(token: str) -> str:
@@ -75,7 +75,7 @@ async def start_analysis(token: str) -> str:
                 return task_id
             else:
                 error = await response.text()
-                print(f"❌ 提交分析失败 (状态码: {response.status}): {error}")
+                print(f"[X] 提交分析失败 (状态码: {response.status}): {error}")
                 return None
 
 async def get_task_status(token: str, task_id: str) -> dict:
@@ -95,7 +95,7 @@ async def get_task_status(token: str, task_id: str) -> dict:
                 return result["data"]
             else:
                 error = await response.text()
-                print(f"❌ 获取状态失败: {error}")
+                print(f"[X] 获取状态失败: {error}")
                 return None
 
 def print_progress_info(status_data: dict, iteration: int):
@@ -142,7 +142,7 @@ def print_progress_info(status_data: dict, iteration: int):
                 'pending': '⏳',
                 'current': '🔄',
                 'completed': '✅',
-                'failed': '❌'
+                'failed': '[X]'
             }.get(step.get('status', 'pending'), '❓')
             
             print(f"{i:<6} {status_icon} {step.get('status', 'N/A'):<10} {step.get('name', 'N/A'):<30} {step.get('weight', 0):.2%}")
@@ -177,7 +177,7 @@ async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 
         status_data = await get_task_status(token, task_id)
         
         if not status_data:
-            print(f"❌ 无法获取任务状态")
+            print(f"[X] 无法获取任务状态")
             break
         
         # 打印进度信息
@@ -189,7 +189,7 @@ async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 
             print(f"✅ 任务已完成！")
             break
         elif status == 'failed':
-            print(f"❌ 任务失败！")
+            print(f"[X] 任务失败！")
             break
         
         # 等待下一次查询
@@ -208,14 +208,14 @@ async def main():
     print(f"1️⃣ 登录系统...")
     token = await login()
     if not token:
-        print(f"❌ 登录失败，退出测试")
+        print(f"[X] 登录失败，退出测试")
         return
     
     # 2. 发起分析
     print(f"\n2️⃣ 发起分析任务...")
     task_id = await start_analysis(token)
     if not task_id:
-        print(f"❌ 发起分析失败，退出测试")
+        print(f"[X] 发起分析失败，退出测试")
         return
     
     # 3. 监控进度

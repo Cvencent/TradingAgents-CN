@@ -17,7 +17,7 @@ try:
     from web.utils.mongodb_report_manager import mongodb_report_manager
     print(f"✅ MongoDB报告管理器导入成功")
 except ImportError as e:
-    print(f"❌ MongoDB报告管理器导入失败: {e}")
+    print(f"[X] MongoDB报告管理器导入失败: {e}")
     sys.exit(1)
 
 def check_mongodb_connection():
@@ -26,7 +26,7 @@ def check_mongodb_connection():
     print(f"连接状态: {mongodb_report_manager.connected}")
     
     if not mongodb_report_manager.connected:
-        print(f"❌ MongoDB未连接")
+        print(f"[X] MongoDB未连接")
         return False
     
     print(f"✅ MongoDB连接正常")
@@ -77,7 +77,7 @@ def check_analysis_records():
                 print(f"  ⚠️ 没有报告内容")
                 
     except Exception as e:
-        print(f"❌ 检查分析记录失败: {e}")
+        print(f"[X] 检查分析记录失败: {e}")
         import traceback
         print(f"详细错误: {traceback.format_exc()}")
 
@@ -113,7 +113,7 @@ def check_specific_stock(stock_symbol="000001"):
             print(f"⚠️ 没有找到股票 {stock_symbol} 的记录")
             
     except Exception as e:
-        print(f"❌ 检查特定股票记录失败: {e}")
+        print(f"[X] 检查特定股票记录失败: {e}")
 
 def main():
     print(f"🔍 MongoDB分析记录检查工具")

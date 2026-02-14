@@ -9,12 +9,12 @@ import json
 from pymongo import MongoClient
 
 def check_mongodb_before_after():
-    """检查MongoDB保存前后的数据"""
+    """检查MongoDB保存前后的数据"""  
     print("🔍 测试MongoDB保存功能")
     print("=" * 60)
     
     # 连接MongoDB
-    try:
+    try:  
         client = MongoClient('mongodb://localhost:27017/')
         db = client['tradingagents']
         collection = db['analysis_reports']

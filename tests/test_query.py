@@ -27,7 +27,7 @@ for query in queries:
         print(f"  - amount: {result.get('amount')}")
         print(f"  - volume_ratio: {result.get('volume_ratio')}")
     else:
-        print(f"  ❌ 未找到数据")
+        print(f"  [X] 未找到数据")
 
 client.close()
 

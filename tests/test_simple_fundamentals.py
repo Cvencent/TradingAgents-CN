@@ -75,7 +75,7 @@ def test_simple_fundamentals():
                 count_002027 = result.count("002027")
                 print(f"   002027 出现次数: {count_002027}")
             else:
-                print("❌ 工具返回结果中不包含正确的股票代码 002027")
+                print("[X] 工具返回结果中不包含正确的股票代码 002027")
                 
             if "002021" in result:
                 print("⚠️ 工具返回结果中包含错误的股票代码 002021")
@@ -115,7 +115,7 @@ def test_simple_fundamentals():
                 count_002027 = response.content.count("002027")
                 print(f"   002027 出现次数: {count_002027}")
             else:
-                print("❌ LLM响应中不包含正确的股票代码 002027")
+                print("[X] LLM响应中不包含正确的股票代码 002027")
                 
             if "002021" in response.content:
                 print("⚠️ LLM响应中包含错误的股票代码 002021")
@@ -145,7 +145,7 @@ def test_simple_fundamentals():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -159,4 +159,4 @@ if __name__ == "__main__":
     if success:
         print("\n✅ 测试完成")
     else:
-        print("\n❌ 测试失败")
+        print("\n[X] 测试失败")

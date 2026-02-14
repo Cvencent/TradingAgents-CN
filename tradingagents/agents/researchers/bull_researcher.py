@@ -48,7 +48,7 @@ def create_bull_researcher(llm, memory):
                                 logger.info(f"✅ [多头研究员] 降级方案成功获取股票名称: {ticker_code} -> {name}")
                                 return name
                         except Exception as e:
-                            logger.error(f"❌ [多头研究员] 降级方案也失败: {e}")
+                            logger.error(f"[X] [多头研究员] 降级方案也失败: {e}")
                 elif market_info_dict['is_hk']:
                     try:
                         from tradingagents.dataflows.providers.hk.improved_hk import get_hk_company_name_improved
@@ -65,7 +65,7 @@ def create_bull_researcher(llm, memory):
                     }
                     return us_stock_names.get(ticker_code.upper(), f"美股{ticker_code}")
             except Exception as e:
-                logger.error(f"❌ [多头研究员] 获取公司名称失败: {e}")
+                logger.error(f"[X] [多头研究员] 获取公司名称失败: {e}")
             return f"股票代码{ticker_code}"
 
         company_name = _get_company_name(ticker, market_info)
@@ -144,14 +144,34 @@ def create_bull_researcher(llm, memory):
             else:
                 new_bull_history = [argument]
 
+        # 🔧 保存当前prompt到bull_prompts列表（用于前端展示）
+        current_bull_prompts = investment_debate_state.get("bull_prompts", [])
+        if not isinstance(current_bull_prompts, list):
+            current_bull_prompts = []
+        new_bull_prompts = current_bull_prompts + [prompt]
+        logger.info(f"🔍 [Bull Researcher] 保存prompt到bull_prompts，当前轮数: {len(new_bull_prompts)}, prompt长度: {len(prompt)} chars")
+
         new_investment_debate_state = {
             "history": history + "\n" + argument,
             "bull_history": new_bull_history,
             "bear_history": investment_debate_state.get("bear_history", ""),
             "current_response": argument,
             "count": new_count,
+            "bull_prompts": new_bull_prompts,  # 🔧 保存prompts
         }
 
-        return {"investment_debate_state": new_investment_debate_state}
+        logger.info(f"🔍 [Bull Researcher] 返回investment_debate_state，包含字段: {list(new_investment_debate_state.keys())}")
+        
+        # 🔥 关键修复：同时返回 bull_request_prompt 字段（用于前端展示原始prompt）
+        # 将所有轮次的prompt合并，用分隔符隔开
+        full_bull_prompt = "\n\n" + "="*60 + "\n【多头研究员 - 多轮辩论Prompts】\n" + "="*60 + "\n\n"
+        for i, p in enumerate(new_bull_prompts, 1):
+            full_bull_prompt += f"\n--- 第 {i} 轮 ---\n{p}\n"
+        
+        logger.info(f"🔍 [Bull Researcher] 返回 bull_request_prompt，总长度: {len(full_bull_prompt)} chars")
+        return {
+            "investment_debate_state": new_investment_debate_state,
+            "bull_request_prompt": full_bull_prompt  # 🔥 保存完整的请求prompt
+        }
 
     return bull_node

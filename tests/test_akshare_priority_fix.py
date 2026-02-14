@@ -31,11 +31,11 @@ def test_default_data_source():
             print("✅ 默认数据源正确设置为AKShare")
             return True
         else:
-            print(f"❌ 默认数据源错误: 期望akshare，实际{manager.default_source.value}")
+            print(f"[X] 默认数据源错误: 期望akshare，实际{manager.default_source.value}")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -67,14 +67,14 @@ def test_fallback_priority():
                 print("✅ 备用数据源优先级正确: AKShare > Tushare")
                 return True
             else:
-                print("❌ 备用数据源优先级错误: AKShare应该在Tushare之前")
+                print("[X] 备用数据源优先级错误: AKShare应该在Tushare之前")
                 return False
         else:
-            print("❌ 备用数据源配置中未找到AKShare")
+            print("[X] 备用数据源配置中未找到AKShare")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -104,7 +104,7 @@ def test_environment_variable_override():
             print("✅ 环境变量覆盖功能正常")
             result = True
         else:
-            print(f"❌ 环境变量覆盖失败: 期望tushare，实际{manager.default_source.value}")
+            print(f"[X] 环境变量覆盖失败: 期望tushare，实际{manager.default_source.value}")
             result = False
         
         # 恢复原始环境变量
@@ -116,7 +116,7 @@ def test_environment_variable_override():
         return result
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -140,10 +140,10 @@ def test_akshare_availability():
         return True
         
     except ImportError:
-        print("❌ AKShare库未安装")
+        print("[X] AKShare库未安装")
         return False
     except Exception as e:
-        print(f"❌ AKShare测试失败: {e}")
+        print(f"[X] AKShare测试失败: {e}")
         return False
 
 def test_data_source_switching():
@@ -171,10 +171,10 @@ def test_data_source_switching():
                     if current == source:
                         print(f"✅ 当前数据源确认: {current.value}")
                     else:
-                        print(f"❌ 数据源切换验证失败")
+                        print(f"[X] 数据源切换验证失败")
                         return False
                 else:
-                    print(f"❌ 切换到{source.value}失败")
+                    print(f"[X] 切换到{source.value}失败")
                     return False
             else:
                 print(f"⚠️ 数据源{source.value}不可用，跳过测试")
@@ -186,7 +186,7 @@ def test_data_source_switching():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -211,7 +211,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试{test_name}异常: {e}")
+            print(f"[X] 测试{test_name}异常: {e}")
             results.append((test_name, False))
     
     # 总结结果
@@ -222,7 +222,7 @@ def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"  {test_name}: {status}")
         if result:
             passed += 1

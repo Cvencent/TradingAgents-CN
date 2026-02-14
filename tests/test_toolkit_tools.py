@@ -66,9 +66,9 @@ def test_toolkit_tools():
                 else:
                     print("⚠️ Google新闻获取成功但内容较少")
             except Exception as e:
-                print(f"❌ Google新闻测试失败: {e}")
+                print(f"[X] Google新闻测试失败: {e}")
         else:
-            print("❌ get_google_news 方法不存在")
+            print("[X] get_google_news 方法不存在")
         
         # 测试Reddit工具
         reddit_tools = ['get_reddit_global_news', 'get_reddit_company_news', 'get_reddit_stock_info', 'get_reddit_news']
@@ -77,7 +77,7 @@ def test_toolkit_tools():
             if hasattr(toolkit, tool_name):
                 print(f"✅ {tool_name} 方法存在")
             else:
-                print(f"❌ {tool_name} 方法不存在")
+                print(f"[X] {tool_name} 方法不存在")
         
         # 显示所有方法（用于调试）
         print(f"\n📋 所有可用方法:")
@@ -87,7 +87,7 @@ def test_toolkit_tools():
         return True
         
     except Exception as e:
-        print(f"❌ 工具包测试失败: {e}")
+        print(f"[X] 工具包测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -103,19 +103,19 @@ def test_social_news_analysts():
             from tradingagents.agents.analysts.social_media_analyst import create_social_media_analyst
             print("✅ 社交媒体分析师模块可用")
         except ImportError as e:
-            print(f"❌ 社交媒体分析师导入失败: {e}")
+            print(f"[X] 社交媒体分析师导入失败: {e}")
         
         # 检查新闻分析师
         try:
             from tradingagents.agents.analysts.news_analyst import create_news_analyst
             print("✅ 新闻分析师模块可用")
         except ImportError as e:
-            print(f"❌ 新闻分析师导入失败: {e}")
+            print(f"[X] 新闻分析师导入失败: {e}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 分析师测试失败: {e}")
+        print(f"[X] 分析师测试失败: {e}")
         return False
 
 def check_data_requirements():
@@ -169,8 +169,8 @@ def main():
     print("🔑 API密钥状态:")
     google_key = os.getenv('GOOGLE_API_KEY')
     reddit_id = os.getenv('REDDIT_CLIENT_ID')
-    print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
-    print(f"   Reddit API: {'✅ 已配置' if reddit_id else '❌ 未配置'}")
+    print(f"   Google API: {'✅ 已配置' if google_key else '[X] 未配置'}")
+    print(f"   Reddit API: {'✅ 已配置' if reddit_id else '[X] 未配置'}")
     
     # 运行测试
     results = {}
@@ -186,7 +186,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())

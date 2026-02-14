@@ -23,19 +23,19 @@ def analyze_akshare_data():
     
     provider = AKShareProvider()
     if not provider.connected:
-        print("❌ AKShare未连接")
+        print("[X] AKShare未连接")
         return
     
     symbol = "600519"
     financial_data = provider.get_financial_data(symbol)
     
     if not financial_data:
-        print("❌ 未获取到财务数据")
+        print("[X] 未获取到财务数据")
         return
     
     main_indicators = financial_data.get('main_indicators')
     if main_indicators is None:
-        print("❌ 未获取到主要财务指标")
+        print("[X] 未获取到主要财务指标")
         return
     
     print(f"\n📊 主要财务指标数据结构分析:")

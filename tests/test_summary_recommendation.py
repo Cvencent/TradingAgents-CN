@@ -22,12 +22,12 @@ def test_summary_recommendation():
     )
     
     if response.status_code != 200:
-        print(f"❌ 登录失败: {response.status_code}")
+        print(f"[X] 登录失败: {response.status_code}")
         return
     
     result = response.json()
     if not result.get("success"):
-        print(f"❌ 登录失败: {result.get('message')}")
+        print(f"[X] 登录失败: {result.get('message')}")
         return
     
     token = result["data"]["access_token"]
@@ -50,12 +50,12 @@ def test_summary_recommendation():
     )
     
     if result_response.status_code != 200:
-        print(f"❌ 获取结果失败: {result_response.status_code}")
+        print(f"[X] 获取结果失败: {result_response.status_code}")
         return
     
     result_data = result_response.json()
     if not result_data.get("success"):
-        print(f"❌ 获取结果失败: {result_data.get('message')}")
+        print(f"[X] 获取结果失败: {result_data.get('message')}")
         return
     
     analysis_result = result_data["data"]

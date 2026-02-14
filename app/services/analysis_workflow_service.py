@@ -45,7 +45,7 @@ class MongoAnalysisWorkflowConfig:
             logger.warning(f"⚠️ 未找到流程配置: {config_id}")
             return None
         except Exception as e:
-            logger.error(f"❌ 获取流程配置失败: {e}")
+            logger.error(f"[X] 获取流程配置失败: {e}")
             return None
     
     def get_all_workflow_configs(self, user_id: str) -> List[Dict[str, Any]]:
@@ -82,7 +82,7 @@ class MongoAnalysisWorkflowConfig:
             logger.info(f"✅ 成功获取所有流程配置，共 {len(configs)} 个")
             return configs
         except Exception as e:
-            logger.error(f"❌ 获取所有流程配置失败: {e}")
+            logger.error(f"[X] 获取所有流程配置失败: {e}")
             return []
     
     def save_workflow_config(self, config: Dict[str, Any], user_id: str) -> bool:
@@ -134,7 +134,7 @@ class MongoAnalysisWorkflowConfig:
             
             return True
         except Exception as e:
-            logger.error(f"❌ 保存流程配置失败: {e}")
+            logger.error(f"[X] 保存流程配置失败: {e}")
             return False
     
     def delete_workflow_config(self, config_id: str, user_id: str) -> bool:
@@ -166,7 +166,7 @@ class MongoAnalysisWorkflowConfig:
             logger.info(f"✅ 成功删除流程配置: {config_id}")
             return True
         except Exception as e:
-            logger.error(f"❌ 删除流程配置失败: {e}")
+            logger.error(f"[X] 删除流程配置失败: {e}")
             return False
     
     def set_default_config(self, user_id: str, config_id: str) -> bool:
@@ -198,7 +198,7 @@ class MongoAnalysisWorkflowConfig:
                 logger.warning(f"⚠️ 未找到要设置的流程配置: {config_id}")
                 return False
         except Exception as e:
-            logger.error(f"❌ 设置默认流程配置失败: {e}")
+            logger.error(f"[X] 设置默认流程配置失败: {e}")
             return False
     
     def get_default_config(self, user_id: str) -> Optional[Dict[str, Any]]:
@@ -224,7 +224,7 @@ class MongoAnalysisWorkflowConfig:
             logger.warning(f"⚠️ 未找到默认流程配置")
             return None
         except Exception as e:
-            logger.error(f"❌ 获取默认流程配置失败: {e}")
+            logger.error(f"[X] 获取默认流程配置失败: {e}")
             return None
     
     def get_config_by_level(self, user_id: str, analysis_level: int) -> Optional[Dict[str, Any]]:
@@ -263,7 +263,7 @@ class MongoAnalysisWorkflowConfig:
             logger.warning(f"⚠️ 未找到级别 {analysis_level} 的流程配置")
             return None
         except Exception as e:
-            logger.error(f"❌ 获取级别 {analysis_level} 的流程配置失败: {e}")
+            logger.error(f"[X] 获取级别 {analysis_level} 的流程配置失败: {e}")
             return None
     
     def set_default_config_by_level(self, user_id: str, config_id: str, analysis_level: int) -> bool:
@@ -291,7 +291,7 @@ class MongoAnalysisWorkflowConfig:
                 logger.warning(f"⚠️ 未找到要设置的流程配置: {config_id}")
                 return False
         except Exception as e:
-            logger.error(f"❌ 设置级别 {analysis_level} 的默认流程配置失败: {e}")
+            logger.error(f"[X] 设置级别 {analysis_level} 的默认流程配置失败: {e}")
             return False
     
     def initialize_system_presets(self) -> bool:
@@ -388,5 +388,5 @@ class MongoAnalysisWorkflowConfig:
             logger.info(f"✅ 成功初始化系统预设流程配置")
             return True
         except Exception as e:
-            logger.error(f"❌ 初始化系统预设流程配置失败: {e}")
+            logger.error(f"[X] 初始化系统预设流程配置失败: {e}")
             return False

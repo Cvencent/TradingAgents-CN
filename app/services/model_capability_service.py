@@ -269,7 +269,7 @@ class ModelCapabilityService:
         logger.info(f"🔍 检查快速模型特性: {quick_features}")
         if ModelFeature.TOOL_CALLING not in quick_features:
             result["valid"] = False
-            warning = f"❌ 快速模型 {quick_model} 不支持工具调用，无法完成数据收集任务"
+            warning = f"[X] 快速模型 {quick_model} 不支持工具调用，无法完成数据收集任务"
             result["warnings"].append(warning)
             logger.error(warning)
 
@@ -278,7 +278,7 @@ class ModelCapabilityService:
         logger.info(f"🔍 检查深度模型能力等级: {deep_level} >= {requirements['deep_model_min']}?")
         if deep_level < requirements["deep_model_min"]:
             result["valid"] = False
-            warning = f"❌ 深度模型 {deep_model} (能力等级{deep_level}) 不满足 {research_depth} 分析的最低要求(等级{requirements['deep_model_min']})"
+            warning = f"[X] 深度模型 {deep_model} (能力等级{deep_level}) 不满足 {research_depth} 分析的最低要求(等级{requirements['deep_model_min']})"
             result["warnings"].append(warning)
             logger.error(warning)
             result["recommendations"].append(

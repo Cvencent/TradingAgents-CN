@@ -24,7 +24,7 @@ for file_path in files_to_check:
         size = os.path.getsize(file_path)
         print(f"✅ {file_path} (大小: {size:,} 字节)")
     else:
-        print(f"❌ {file_path} (文件不存在)")
+        print(f"[X] {file_path} (文件不存在)")
 
 # 测试2：检查Python语法
 print("\n🐍 检查Python语法...")
@@ -35,7 +35,7 @@ for file_path in files_to_check:
                 compile(f.read(), file_path, 'exec')
             print(f"✅ {file_path} 语法正确")
         except SyntaxError as e:
-            print(f"❌ {file_path} 语法错误: {e}")
+            print(f"[X] {file_path} 语法错误: {e}")
         except Exception as e:
             print(f"⚠️ {file_path} 检查失败: {e}")
 
@@ -60,7 +60,7 @@ try:
             print("⚠️ 缓存目录不存在")
     
 except Exception as e:
-    print(f"❌ cache_manager 导入失败: {e}")
+    print(f"[X] cache_manager 导入失败: {e}")
     traceback.print_exc()
 
 # 测试优化美股数据
@@ -73,7 +73,7 @@ try:
     print(f"✅ 数据提供器创建成功: {type(provider).__name__}")
     
 except Exception as e:
-    print(f"❌ optimized_us_data 导入失败: {e}")
+    print(f"[X] optimized_us_data 导入失败: {e}")
     traceback.print_exc()
 
 # 测试配置模块
@@ -86,7 +86,7 @@ try:
     print(f"✅ 配置获取成功: {type(config).__name__}")
     
 except Exception as e:
-    print(f"❌ config 导入失败: {e}")
+    print(f"[X] config 导入失败: {e}")
     traceback.print_exc()
 
 # 测试4：基本功能测试
@@ -110,7 +110,7 @@ try:
     if loaded_data == test_data:
         print("✅ 数据加载成功，内容匹配")
     else:
-        print(f"❌ 数据不匹配")
+        print(f"[X] 数据不匹配")
         print(f"  期望: {test_data}")
         print(f"  实际: {loaded_data}")
     
@@ -125,10 +125,10 @@ try:
     if found_key:
         print(f"✅ 缓存查找成功: {found_key}")
     else:
-        print("❌ 缓存查找失败")
+        print("[X] 缓存查找失败")
     
 except Exception as e:
-    print(f"❌ 缓存功能测试失败: {e}")
+    print(f"[X] 缓存功能测试失败: {e}")
     traceback.print_exc()
 
 # 测试5：性能测试
@@ -163,7 +163,7 @@ try:
         print("⚠️ 缓存性能需要优化")
     
 except Exception as e:
-    print(f"❌ 性能测试失败: {e}")
+    print(f"[X] 性能测试失败: {e}")
 
 # 测试6：缓存统计
 print("\n📊 缓存统计信息...")
@@ -176,7 +176,7 @@ try:
         print(f"  {key}: {value}")
     
 except Exception as e:
-    print(f"❌ 缓存统计失败: {e}")
+    print(f"[X] 缓存统计失败: {e}")
 
 print("\n" + "=" * 40)
 print("🎉 集成测试完成!")

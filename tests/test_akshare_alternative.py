@@ -40,13 +40,13 @@ def test_akshare_individual_info():
                         value = row.get('value', 'N/A')
                         print(f"     {item}: {value}")
                 else:
-                    print(f"❌ 无法获取{symbol}的信息")
+                    print(f"[X] 无法获取{symbol}的信息")
                     
             except Exception as e:
-                print(f"❌ 获取{symbol}失败: {e}")
+                print(f"[X] 获取{symbol}失败: {e}")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
 
 def test_akshare_financial_apis():
     """测试AKShare的其他财务相关API"""
@@ -88,13 +88,13 @@ def test_akshare_financial_apis():
                         print(f"   样本数据:")
                         print(data.head(2))
                 else:
-                    print(f"   ❌ 无数据")
+                    print(f"   [X] 无数据")
                     
             except Exception as e:
-                print(f"   ❌ 失败: {e}")
+                print(f"   [X] 失败: {e}")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
 
 def test_akshare_market_data():
     """测试AKShare的市场数据接口"""
@@ -130,13 +130,13 @@ def test_akshare_market_data():
                         print(f"   前3条数据:")
                         print(data.head(3))
                 else:
-                    print(f"   ❌ 无数据")
+                    print(f"   [X] 无数据")
                     
             except Exception as e:
-                print(f"   ❌ 失败: {e}")
+                print(f"   [X] 失败: {e}")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
 
 if __name__ == "__main__":
     test_akshare_individual_info()

@@ -48,7 +48,7 @@ def test_llm_tool_binding():
         return True
         
     except Exception as e:
-        print(f"❌ 工具绑定测试失败: {e}")
+        print(f"[X] 工具绑定测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -90,7 +90,7 @@ def test_tool_descriptions():
         return True
         
     except Exception as e:
-        print(f"❌ 工具描述测试失败: {e}")
+        print(f"[X] 工具描述测试失败: {e}")
         return False
 
 
@@ -147,7 +147,7 @@ def test_fundamentals_analyst_tool_selection():
         return True
         
     except Exception as e:
-        print(f"❌ 基本面分析师工具选择测试失败: {e}")
+        print(f"[X] 基本面分析师工具选择测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -172,9 +172,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

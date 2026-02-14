@@ -201,7 +201,7 @@ class ChatDeepSeek(ChatOpenAI):
             return result
             
         except Exception as e:
-            logger.error(f"❌ [DeepSeek] 调用失败: {e}", exc_info=True)
+            logger.error(f"[X] [DeepSeek] 调用失败: {e}", exc_info=True)
             raise
 
     def _generate_with_tools_302ai(
@@ -302,7 +302,7 @@ class ChatDeepSeek(ChatOpenAI):
             
             if response.status_code != 200:
                 error_msg = response.text
-                logger.error(f"❌ [DeepSeek/302AI] API错误: {error_msg[:200]}")
+                logger.error(f"[X] [DeepSeek/302AI] API错误: {error_msg[:200]}")
                 raise Exception(f"API错误 {response.status_code}: {error_msg[:200]}")
             
             # 解析响应
@@ -311,7 +311,7 @@ class ChatDeepSeek(ChatOpenAI):
             return result
             
         except requests.exceptions.RequestException as e:
-            logger.error(f"❌ [DeepSeek/302AI] 网络错误: {e}")
+            logger.error(f"[X] [DeepSeek/302AI] 网络错误: {e}")
             raise
 
     def _format_messages_for_302ai(self, messages) -> List[Dict]:

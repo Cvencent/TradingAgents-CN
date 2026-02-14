@@ -50,7 +50,7 @@ def test_finnhub_news_path():
     data_dir = config.get('data_dir')
     
     if not data_dir:
-        print("❌ 数据目录未配置")
+        print("[X] 数据目录未配置")
         return False
     
     # 测试AAPL新闻数据路径
@@ -81,7 +81,7 @@ def test_get_data_in_range():
     data_dir = config.get('data_dir')
     
     if not data_dir:
-        print("❌ 数据目录未配置")
+        print("[X] 数据目录未配置")
         return
     
     # 测试不存在的股票代码
@@ -119,7 +119,7 @@ def create_sample_data_structure():
     data_dir = config.get('data_dir')
     
     if not data_dir:
-        print("❌ 数据目录未配置")
+        print("[X] 数据目录未配置")
         return
     
     # 创建目录结构
@@ -148,7 +148,7 @@ def create_sample_data_structure():
         print(f"✅ 创建示例数据文件: {sample_file}")
         
     except Exception as e:
-        print(f"❌ 创建目录结构失败: {e}")
+        print(f"[X] 创建目录结构失败: {e}")
 
 def main():
     """主测试函数"""

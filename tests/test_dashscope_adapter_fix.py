@@ -73,7 +73,7 @@ def test_enhanced_tool_binding():
         return True
         
     except Exception as e:
-        print(f"❌ 工具绑定测试失败: {e}")
+        print(f"[X] 工具绑定测试失败: {e}")
         return False
 
 def test_tool_format_validation():
@@ -121,7 +121,7 @@ def test_tool_format_validation():
         return True
         
     except Exception as e:
-        print(f"❌ 工具格式验证测试失败: {e}")
+        print(f"[X] 工具格式验证测试失败: {e}")
         return False
 
 def test_backup_tool_creation():
@@ -154,13 +154,13 @@ def test_backup_tool_creation():
             is_valid = llm._validate_openai_tool_format(backup_tool, "backup_test")
             print(f"   格式验证: {'通过' if is_valid else '失败'}")
         else:
-            print("❌ 备用工具创建失败")
+            print("[X] 备用工具创建失败")
             return False
         
         return True
         
     except Exception as e:
-        print(f"❌ 备用工具创建测试失败: {e}")
+        print(f"[X] 备用工具创建测试失败: {e}")
         return False
 
 def test_tool_call_response_validation():
@@ -206,12 +206,12 @@ def test_tool_call_response_validation():
             print(f"   修复后名称: {fixed_tool_call.get('name')}")
             print(f"   修复后参数: {fixed_tool_call.get('args')}")
         else:
-            print("❌ 工具调用修复失败")
+            print("[X] 工具调用修复失败")
         
         return True
         
     except Exception as e:
-        print(f"❌ 工具调用响应验证测试失败: {e}")
+        print(f"[X] 工具调用响应验证测试失败: {e}")
         return False
 
 def test_comprehensive_tool_calling():
@@ -271,7 +271,7 @@ def test_comprehensive_tool_calling():
         return True
         
     except Exception as e:
-        print(f"❌ 综合工具调用测试失败: {e}")
+        print(f"[X] 综合工具调用测试失败: {e}")
         return False
 
 def main():
@@ -281,7 +281,7 @@ def main():
     
     # 检查环境变量
     if not os.getenv('DASHSCOPE_API_KEY'):
-        print("❌ 错误: 未找到 DASHSCOPE_API_KEY 环境变量")
+        print("[X] 错误: 未找到 DASHSCOPE_API_KEY 环境变量")
         print("请设置您的 DashScope API 密钥:")
         print("  Windows: set DASHSCOPE_API_KEY=your_api_key")
         print("  Linux/Mac: export DASHSCOPE_API_KEY=your_api_key")
@@ -302,7 +302,7 @@ def main():
             result = test_func()
             results[test_name] = result
         except Exception as e:
-            print(f"❌ 测试 {test_name} 执行异常: {e}")
+            print(f"[X] 测试 {test_name} 执行异常: {e}")
             results[test_name] = False
     
     # 输出测试结果
@@ -311,7 +311,7 @@ def main():
     
     passed = 0
     for test_name, result in results.items():
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

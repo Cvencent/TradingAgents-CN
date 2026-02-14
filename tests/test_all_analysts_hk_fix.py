@@ -31,11 +31,11 @@ def test_market_analyst_hk_config():
             print("  ✅ 市场分析师港股配置正确")
             return True
         else:
-            print("  ❌ 市场分析师港股配置不完整")
+            print("  [X] 市场分析师港股配置不完整")
             return False
         
     except Exception as e:
-        print(f"❌ 市场分析师港股配置测试失败: {e}")
+        print(f"[X] 市场分析师港股配置测试失败: {e}")
         return False
 
 def test_fundamentals_analyst_hk_config():
@@ -60,11 +60,11 @@ def test_fundamentals_analyst_hk_config():
             print("  ✅ 基本面分析师港股配置正确")
             return True
         else:
-            print("  ❌ 基本面分析师港股配置不完整")
+            print("  [X] 基本面分析师港股配置不完整")
             return False
         
     except Exception as e:
-        print(f"❌ 基本面分析师港股配置测试失败: {e}")
+        print(f"[X] 基本面分析师港股配置测试失败: {e}")
         return False
 
 def test_optimized_us_data_hk_support():
@@ -89,11 +89,11 @@ def test_optimized_us_data_hk_support():
             print("  ✅ 优化美股数据模块港股支持正确")
             return True
         else:
-            print("  ❌ 优化美股数据模块港股支持不完整")
+            print("  [X] 优化美股数据模块港股支持不完整")
             return False
         
     except Exception as e:
-        print(f"❌ 优化美股数据模块港股支持测试失败: {e}")
+        print(f"[X] 优化美股数据模块港股支持测试失败: {e}")
         return False
 
 def test_toolkit_hk_method_availability():
@@ -118,11 +118,11 @@ def test_toolkit_hk_method_availability():
             print("  ✅ 工具包港股方法可用")
             return True
         else:
-            print("  ❌ 工具包港股方法不可用")
+            print("  [X] 工具包港股方法不可用")
             return False
         
     except Exception as e:
-        print(f"❌ 工具包港股方法可用性测试失败: {e}")
+        print(f"[X] 工具包港股方法可用性测试失败: {e}")
         return False
 
 def test_data_source_priority_summary():
@@ -149,7 +149,7 @@ def test_data_source_priority_summary():
         return True
         
     except Exception as e:
-        print(f"❌ 数据源优先级总结失败: {e}")
+        print(f"[X] 数据源优先级总结失败: {e}")
         return False
 
 def main():
@@ -173,7 +173,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 60)
     print(f"🔧 所有分析师节点港股数据源修复测试完成: {passed}/{total} 通过")

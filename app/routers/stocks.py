@@ -119,7 +119,7 @@ async def get_quote(
     if q:
         logger.info(f"  ✅ 找到数据: volume={q.get('volume')}, amount={q.get('amount')}, volume_ratio={q.get('volume_ratio')}")
     else:
-        logger.info(f"  ❌ 未找到数据")
+        logger.info(f"  [X] 未找到数据")
 
     # 🔥 基础信息 - 按数据源优先级查询
     from app.core.unified_config import UnifiedConfigManager
@@ -185,7 +185,7 @@ async def get_quote(
         else:
             logger.warning(f"  ⚠️ 数据不完整，无法计算振幅")
     except Exception as e:
-        logger.warning(f"  ❌ 计算振幅失败: {e}")
+        logger.warning(f"  [X] 计算振幅失败: {e}")
         amplitude = None
 
     data = {
@@ -541,10 +541,10 @@ async def get_kline(
                 timeout=10.0
             )
         except asyncio.TimeoutError:
-            logger.error(f"❌ 外部 API 获取 K 线超时（10秒）")
+            logger.error(f"[X] 外部 API 获取 K 线超时（10秒）")
             raise HTTPException(status_code=504, detail="获取K线数据超时，请稍后重试")
         except Exception as e:
-            logger.error(f"❌ 外部 API 获取 K 线失败: {e}")
+            logger.error(f"[X] 外部 API 获取 K 线失败: {e}")
             raise HTTPException(status_code=500, detail=f"获取K线数据失败: {str(e)}")
 
     # 🔥 3. 检查是否需要添加当天实时数据（仅针对日线）
@@ -700,7 +700,7 @@ async def get_news(code: str, days: int = 30, limit: int = 50, include_announcem
                     data_source = "realtime"
 
                 except Exception as e:
-                    logger.error(f"❌ 同步服务异常: {e}", exc_info=True)
+                    logger.error(f"[X] 同步服务异常: {e}", exc_info=True)
 
             # 转换为旧格式（兼容前端）
             logger.info(f"🔄 步骤4: 转换数据格式...")
@@ -737,7 +737,7 @@ async def get_news(code: str, days: int = 30, limit: int = 50, include_announcem
             return ok(data)
 
         except Exception as e:
-            logger.error(f"❌ 获取新闻失败: {e}", exc_info=True)
+            logger.error(f"[X] 获取新闻失败: {e}", exc_info=True)
             data = {
                 "code": normalized_code,
                 "days": days,

@@ -21,16 +21,16 @@ def test_data_source_connection():
     # 测试AKShare连接
     try:
         akshare_provider = get_akshare_provider()
-        print(f"🔗 AKShare连接状态: {'✅ 已连接' if akshare_provider.connected else '❌ 未连接'}")
+        print(f"🔗 AKShare连接状态: {'✅ 已连接' if akshare_provider.connected else '[X] 未连接'}")
     except Exception as e:
-        print(f"❌ AKShare连接失败: {e}")
+        print(f"[X] AKShare连接失败: {e}")
     
     # 测试Tushare连接
     try:
         tushare_provider = get_tushare_provider()
-        print(f"🔗 Tushare连接状态: {'✅ 已连接' if tushare_provider.connected else '❌ 未连接'}")
+        print(f"🔗 Tushare连接状态: {'✅ 已连接' if tushare_provider.connected else '[X] 未连接'}")
     except Exception as e:
-        print(f"❌ Tushare连接失败: {e}")
+        print(f"[X] Tushare连接失败: {e}")
     
     print()
 
@@ -45,7 +45,7 @@ def test_akshare_financial_data():
     try:
         akshare_provider = get_akshare_provider()
         if not akshare_provider.connected:
-            print("❌ AKShare未连接，跳过测试")
+            print("[X] AKShare未连接，跳过测试")
             return
         
         for symbol in test_symbols:
@@ -65,12 +65,12 @@ def test_akshare_financial_data():
                     else:
                         print(f"   ⚠️ 主要财务指标为空")
                 else:
-                    print(f"❌ {symbol}: AKShare财务数据获取失败")
+                    print(f"[X] {symbol}: AKShare财务数据获取失败")
             except Exception as e:
-                print(f"❌ {symbol}: AKShare财务数据获取异常: {e}")
+                print(f"[X] {symbol}: AKShare财务数据获取异常: {e}")
     
     except Exception as e:
-        print(f"❌ AKShare财务数据测试失败: {e}")
+        print(f"[X] AKShare财务数据测试失败: {e}")
     
     print()
 
@@ -126,7 +126,7 @@ def test_financial_metrics_with_data_source():
                 print(f"⚠️ 发现PB异常值: {pb_value}")
                 
         except Exception as e:
-            print(f"❌ {symbol}: 财务指标测试失败: {e}")
+            print(f"[X] {symbol}: 财务指标测试失败: {e}")
     
     print()
 
@@ -161,10 +161,10 @@ def test_data_source_priority():
             else:
                 print("❓ 数据源不明确")
         else:
-            print("❌ 财务数据获取失败")
+            print("[X] 财务数据获取失败")
             
     except Exception as e:
-        print(f"❌ 数据源优先级测试失败: {e}")
+        print(f"[X] 数据源优先级测试失败: {e}")
     
     print()
 

@@ -66,7 +66,7 @@ class CookieManager:
             return True
 
         except Exception as e:
-            st.error(f"❌ 设置分析状态失败: {e}")
+            st.error(f"[X] 设置分析状态失败: {e}")
             return False
     
     def get_analysis_state(self) -> Optional[Dict[str, Any]]:

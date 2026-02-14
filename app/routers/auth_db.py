@@ -72,11 +72,11 @@ async def get_current_user(authorization: Optional[str] = Header(default=None)) 
     logger.debug(f"📋 Authorization header: {authorization[:50] if authorization else 'None'}...")
 
     if not authorization:
-        logger.warning("❌ 没有Authorization header")
+        logger.warning("[X] 没有Authorization header")
         raise HTTPException(status_code=401, detail="No authorization header")
 
     if not authorization.lower().startswith("bearer "):
-        logger.warning(f"❌ Authorization header格式错误: {authorization[:20]}...")
+        logger.warning(f"[X] Authorization header格式错误: {authorization[:20]}...")
         raise HTTPException(status_code=401, detail="Invalid authorization format")
 
     token = authorization.split(" ", 1)[1]
@@ -87,17 +87,17 @@ async def get_current_user(authorization: Optional[str] = Header(default=None)) 
     logger.debug(f"🔍 Token验证结果: {token_data is not None}")
 
     if not token_data:
-        logger.warning("❌ Token验证失败")
+        logger.warning("[X] Token验证失败")
         raise HTTPException(status_code=401, detail="Invalid token")
 
     # 从数据库获取用户信息
     user = await user_service.get_user_by_username(token_data.sub)
     if not user:
-        logger.warning(f"❌ 用户不存在: {token_data.sub}")
+        logger.warning(f"[X] 用户不存在: {token_data.sub}")
         raise HTTPException(status_code=401, detail="User not found")
 
     if not user.is_active:
-        logger.warning(f"❌ 用户已禁用: {token_data.sub}")
+        logger.warning(f"[X] 用户已禁用: {token_data.sub}")
         raise HTTPException(status_code=401, detail="User is inactive")
 
     logger.debug(f"✅ 认证成功，用户: {token_data.sub}")
@@ -127,7 +127,7 @@ async def login(payload: LoginRequest, request: Request):
     try:
         # 验证输入
         if not payload.username or not payload.password:
-            logger.warning(f"❌ 登录失败 - 用户名或密码为空")
+            logger.warning(f"[X] 登录失败 - 用户名或密码为空")
             await log_operation(
                 user_id="unknown",
                 username=payload.username or "unknown",
@@ -150,7 +150,7 @@ async def login(payload: LoginRequest, request: Request):
         logger.info(f"🔍 认证结果: user={'存在' if user else '不存在'}")
 
         if not user:
-            logger.warning(f"❌ 登录失败 - 用户名或密码错误: {payload.username}")
+            logger.warning(f"[X] 登录失败 - 用户名或密码错误: {payload.username}")
             await log_operation(
                 user_id="unknown",
                 username=payload.username,
@@ -201,7 +201,7 @@ async def login(payload: LoginRequest, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 登录异常: {e}")
+        logger.error(f"[X] 登录异常: {e}")
         await log_operation(
             user_id="unknown",
             username=payload.username or "unknown",
@@ -224,7 +224,7 @@ async def refresh_token(payload: RefreshTokenRequest):
         logger.debug(f"📝 Refresh token长度: {len(payload.refresh_token) if payload.refresh_token else 0}")
 
         if not payload.refresh_token:
-            logger.warning("❌ Refresh token为空")
+            logger.warning("[X] Refresh token为空")
             raise HTTPException(status_code=401, detail="Refresh token is required")
 
         # 验证refresh token
@@ -232,13 +232,13 @@ async def refresh_token(payload: RefreshTokenRequest):
         logger.debug(f"🔍 Token验证结果: {token_data is not None}")
 
         if not token_data:
-            logger.warning("❌ Refresh token验证失败")
+            logger.warning("[X] Refresh token验证失败")
             raise HTTPException(status_code=401, detail="Invalid refresh token")
 
         # 验证用户是否仍然存在且激活
         user = await user_service.get_user_by_username(token_data.sub)
         if not user or not user.is_active:
-            logger.warning(f"❌ 用户不存在或已禁用: {token_data.sub}")
+            logger.warning(f"[X] 用户不存在或已禁用: {token_data.sub}")
             raise HTTPException(status_code=401, detail="User not found or inactive")
 
         logger.debug(f"✅ Token验证成功，用户: {token_data.sub}")
@@ -261,7 +261,7 @@ async def refresh_token(payload: RefreshTokenRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Refresh token处理异常: {str(e)}")
+        logger.error(f"[X] Refresh token处理异常: {str(e)}")
         raise HTTPException(status_code=401, detail=f"Token refresh failed: {str(e)}")
 
 @router.post("/logout")

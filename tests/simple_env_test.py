@@ -14,7 +14,7 @@ def test_env_reading():
     if os.path.exists('.env'):
         print("✅ .env文件存在")
     else:
-        print("❌ .env文件不存在")
+        print("[X] .env文件不存在")
         return False
     
     # 读取环境变量
@@ -66,9 +66,9 @@ def test_env_reading():
         mongodb_available = True
         print("✅ MongoDB 连接成功")
     except ImportError:
-        print("❌ pymongo 未安装")
+        print("[X] pymongo 未安装")
     except Exception as e:
-        print(f"❌ MongoDB 连接失败: {e}")
+        print(f"[X] MongoDB 连接失败: {e}")
     
     # 测试Redis
     redis_available = False
@@ -85,14 +85,14 @@ def test_env_reading():
         redis_available = True
         print("✅ Redis 连接成功")
     except ImportError:
-        print("❌ redis 未安装")
+        print("[X] redis 未安装")
     except Exception as e:
-        print(f"❌ Redis 连接失败: {e}")
+        print(f"[X] Redis 连接失败: {e}")
     
     # 总结
     print(f"\n📊 总结:")
-    print(f"MongoDB: {'✅ 可用' if mongodb_available else '❌ 不可用'}")
-    print(f"Redis: {'✅ 可用' if redis_available else '❌ 不可用'}")
+    print(f"MongoDB: {'✅ 可用' if mongodb_available else '[X] 不可用'}")
+    print(f"Redis: {'✅ 可用' if redis_available else '[X] 不可用'}")
     
     if mongodb_available or redis_available:
         print("🚀 数据库可用，系统将使用高性能模式")

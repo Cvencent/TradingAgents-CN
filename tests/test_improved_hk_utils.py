@@ -46,12 +46,12 @@ def test_improved_hk_provider():
                     print(f"      ⚠️ 使用默认格式")
                     
             except Exception as e:
-                print(f"   {symbol:10} -> ❌ 错误: {e}")
+                print(f"   {symbol:10} -> [X] 错误: {e}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -80,19 +80,19 @@ def test_analyst_integration():
                 market_name = _get_company_name(symbol, market_info)
                 print(f"   市场分析师: {market_name}")
             except Exception as e:
-                print(f"   市场分析师: ❌ {e}")
+                print(f"   市场分析师: [X] {e}")
             
             # 测试基本面分析师
             try:
                 fundamentals_name = _get_company_name_for_fundamentals(symbol, market_info)
                 print(f"   基本面分析师: {fundamentals_name}")
             except Exception as e:
-                print(f"   基本面分析师: ❌ {e}")
+                print(f"   基本面分析师: [X] {e}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -140,7 +140,7 @@ def test_cache_functionality():
         if name1 == name2:
             print("✅ 缓存结果一致")
         else:
-            print("❌ 缓存结果不一致")
+            print("[X] 缓存结果不一致")
         
         # 检查缓存文件
         if os.path.exists(cache_file):
@@ -160,7 +160,7 @@ def test_cache_functionality():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -196,7 +196,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")

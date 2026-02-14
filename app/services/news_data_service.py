@@ -238,7 +238,7 @@ class NewsDataService:
             return success_count
             
         except Exception as e:
-            self.logger.error(f"❌ 保存新闻数据失败: {e}")
+            self.logger.error(f"[X] 保存新闻数据失败: {e}")
             return 0
 
     def save_news_data_sync(
@@ -339,7 +339,7 @@ class NewsDataService:
             return success_count
 
         except Exception as e:
-            self.logger.error(f"❌ 保存新闻数据失败: {e}")
+            self.logger.error(f"[X] 保存新闻数据失败: {e}")
             import traceback
             self.logger.error(traceback.format_exc())
             return 0
@@ -546,7 +546,7 @@ class NewsDataService:
             return results
 
         except Exception as e:
-            self.logger.error(f"❌ 查询新闻数据失败: {e}", exc_info=True)
+            self.logger.error(f"[X] 查询新闻数据失败: {e}", exc_info=True)
             return []
     
     async def get_latest_news(
@@ -677,7 +677,7 @@ class NewsDataService:
             return NewsStats()
             
         except Exception as e:
-            self.logger.error(f"❌ 获取新闻统计失败: {e}")
+            self.logger.error(f"[X] 获取新闻统计失败: {e}")
             return NewsStats()
     
     async def delete_old_news(self, days_to_keep: int = 90) -> int:
@@ -705,7 +705,7 @@ class NewsDataService:
             return deleted_count
             
         except Exception as e:
-            self.logger.error(f"❌ 删除过期新闻失败: {e}")
+            self.logger.error(f"[X] 删除过期新闻失败: {e}")
             return 0
 
     async def search_news(
@@ -750,7 +750,7 @@ class NewsDataService:
             return results
 
         except Exception as e:
-            self.logger.error(f"❌ 全文搜索失败: {e}")
+            self.logger.error(f"[X] 全文搜索失败: {e}")
             return []
 
 

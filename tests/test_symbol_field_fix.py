@@ -29,7 +29,7 @@ def test_basics_sync_service_has_symbol_field():
         print("✅ 发现 symbol 字段添加代码")
         return True
     else:
-        print("❌ 未发现 symbol 字段添加代码")
+        print("[X] 未发现 symbol 字段添加代码")
         return False
 
 
@@ -47,7 +47,7 @@ def test_multi_source_sync_service_has_symbol_field():
         print("✅ 发现 symbol 字段添加代码")
         return True
     else:
-        print("❌ 未发现 symbol 字段添加代码")
+        print("[X] 未发现 symbol 字段添加代码")
         return False
 
 
@@ -65,7 +65,7 @@ def test_baostock_sync_service_has_symbol_field():
         print("✅ 发现 symbol 字段添加代码")
         return True
     else:
-        print("❌ 未发现 symbol 字段添加代码")
+        print("[X] 未发现 symbol 字段添加代码")
         return False
 
 
@@ -83,7 +83,7 @@ def test_app_adapter_query_logic():
         print("✅ 发现 symbol 和 code 的 $or 查询逻辑")
         return True
     else:
-        print("❌ 未发现 $or 查询逻辑")
+        print("[X] 未发现 $or 查询逻辑")
         return False
 
 
@@ -98,7 +98,7 @@ def test_migration_script_exists():
         print(f"✅ 迁移脚本存在: {migration_script}")
         return True
     else:
-        print(f"❌ 迁移脚本不存在: {migration_script}")
+        print(f"[X] 迁移脚本不存在: {migration_script}")
         return False
 
 
@@ -126,7 +126,7 @@ def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name:30s} - {status}")
     
     print(f"\n总体: {passed}/{total} 测试通过")
@@ -135,7 +135,7 @@ def main():
         print("\n✅ 所有测试通过！symbol 字段修复已完成")
         return 0
     else:
-        print(f"\n❌ 有 {total - passed} 个测试失败")
+        print(f"\n[X] 有 {total - passed} 个测试失败")
         return 1
 
 

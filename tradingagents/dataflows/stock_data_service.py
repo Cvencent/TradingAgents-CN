@@ -94,7 +94,7 @@ class StockDataService:
                 logger.error(f"⚠️ 增强获取器查询失败: {e}")
         
         # 3. 最后的降级方案
-        logger.error(f"❌ 所有数据源都不可用")
+        logger.error(f"[X] 所有数据源都不可用")
         return self._get_fallback_data(stock_code)
     
     def _get_from_mongodb(self, stock_code: str = None) -> Optional[Dict[str, Any]]:
@@ -265,7 +265,7 @@ class StockDataService:
         # 首先确保股票基础信息可用
         stock_info = self.get_stock_basic_info(stock_code)
         if stock_info and 'error' in stock_info:
-            return f"❌ 无法获取股票{stock_code}的基础信息: {stock_info.get('error', '未知错误')}"
+            return f"[X] 无法获取股票{stock_code}的基础信息: {stock_info.get('error', '未知错误')}"
         
         # 调用统一的中国股票数据接口
         try:
@@ -273,7 +273,7 @@ class StockDataService:
 
             return get_china_stock_data_unified(stock_code, start_date, end_date)
         except Exception as e:
-            return f"❌ 获取股票数据失败: {str(e)}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查MongoDB配置"
+            return f"[X] 获取股票数据失败: {str(e)}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查MongoDB配置"
 
 # 全局服务实例
 _stock_data_service = None

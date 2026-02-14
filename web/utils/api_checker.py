@@ -91,7 +91,7 @@ def get_api_key_status_message():
         return "✅ 必需的API密钥已配置，可选API密钥未配置"
     else:
         missing = ", ".join(status["missing_required"])
-        return f"❌ 缺少必需的API密钥: {missing}"
+        return f"[X] 缺少必需的API密钥: {missing}"
 
 def validate_api_key_format(key_type, api_key):
     """验证API密钥格式"""

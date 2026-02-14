@@ -40,7 +40,7 @@ def test_china_stock_data_sources():
             result = get_china_stock_data_unified(symbol, start_date, end_date)
             end_time = time.time()
             
-            if result and "❌" not in result:
+            if result and "[X]" not in result:
                 print(f"✅ 统一接口获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
                 print(f"   数据预览: {result[:150]}...")
@@ -50,11 +50,11 @@ def test_china_stock_data_sources():
                     'data_length': len(result)
                 }
             else:
-                print(f"❌ 统一接口获取失败: {result[:100]}...")
+                print(f"[X] 统一接口获取失败: {result[:100]}...")
                 symbol_results['unified'] = {'success': False, 'error': result[:100]}
                 
         except Exception as e:
-            print(f"❌ 统一接口异常: {e}")
+            print(f"[X] 统一接口异常: {e}")
             symbol_results['unified'] = {'success': False, 'error': str(e)}
         
         # 2. 测试优化版本
@@ -66,7 +66,7 @@ def test_china_stock_data_sources():
             result = get_china_stock_data_cached(symbol, start_date, end_date, force_refresh=True)
             end_time = time.time()
             
-            if result and "❌" not in result:
+            if result and "[X]" not in result:
                 print(f"✅ 优化版本获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
                 symbol_results['optimized'] = {
@@ -75,11 +75,11 @@ def test_china_stock_data_sources():
                     'data_length': len(result)
                 }
             else:
-                print(f"❌ 优化版本获取失败: {result[:100]}...")
+                print(f"[X] 优化版本获取失败: {result[:100]}...")
                 symbol_results['optimized'] = {'success': False, 'error': result[:100]}
                 
         except Exception as e:
-            print(f"❌ 优化版本异常: {e}")
+            print(f"[X] 优化版本异常: {e}")
             symbol_results['optimized'] = {'success': False, 'error': str(e)}
         
         # 3. 测试数据源管理器
@@ -95,7 +95,7 @@ def test_china_stock_data_sources():
             result = manager.get_stock_data(symbol, start_date, end_date)
             end_time = time.time()
             
-            if result and "❌" not in result:
+            if result and "[X]" not in result:
                 print(f"✅ 数据源管理器获取成功 ({end_time - start_time:.2f}s)")
                 symbol_results['manager'] = {
                     'success': True,
@@ -104,11 +104,11 @@ def test_china_stock_data_sources():
                     'available_sources': [s.value for s in manager.available_sources]
                 }
             else:
-                print(f"❌ 数据源管理器获取失败: {result[:100]}...")
+                print(f"[X] 数据源管理器获取失败: {result[:100]}...")
                 symbol_results['manager'] = {'success': False, 'error': result[:100]}
                 
         except Exception as e:
-            print(f"❌ 数据源管理器异常: {e}")
+            print(f"[X] 数据源管理器异常: {e}")
             symbol_results['manager'] = {'success': False, 'error': str(e)}
         
         results[symbol] = symbol_results
@@ -142,7 +142,7 @@ def test_us_stock_data_sources():
             result = get_us_stock_data_cached(symbol, start_date, end_date, force_refresh=True)
             end_time = time.time()
             
-            if result and "❌" not in result:
+            if result and "[X]" not in result:
                 print(f"✅ 优化版本获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
                 
@@ -158,11 +158,11 @@ def test_us_stock_data_sources():
                     'data_length': len(result)
                 }
             else:
-                print(f"❌ 优化版本获取失败: {result[:100]}...")
+                print(f"[X] 优化版本获取失败: {result[:100]}...")
                 symbol_results['optimized'] = {'success': False, 'error': result[:100]}
                 
         except Exception as e:
-            print(f"❌ 优化版本异常: {e}")
+            print(f"[X] 优化版本异常: {e}")
             symbol_results['optimized'] = {'success': False, 'error': str(e)}
         
         # 2. 测试原始yfinance接口
@@ -174,7 +174,7 @@ def test_us_stock_data_sources():
             result = get_YFin_data_online(symbol, start_date, end_date)
             end_time = time.time()
             
-            if result and "No data found" not in result and "❌" not in result:
+            if result and "No data found" not in result and "[X]" not in result:
                 print(f"✅ yfinance接口获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
                 symbol_results['yfinance'] = {
@@ -183,11 +183,11 @@ def test_us_stock_data_sources():
                     'data_length': len(result)
                 }
             else:
-                print(f"❌ yfinance接口获取失败: {result[:100]}...")
+                print(f"[X] yfinance接口获取失败: {result[:100]}...")
                 symbol_results['yfinance'] = {'success': False, 'error': result[:100]}
                 
         except Exception as e:
-            print(f"❌ yfinance接口异常: {e}")
+            print(f"[X] yfinance接口异常: {e}")
             symbol_results['yfinance'] = {'success': False, 'error': str(e)}
         
         results[symbol] = symbol_results
@@ -233,7 +233,7 @@ def test_news_data_sources():
             }
                 
         except Exception as e:
-            print(f"❌ 实时新闻异常: {e}")
+            print(f"[X] 实时新闻异常: {e}")
             symbol_results['realtime_news'] = {'success': False, 'error': str(e)}
         
         # 2. 测试FinnHub新闻
@@ -245,7 +245,7 @@ def test_news_data_sources():
             result = get_finnhub_news(symbol, "2025-07-01", "2025-07-12")
             end_time = time.time()
             
-            if result and "❌" not in result:
+            if result and "[X]" not in result:
                 print(f"✅ FinnHub新闻获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
                 symbol_results['finnhub_news'] = {
@@ -254,11 +254,11 @@ def test_news_data_sources():
                     'data_length': len(result)
                 }
             else:
-                print(f"❌ FinnHub新闻获取失败: {result[:100]}...")
+                print(f"[X] FinnHub新闻获取失败: {result[:100]}...")
                 symbol_results['finnhub_news'] = {'success': False, 'error': result[:100]}
                 
         except Exception as e:
-            print(f"❌ FinnHub新闻异常: {e}")
+            print(f"[X] FinnHub新闻异常: {e}")
             symbol_results['finnhub_news'] = {'success': False, 'error': str(e)}
         
         results[symbol] = symbol_results
@@ -301,11 +301,11 @@ def test_cache_system():
             print(f"✅ 缓存系统测试成功")
             results['cache'] = {'success': True, 'cache_type': type(cache).__name__}
         else:
-            print(f"❌ 缓存数据不匹配")
+            print(f"[X] 缓存数据不匹配")
             results['cache'] = {'success': False, 'error': '数据不匹配'}
             
     except Exception as e:
-        print(f"❌ 缓存系统异常: {e}")
+        print(f"[X] 缓存系统异常: {e}")
         results['cache'] = {'success': False, 'error': str(e)}
     
     return results
@@ -329,7 +329,7 @@ def analyze_results(all_results: Dict):
                 successful_tests += 1
                 print(f"   ✅ 缓存系统: 正常")
             else:
-                print(f"   ❌ 缓存系统: {category_results.get('error', '未知错误')}")
+                print(f"   [X] 缓存系统: {category_results.get('error', '未知错误')}")
         else:
             for symbol, symbol_results in category_results.items():
                 print(f"   📊 {symbol}:")
@@ -342,7 +342,7 @@ def analyze_results(all_results: Dict):
                         print(f"      ✅ {test_type}: {time_taken:.2f}s, {data_length}字符")
                     else:
                         error = result.get('error', '未知错误')
-                        print(f"      ❌ {test_type}: {error[:50]}...")
+                        print(f"      [X] {test_type}: {error[:50]}...")
 
     # 总体统计
     success_rate = (successful_tests / total_tests * 100) if total_tests > 0 else 0
@@ -479,7 +479,7 @@ def main():
         return success
 
     except Exception as e:
-        print(f"❌ 测试程序异常: {e}")
+        print(f"[X] 测试程序异常: {e}")
         import traceback
         traceback.print_exc()
         return False

@@ -98,7 +98,7 @@ class AuthManager:
                     
                     return data.userInfo;
                 } catch (e) {
-                    console.error('❌ 读取登录状态失败:', e);
+                    console.error('[X] 读取登录状态失败:', e);
                     this.clearAuth();
                     return null;
                 }
@@ -119,7 +119,7 @@ class AuthManager:
                         data.lastActivity = Date.now();
                         localStorage.setItem('tradingagents_auth', JSON.stringify(data));
                     } catch (e) {
-                        console.error('❌ 更新活动时间失败:', e);
+                        console.error('[X] 更新活动时间失败:', e);
                     }
                 }
             }
@@ -158,7 +158,7 @@ class AuthManager:
             with open(self.users_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:
-            logger.error(f"❌ 加载用户配置失败: {e}")
+            logger.error(f"[X] 加载用户配置失败: {e}")
             return {}
     
     def authenticate(self, username: str, password: str) -> Tuple[bool, Optional[Dict]]:
@@ -241,7 +241,7 @@ class AuthManager:
             logger.debug(f"✅ [认证检查] 用户已认证且未超时")
             return True
         
-        logger.debug(f"❌ [认证检查] 用户未认证")
+        logger.debug(f"[X] [认证检查] 用户未认证")
         return False
     
     def login(self, username: str, password: str) -> bool:
@@ -279,7 +279,7 @@ class AuthManager:
                 localStorage.setItem('tradingagents_auth', JSON.stringify(authData));
                 console.log('✅ 认证数据已保存到localStorage:', authData);
             }} catch (e) {{
-                console.error('❌ 保存认证数据失败:', e);
+                console.error('[X] 保存认证数据失败:', e);
             }}
             </script>
             """
@@ -308,7 +308,7 @@ class AuthManager:
             localStorage.removeItem('tradingagents_last_activity');
             console.log('✅ 认证数据已清除');
         } catch (e) {
-            console.error('❌ 清除认证数据失败:', e);
+            console.error('[X] 清除认证数据失败:', e);
         }
         </script>
         """
@@ -356,7 +356,7 @@ class AuthManager:
             return True
             
         except Exception as e:
-            logger.error(f"❌ 从前端缓存恢复登录状态失败: {e}")
+            logger.error(f"[X] 从前端缓存恢复登录状态失败: {e}")
             return False
     
     def get_current_user(self) -> Optional[Dict]:
@@ -376,7 +376,7 @@ class AuthManager:
             是否有权限
         """
         if not self.check_permission(permission):
-            st.error(f"❌ 您没有 '{permission}' 权限，请联系管理员")
+            st.error(f"[X] 您没有 '{permission}' 权限，请联系管理员")
             return False
         return True
 

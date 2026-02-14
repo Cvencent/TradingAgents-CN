@@ -26,7 +26,7 @@ def test_gemini_25_pro_basic():
         # 检查API密钥
         google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
-            print("❌ Google API密钥未配置")
+            print("[X] Google API密钥未配置")
             return False
         
         print(f"✅ Google API密钥已配置: {google_api_key[:20]}...")
@@ -63,11 +63,11 @@ def test_gemini_25_pro_basic():
             print(f"   响应预览: {response.content[:300]}...")
             return True
         else:
-            print("❌ 中文股票分析失败")
+            print("[X] 中文股票分析失败")
             return False
             
     except Exception as e:
-        print(f"❌ Gemini 2.5 Pro基础测试失败: {e}")
+        print(f"[X] Gemini 2.5 Pro基础测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -134,17 +134,17 @@ def test_gemini_25_pro_tradingagents():
                 
                 return True
             else:
-                print("❌ 分析完成但结果为空")
+                print("[X] 分析完成但结果为空")
                 return False
                 
         except Exception as e:
-            print(f"❌ 股票分析失败: {e}")
+            print(f"[X] 股票分析失败: {e}")
             import traceback
             print(traceback.format_exc())
             return False
             
     except Exception as e:
-        print(f"❌ TradingAgents测试失败: {e}")
+        print(f"[X] TradingAgents测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -201,11 +201,11 @@ def test_gemini_25_pro_complex_reasoning():
             print(f"   响应预览: {response.content[:400]}...")
             return True
         else:
-            print("❌ 复杂推理测试失败：响应过短或无内容")
+            print("[X] 复杂推理测试失败：响应过短或无内容")
             return False
             
     except Exception as e:
-        print(f"❌ 复杂推理测试失败: {e}")
+        print(f"[X] 复杂推理测试失败: {e}")
         return False
 
 def main():
@@ -216,7 +216,7 @@ def main():
     # 检查环境变量
     google_api_key = os.getenv('GOOGLE_API_KEY')
     if not google_api_key:
-        print("❌ Google API密钥未配置")
+        print("[X] Google API密钥未配置")
         print("💡 请在.env文件中设置 GOOGLE_API_KEY")
         return
     
@@ -240,7 +240,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())
@@ -265,7 +265,7 @@ def main():
         print("⚠️ Gemini 2.5 Pro大部分功能可用")
         print("💡 可以用于基础分析，部分高级功能可能需要调整")
     else:
-        print("❌ Gemini 2.5 Pro不可用")
+        print("[X] Gemini 2.5 Pro不可用")
         print("💡 请检查API密钥权限和网络连接")
 
 if __name__ == "__main__":

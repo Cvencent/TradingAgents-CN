@@ -79,8 +79,8 @@ class DataSourceManager:
             logger.warning(f"⚠️ 统一缓存管理器初始化失败: {e}")
 
         logger.info(f"📊 数据源管理器初始化完成")
-        logger.info(f"   MongoDB缓存: {'✅ 已启用' if self.use_mongodb_cache else '❌ 未启用'}")
-        logger.info(f"   统一缓存: {'✅ 已启用' if self.cache_enabled else '❌ 未启用'}")
+        logger.info(f"   MongoDB缓存: {'✅ 已启用' if self.use_mongodb_cache else '[X] 未启用'}")
+        logger.info(f"   统一缓存: {'✅ 已启用' if self.cache_enabled else '[X] 未启用'}")
         logger.info(f"   默认数据源: {self.default_source.value}")
         logger.info(f"   可用数据源: {[s.value for s in self.available_sources]}")
 
@@ -283,7 +283,7 @@ class DataSourceManager:
             duration = time.time() - start_time
             result_length = len(result) if result else 0
 
-            if result and "❌" not in result:
+            if result and "[X]" not in result:
                 logger.info(f"✅ [数据来源: {self.current_source.value}] 成功获取基本面数据: {symbol} ({result_length}字符, 耗时{duration:.2f}秒)",
                            extra={
                                'symbol': symbol,
@@ -304,7 +304,7 @@ class DataSourceManager:
 
         except Exception as e:
             duration = time.time() - start_time
-            logger.error(f"❌ [数据来源: {self.current_source.value}异常] 获取基本面数据失败: {symbol} - {e}",
+            logger.error(f"[X] [数据来源: {self.current_source.value}异常] 获取基本面数据失败: {symbol} - {e}",
                         extra={
                             'symbol': symbol,
                             'data_source': self.current_source.value,
@@ -390,7 +390,7 @@ class DataSourceManager:
 
         except Exception as e:
             duration = time.time() - start_time
-            logger.error(f"❌ [数据来源: {self.current_source.value}异常] 获取新闻数据失败: {symbol or '市场新闻'} - {e}",
+            logger.error(f"[X] [数据来源: {self.current_source.value}异常] 获取新闻数据失败: {symbol or '市场新闻'} - {e}",
                         extra={
                             'symbol': symbol,
                             'data_source': self.current_source.value,
@@ -547,7 +547,7 @@ class DataSourceManager:
             logger.info(f"✅ 数据源已切换到: {source.value}")
             return True
         else:
-            logger.error(f"❌ 数据源不可用: {source.value}")
+            logger.error(f"[X] 数据源不可用: {source.value}")
             return False
 
     def get_data_adapter(self):
@@ -570,7 +570,7 @@ class DataSourceManager:
             from tradingagents.dataflows.cache.mongodb_cache_adapter import get_mongodb_cache_adapter
             return get_mongodb_cache_adapter()
         except ImportError as e:
-            logger.error(f"❌ MongoDB适配器导入失败: {e}")
+            logger.error(f"[X] MongoDB适配器导入失败: {e}")
             return None
 
     def _get_tushare_adapter(self):
@@ -579,7 +579,7 @@ class DataSourceManager:
             from .providers.china.tushare import get_tushare_provider
             return get_tushare_provider()
         except ImportError as e:
-            logger.error(f"❌ Tushare提供器导入失败: {e}")
+            logger.error(f"[X] Tushare提供器导入失败: {e}")
             return None
 
     def _get_akshare_adapter(self):
@@ -588,7 +588,7 @@ class DataSourceManager:
             from .providers.china.akshare import get_akshare_provider
             return get_akshare_provider()
         except ImportError as e:
-            logger.error(f"❌ AKShare适配器导入失败: {e}")
+            logger.error(f"[X] AKShare适配器导入失败: {e}")
             return None
 
     def _get_baostock_adapter(self):
@@ -597,13 +597,13 @@ class DataSourceManager:
             from .providers.china.baostock import get_baostock_provider
             return get_baostock_provider()
         except ImportError as e:
-            logger.error(f"❌ BaoStock适配器导入失败: {e}")
+            logger.error(f"[X] BaoStock适配器导入失败: {e}")
             return None
 
     # TDX 适配器已移除
     # def _get_tdx_adapter(self):
     #     """获取TDX适配器 (已移除)"""
-    #     logger.error(f"❌ TDX数据源已不再支持")
+    #     logger.error(f"[X] TDX数据源已不再支持")
     #     return None
 
     def _get_cached_data(self, symbol: str, start_date: str = None, end_date: str = None, max_age_hours: int = 24) -> Optional[pd.DataFrame]:
@@ -906,8 +906,8 @@ class DataSourceManager:
             return result
 
         except Exception as e:
-            logger.error(f"❌ 格式化数据响应失败: {e}", exc_info=True)
-            return f"❌ 格式化{symbol}数据失败: {e}"
+            logger.error(f"[X] 格式化数据响应失败: {e}", exc_info=True)
+            return f"[X] 格式化{symbol}数据失败: {e}"
 
     def get_stock_dataframe(self, symbol: str, start_date: str = None, end_date: str = None, period: str = "daily") -> pd.DataFrame:
         """
@@ -978,11 +978,11 @@ class DataSourceManager:
                     logger.warning(f"⚠️ [DataFrame接口] {source.value} 失败: {e}")
                     continue
 
-            logger.error(f"❌ [DataFrame接口] 所有数据源都失败: {symbol}")
+            logger.error(f"[X] [DataFrame接口] 所有数据源都失败: {symbol}")
             return pd.DataFrame()
 
         except Exception as e:
-            logger.error(f"❌ [DataFrame接口] 获取失败: {e}", exc_info=True)
+            logger.error(f"[X] [DataFrame接口] 获取失败: {e}", exc_info=True)
             return pd.DataFrame()
 
     def _standardize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1079,13 +1079,13 @@ class DataSourceManager:
                 actual_source = "baostock"
             # TDX 已移除
             else:
-                result = f"❌ 不支持的数据源: {self.current_source.value}"
+                result = f"[X] 不支持的数据源: {self.current_source.value}"
                 actual_source = None
 
             # 记录详细的输出结果
             duration = time.time() - start_time
             result_length = len(result) if result else 0
-            is_success = result and "❌" not in result and "错误" not in result
+            is_success = result and "[X]" not in result and "错误" not in result
 
             # 使用实际数据源名称，如果没有则使用 current_source
             display_source = actual_source or self.current_source.value
@@ -1120,16 +1120,16 @@ class DataSourceManager:
 
                 # 数据质量异常时也尝试降级到其他数据源
                 fallback_result = self._try_fallback_sources(symbol, start_date, end_date)
-                if fallback_result and "❌" not in fallback_result and "错误" not in fallback_result:
+                if fallback_result and "[X]" not in fallback_result and "错误" not in fallback_result:
                     logger.info(f"✅ [数据来源: 备用数据源] 降级成功获取数据: {symbol}")
                     return fallback_result
                 else:
-                    logger.error(f"❌ [数据来源: 所有数据源失败] 所有数据源都无法获取有效数据: {symbol}")
+                    logger.error(f"[X] [数据来源: 所有数据源失败] 所有数据源都无法获取有效数据: {symbol}")
                     return result  # 返回原始结果（包含错误信息）
 
         except Exception as e:
             duration = time.time() - start_time
-            logger.error(f"❌ [数据获取] 异常失败: {e}",
+            logger.error(f"[X] [数据获取] 异常失败: {e}",
                         extra={
                             'symbol': symbol,
                             'start_date': start_date,
@@ -1177,7 +1177,7 @@ class DataSourceManager:
                 return self._try_fallback_sources(symbol, start_date, end_date, period)
 
         except Exception as e:
-            logger.error(f"❌ [数据来源: MongoDB异常] 获取{period}数据失败: {symbol}, 错误: {e}")
+            logger.error(f"[X] [数据来源: MongoDB异常] 获取{period}数据失败: {symbol}, 错误: {e}")
             # MongoDB异常，降级到其他数据源
             return self._try_fallback_sources(symbol, start_date, end_date, period)
 
@@ -1226,7 +1226,7 @@ class DataSourceManager:
 
             provider = self._get_tushare_adapter()
             if not provider:
-                return f"❌ Tushare提供器不可用"
+                return f"[X] Tushare提供器不可用"
 
             # 使用异步方法获取历史数据
             import asyncio
@@ -1260,17 +1260,17 @@ class DataSourceManager:
 
                 return result
             else:
-                result = f"❌ 未获取到{symbol}的有效数据"
+                result = f"[X] 未获取到{symbol}的有效数据"
                 duration = time.time() - start_time
                 logger.warning(f"⚠️ [Tushare] 未获取到数据，耗时={duration:.2f}s")
                 return result
         except Exception as e:
             duration = time.time() - start_time
-            logger.error(f"❌ [Tushare] 调用失败: {e}, 耗时={duration:.2f}s", exc_info=True)
-            logger.error(f"❌ [DataSourceManager详细日志] 异常类型: {type(e).__name__}")
-            logger.error(f"❌ [DataSourceManager详细日志] 异常信息: {str(e)}")
+            logger.error(f"[X] [Tushare] 调用失败: {e}, 耗时={duration:.2f}s", exc_info=True)
+            logger.error(f"[X] [DataSourceManager详细日志] 异常类型: {type(e).__name__}")
+            logger.error(f"[X] [DataSourceManager详细日志] 异常信息: {str(e)}")
             import traceback
-            logger.error(f"❌ [DataSourceManager详细日志] 异常堆栈: {traceback.format_exc()}")
+            logger.error(f"[X] [DataSourceManager详细日志] 异常堆栈: {traceback.format_exc()}")
             raise
 
     def _get_akshare_data(self, symbol: str, start_date: str, end_date: str, period: str = "daily") -> str:
@@ -1312,14 +1312,14 @@ class DataSourceManager:
                 logger.info(f"✅ [AKShare] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
                 return result
             else:
-                result = f"❌ 未能获取{symbol}的股票数据"
+                result = f"[X] 未能获取{symbol}的股票数据"
                 logger.warning(f"⚠️ [AKShare] 数据为空: 耗时={duration:.2f}s")
                 return result
 
         except Exception as e:
             duration = time.time() - start_time
-            logger.error(f"❌ [AKShare] 调用失败: {e}, 耗时={duration:.2f}s", exc_info=True)
-            return f"❌ AKShare获取{symbol}数据失败: {e}"
+            logger.error(f"[X] [AKShare] 调用失败: {e}, 耗时={duration:.2f}s", exc_info=True)
+            return f"[X] AKShare获取{symbol}数据失败: {e}"
 
     def _get_baostock_data(self, symbol: str, start_date: str, end_date: str, period: str = "daily") -> str:
         """使用BaoStock获取多周期数据 - 包含技术指标计算"""
@@ -1353,13 +1353,13 @@ class DataSourceManager:
             logger.info(f"✅ [BaoStock] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
             return result
         else:
-            return f"❌ 未能获取{symbol}的股票数据"
+            return f"[X] 未能获取{symbol}的股票数据"
 
     # TDX 数据获取方法已移除
     # def _get_tdx_data(self, symbol: str, start_date: str, end_date: str, period: str = "daily") -> str:
     #     """使用TDX获取多周期数据 (已移除)"""
-    #     logger.error(f"❌ TDX数据源已不再支持")
-    #     return f"❌ TDX数据源已不再支持"
+    #     logger.error(f"[X] TDX数据源已不再支持")
+    #     return f"[X] TDX数据源已不再支持"
 
     def _get_volume_safely(self, data) -> float:
         """安全地获取成交量数据，支持多种列名"""
@@ -1377,7 +1377,7 @@ class DataSourceManager:
             return 0
 
         except Exception as e:
-            logger.error(f"❌ 获取成交量失败: {e}")
+            logger.error(f"[X] 获取成交量失败: {e}")
             return 0
 
     def _try_fallback_sources(self, symbol: str, start_date: str, end_date: str, period: str = "daily") -> tuple[str, str | None]:
@@ -1410,18 +1410,18 @@ class DataSourceManager:
                         logger.warning(f"⚠️ 未知数据源: {source.value}")
                         continue
 
-                    if "❌" not in result:
+                    if "[X]" not in result:
                         logger.info(f"✅ [备用数据源-{source.value}] 成功获取{period}数据: {symbol}")
                         return result, source.value  # 返回结果和实际使用的数据源
                     else:
                         logger.warning(f"⚠️ [备用数据源-{source.value}] 返回错误结果: {symbol}")
 
                 except Exception as e:
-                    logger.error(f"❌ [备用数据源-{source.value}] 获取失败: {symbol}, 错误: {e}")
+                    logger.error(f"[X] [备用数据源-{source.value}] 获取失败: {symbol}, 错误: {e}")
                     continue
 
-        logger.error(f"❌ [所有数据源失败] 无法获取{period}数据: {symbol}")
-        return f"❌ 所有数据源都无法获取{symbol}的{period}数据", None
+        logger.error(f"[X] [所有数据源失败] 无法获取{period}数据: {symbol}")
+        return f"[X] 所有数据源都无法获取{symbol}的{period}数据", None
 
     def get_stock_info(self, symbol: str) -> Dict:
         """
@@ -1436,7 +1436,7 @@ class DataSourceManager:
             use_cache = use_app_cache_enabled(False)
             logger.info(f"🔧 [配置检查] use_app_cache_enabled() 返回值: {use_cache}")
         except Exception as e:
-            logger.error(f"❌ [配置检查] use_app_cache_enabled() 调用失败: {e}", exc_info=True)
+            logger.error(f"[X] [配置检查] use_app_cache_enabled() 调用失败: {e}", exc_info=True)
             use_cache = False
 
         logger.info(f"🔧 [配置] ta_use_app_cache={use_cache}, current_source={self.current_source.value}")
@@ -1498,7 +1498,7 @@ class DataSourceManager:
                     else:
                         logger.warning(f"⚠️ [数据来源: MongoDB] 未找到有效名称: {symbol}，降级到其他数据源")
             except Exception as e:
-                logger.error(f"❌ [数据来源: MongoDB异常] 获取股票信息失败: {e}", exc_info=True)
+                logger.error(f"[X] [数据来源: MongoDB异常] 获取股票信息失败: {e}", exc_info=True)
 
 
         # 首先尝试当前数据源
@@ -1530,7 +1530,7 @@ class DataSourceManager:
                     return self._try_fallback_stock_info(symbol)
 
         except Exception as e:
-            logger.error(f"❌ [数据来源: {self.current_source.value}异常] 获取股票信息失败: {e}", exc_info=True)
+            logger.error(f"[X] [数据来源: {self.current_source.value}异常] 获取股票信息失败: {e}", exc_info=True)
             return self._try_fallback_stock_info(symbol)
 
     def get_stock_basic_info(self, stock_code: str = None) -> Optional[Dict[str, Any]]:
@@ -1570,7 +1570,7 @@ class DataSourceManager:
             else:
                 return {'error': f'未找到股票 {stock_code} 的信息'}
         except Exception as e:
-            logger.error(f"❌ 获取股票信息失败: {e}")
+            logger.error(f"[X] 获取股票信息失败: {e}")
             return {'error': str(e)}
 
     def get_stock_data_with_fallback(self, stock_code: str, start_date: str, end_date: str) -> str:
@@ -1591,8 +1591,8 @@ class DataSourceManager:
             # 使用统一的数据获取接口
             return self.get_stock_data(stock_code, start_date, end_date)
         except Exception as e:
-            logger.error(f"❌ 获取股票数据失败: {e}")
-            return f"❌ 获取股票数据失败: {str(e)}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查数据源配置"
+            logger.error(f"[X] 获取股票数据失败: {e}")
+            return f"[X] 获取股票数据失败: {str(e)}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查数据源配置"
 
     def _try_fallback_stock_info(self, symbol: str) -> Dict:
         """尝试使用备用数据源获取股票基本信息"""
@@ -1640,11 +1640,11 @@ class DataSourceManager:
                     logger.warning(f"⚠️ [数据来源: {source_name}] 返回无效信息")
 
             except Exception as e:
-                logger.error(f"❌ 备用数据源{source_name}失败: {e}")
+                logger.error(f"[X] 备用数据源{source_name}失败: {e}")
                 continue
 
         # 所有数据源都失败，返回默认值
-        logger.error(f"❌ 所有数据源都无法获取{symbol}的股票信息")
+        logger.error(f"[X] 所有数据源都无法获取{symbol}的股票信息")
         return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'unknown'}
 
     def _get_akshare_stock_info(self, symbol: str) -> Dict:
@@ -1703,7 +1703,7 @@ class DataSourceManager:
                 return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'akshare'}
 
         except Exception as e:
-            logger.error(f"❌ [股票信息] AKShare获取失败: {symbol}, 错误: {e}")
+            logger.error(f"[X] [股票信息] AKShare获取失败: {symbol}, 错误: {e}")
             return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'akshare', 'error': str(e)}
 
     def _get_baostock_stock_info(self, symbol: str) -> Dict:
@@ -1720,14 +1720,14 @@ class DataSourceManager:
             # 登录BaoStock
             lg = bs.login()
             if lg.error_code != '0':
-                logger.error(f"❌ [股票信息] BaoStock登录失败: {lg.error_msg}")
+                logger.error(f"[X] [股票信息] BaoStock登录失败: {lg.error_msg}")
                 return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'baostock'}
 
             # 查询股票基本信息
             rs = bs.query_stock_basic(code=bs_code)
             if rs.error_code != '0':
                 bs.logout()
-                logger.error(f"❌ [股票信息] BaoStock查询失败: {rs.error_msg}")
+                logger.error(f"[X] [股票信息] BaoStock查询失败: {rs.error_msg}")
                 return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'baostock'}
 
             # 解析结果
@@ -1752,7 +1752,7 @@ class DataSourceManager:
                 return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'baostock'}
 
         except Exception as e:
-            logger.error(f"❌ [股票信息] BaoStock获取失败: {e}")
+            logger.error(f"[X] [股票信息] BaoStock获取失败: {e}")
             return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'baostock', 'error': str(e)}
 
     def _parse_stock_info_string(self, info_str: str, symbol: str) -> Dict:
@@ -1830,7 +1830,7 @@ class DataSourceManager:
                 return self._try_fallback_fundamentals(symbol)
 
         except Exception as e:
-            logger.error(f"❌ [数据来源: MongoDB异常] 获取财务数据失败: {e}", exc_info=True)
+            logger.error(f"[X] [数据来源: MongoDB异常] 获取财务数据失败: {e}", exc_info=True)
             # MongoDB 异常，降级到其他数据源
             return self._try_fallback_fundamentals(symbol)
 
@@ -1849,8 +1849,8 @@ class DataSourceManager:
             return self._generate_fundamentals_analysis(symbol)
 
         except Exception as e:
-            logger.error(f"❌ [数据来源: AKShare异常] 生成基本面分析失败: {e}")
-            return f"❌ 生成{symbol}基本面分析失败: {e}"
+            logger.error(f"[X] [数据来源: AKShare异常] 生成基本面分析失败: {e}")
+            return f"[X] 生成{symbol}基本面分析失败: {e}"
 
     def _get_valuation_indicators(self, symbol: str) -> Dict:
         """从stock_basic_info集合获取估值指标"""
@@ -1884,7 +1884,7 @@ class DataSourceManager:
         """格式化财务数据为报告"""
         try:
             if not financial_data or len(financial_data) == 0:
-                return f"❌ 未找到{symbol}的财务数据"
+                return f"[X] 未找到{symbol}的财务数据"
 
             # 获取最新的财务数据
             latest = financial_data[0]
@@ -1992,8 +1992,8 @@ class DataSourceManager:
             return report
 
         except Exception as e:
-            logger.error(f"❌ 格式化财务数据失败: {e}")
-            return f"❌ 格式化{symbol}财务数据失败: {e}"
+            logger.error(f"[X] 格式化财务数据失败: {e}")
+            return f"[X] 格式化{symbol}财务数据失败: {e}"
 
     def _generate_fundamentals_analysis(self, symbol: str) -> str:
         """生成基本的基本面分析"""
@@ -2014,8 +2014,8 @@ class DataSourceManager:
             return report
 
         except Exception as e:
-            logger.error(f"❌ 生成基本面分析失败: {e}")
-            return f"❌ 生成{symbol}基本面分析失败: {e}"
+            logger.error(f"[X] 生成基本面分析失败: {e}")
+            return f"[X] 生成{symbol}基本面分析失败: {e}"
 
     def _try_fallback_fundamentals(self, symbol: str) -> str:
         """基本面数据降级处理"""
@@ -2037,14 +2037,14 @@ class DataSourceManager:
                     else:
                         continue
 
-                    if result and "❌" not in result:
+                    if result and "[X]" not in result:
                         logger.info(f"✅ [数据来源: 备用数据源] 降级成功获取基本面: {source.value}")
                         return result
                     else:
                         logger.warning(f"⚠️ 备用数据源{source.value}返回错误结果")
 
                 except Exception as e:
-                    logger.error(f"❌ 备用数据源{source.value}异常: {e}")
+                    logger.error(f"[X] 备用数据源{source.value}异常: {e}")
                     continue
 
         # 所有数据源都失败，生成基本分析
@@ -2068,7 +2068,7 @@ class DataSourceManager:
                 return self._try_fallback_news(symbol, hours_back, limit)
 
         except Exception as e:
-            logger.error(f"❌ [数据来源: MongoDB] 获取新闻失败: {e}")
+            logger.error(f"[X] [数据来源: MongoDB] 获取新闻失败: {e}")
             return self._try_fallback_news(symbol, hours_back, limit)
 
     def _get_tushare_news(self, symbol: str, hours_back: int, limit: int) -> List[Dict[str, Any]]:
@@ -2079,7 +2079,7 @@ class DataSourceManager:
             return []
 
         except Exception as e:
-            logger.error(f"❌ [数据来源: Tushare] 获取新闻失败: {e}")
+            logger.error(f"[X] [数据来源: Tushare] 获取新闻失败: {e}")
             return []
 
     def _get_akshare_news(self, symbol: str, hours_back: int, limit: int) -> List[Dict[str, Any]]:
@@ -2090,7 +2090,7 @@ class DataSourceManager:
             return []
 
         except Exception as e:
-            logger.error(f"❌ [数据来源: AKShare] 获取新闻失败: {e}")
+            logger.error(f"[X] [数据来源: AKShare] 获取新闻失败: {e}")
             return []
 
     def _try_fallback_news(self, symbol: str, hours_back: int, limit: int) -> List[Dict[str, Any]]:
@@ -2120,7 +2120,7 @@ class DataSourceManager:
                         logger.warning(f"⚠️ 备用数据源{source.value}未返回新闻")
 
                 except Exception as e:
-                    logger.error(f"❌ 备用数据源{source.value}异常: {e}")
+                    logger.error(f"[X] 备用数据源{source.value}异常: {e}")
                     continue
 
         # 所有数据源都失败
@@ -2135,7 +2135,16 @@ def get_data_source_manager() -> DataSourceManager:
     """获取全局数据源管理器实例"""
     global _data_source_manager
     if _data_source_manager is None:
-        _data_source_manager = DataSourceManager()
+        try:
+            _data_source_manager = DataSourceManager()
+        except Exception as e:
+            if "Permission" in str(e) or "restricted" in str(e) or "tk.csv" in str(e):
+                logger.warning(f"⚠️ DataSourceManager 初始化时 Tushare 文件访问受限: {e}")
+                logger.warning(f"⚠️ 继续初始化 DataSourceManager，但 Tushare 可能不可用")
+                # 重新抛出异常，让调用者处理
+                raise
+            else:
+                raise
     return _data_source_manager
 
 
@@ -2239,7 +2248,7 @@ class USDataSourceManager:
         self.current_source = self.default_source
 
         logger.info(f"📊 美股数据源管理器初始化完成")
-        logger.info(f"   MongoDB缓存: {'✅ 已启用' if self.use_mongodb_cache else '❌ 未启用'}")
+        logger.info(f"   MongoDB缓存: {'✅ 已启用' if self.use_mongodb_cache else '[X] 未启用'}")
         logger.info(f"   默认数据源: {self.default_source.value}")
         logger.info(f"   可用数据源: {[s.value for s in self.available_sources]}")
 
@@ -2460,7 +2469,7 @@ class USDataSourceManager:
             logger.info(f"✅ 美股数据源已切换到: {source.value}")
             return True
         else:
-            logger.error(f"❌ 美股数据源不可用: {source.value}")
+            logger.error(f"[X] 美股数据源不可用: {source.value}")
             return False
 
 

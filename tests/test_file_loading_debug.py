@@ -44,12 +44,12 @@ def test_file_loading():
             for config in deepseek_configs:
                 print(f"   - {config.model_name}: 输入¥{config.input_price_per_1k}/1K, 输出¥{config.output_price_per_1k}/1K")
         else:
-            print("❌ 未找到DeepSeek配置")
+            print("[X] 未找到DeepSeek配置")
         
         return True
         
     except Exception as e:
-        print(f"❌ 文件加载测试失败: {e}")
+        print(f"[X] 文件加载测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -67,7 +67,7 @@ def main():
         print("\n🎉 文件加载测试完成！")
         print("请查看上面的详细日志，确认加载的文件内容。")
     else:
-        print("\n❌ 文件加载测试失败")
+        print("\n[X] 文件加载测试失败")
     
     return success
 

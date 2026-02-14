@@ -127,7 +127,7 @@ class AsyncProgressTracker:
                     register_analysis_tracker(self.analysis_id, self)
                     print(f"✅ [进度集成] 跟踪器注册成功: {self.analysis_id}")
                 except Exception as e:
-                    print(f"❌ [进度集成] 跟踪器注册失败: {e}")
+                    print(f"[X] [进度集成] 跟踪器注册失败: {e}")
 
             # 在单独线程中注册，避免阻塞主线程
             register_thread = threading.Thread(target=register_with_timeout, daemon=True)
@@ -140,7 +140,7 @@ class AsyncProgressTracker:
         except ImportError:
             logger.debug("📊 [异步进度] 日志集成不可用")
         except Exception as e:
-            print(f"❌ [进度集成] 跟踪器注册异常: {e}")
+            print(f"[X] [进度集成] 跟踪器注册异常: {e}")
     
     def _init_redis(self) -> bool:
         """初始化Redis连接"""

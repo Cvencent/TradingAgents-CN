@@ -25,7 +25,7 @@ def test_pb_calculation_units():
 
     # 错误的计算方式（原代码）
     pb_wrong = money_cap / total_equity
-    print(f"❌ 错误计算: {money_cap} / {total_equity} = {pb_wrong}")
+    print(f"[X] 错误计算: {money_cap} / {total_equity} = {pb_wrong}")
     print(f"   这个值太小了，相差10000倍！")
 
     # 正确的计算方式（修复后）

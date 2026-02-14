@@ -45,14 +45,14 @@ def test_complete_unified_architecture():
         if 'get_stock_fundamentals_unified' in fundamentals_tool_names:
             print(f"    ✅ 包含统一基本面工具")
         else:
-            print(f"    ❌ 缺少统一基本面工具")
+            print(f"    [X] 缺少统一基本面工具")
             return False
         
         # 检查是否还有旧工具
         old_tools = ['get_china_stock_data', 'get_china_fundamentals', 'get_fundamentals_openai']
         for old_tool in old_tools:
             if old_tool in fundamentals_tool_names:
-                print(f"    ❌ 仍包含旧工具: {old_tool}")
+                print(f"    [X] 仍包含旧工具: {old_tool}")
                 return False
             else:
                 print(f"    ✅ 已移除旧工具: {old_tool}")
@@ -65,14 +65,14 @@ def test_complete_unified_architecture():
         if 'get_stock_market_data_unified' in market_tool_names:
             print(f"    ✅ 包含统一市场数据工具")
         else:
-            print(f"    ❌ 缺少统一市场数据工具")
+            print(f"    [X] 缺少统一市场数据工具")
             return False
         
         print("✅ 完整统一工具架构测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 完整统一工具架构测试失败: {e}")
+        print(f"[X] 完整统一工具架构测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -110,7 +110,7 @@ def test_llm_tool_calling_simulation():
                     print(f"    ✅ 正确绑定统一基本面工具")
                     return self
                 else:
-                    print(f"    ❌ 绑定了错误的工具: {[tool.name for tool in tools]}")
+                    print(f"    [X] 绑定了错误的工具: {[tool.name for tool in tools]}")
                     raise ValueError("绑定了错误的工具")
             
             def invoke(self, messages):
@@ -157,11 +157,11 @@ def test_llm_tool_calling_simulation():
             print(f"  ✅ 返回了正确的消息格式")
             return True
         else:
-            print(f"  ❌ 返回格式错误: {result}")
+            print(f"  [X] 返回格式错误: {result}")
             return False
         
     except Exception as e:
-        print(f"❌ LLM工具调用模拟测试失败: {e}")
+        print(f"[X] LLM工具调用模拟测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -204,14 +204,14 @@ def test_unified_tools_functionality():
                     print(f"    结果前200字符: {result[:200]}...")
                     
             except Exception as e:
-                print(f"    ❌ 统一基本面工具调用失败: {e}")
+                print(f"    [X] 统一基本面工具调用失败: {e}")
                 return False
         
         print("✅ 统一工具功能测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 统一工具功能测试失败: {e}")
+        print(f"[X] 统一工具功能测试失败: {e}")
         return False
 
 
@@ -234,9 +234,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 70)
     print(f"📊 最终测试结果: {passed}/{total} 通过")

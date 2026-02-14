@@ -33,23 +33,23 @@ def test_stock_utils():
         
         for ticker, expected in test_cases:
             market_info = StockUtils.get_market_info(ticker)
-            print(f"  {ticker}: {market_info['market_name']} ({market_info['currency_name']}) - {'✅' if expected in market_info['market_name'] else '❌'}")
+            print(f"  {ticker}: {market_info['market_name']} ({market_info['currency_name']}) - {'✅' if expected in market_info['market_name'] else '[X]'}")
             
             if expected == "港股" and not market_info['is_hk']:
-                print(f"❌ {ticker} 应该被识别为港股")
+                print(f"[X] {ticker} 应该被识别为港股")
                 return False
             elif expected == "中国A股" and not market_info['is_china']:
-                print(f"❌ {ticker} 应该被识别为中国A股")
+                print(f"[X] {ticker} 应该被识别为中国A股")
                 return False
             elif expected == "美股" and not market_info['is_us']:
-                print(f"❌ {ticker} 应该被识别为美股")
+                print(f"[X] {ticker} 应该被识别为美股")
                 return False
         
         print("✅ 股票工具类测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 股票工具类测试失败: {e}")
+        print(f"[X] 股票工具类测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -73,17 +73,17 @@ def test_hk_stock_provider():
         
         for input_symbol, expected in test_symbols:
             normalized = provider._normalize_hk_symbol(input_symbol)
-            print(f"  标准化: {input_symbol} -> {normalized} {'✅' if normalized == expected else '❌'}")
+            print(f"  标准化: {input_symbol} -> {normalized} {'✅' if normalized == expected else '[X]'}")
             
             if normalized != expected:
-                print(f"❌ 港股代码标准化失败: {input_symbol} -> {normalized}, 期望: {expected}")
+                print(f"[X] 港股代码标准化失败: {input_symbol} -> {normalized}, 期望: {expected}")
                 return False
         
         print("✅ 港股数据提供器测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 港股数据提供器测试失败: {e}")
+        print(f"[X] 港股数据提供器测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -118,11 +118,11 @@ def test_hk_stock_info():
             print("✅ 港股信息获取测试通过")
             return True
         else:
-            print("❌ 港股信息获取失败")
+            print("[X] 港股信息获取失败")
             return False
             
     except Exception as e:
-        print(f"❌ 港股信息获取测试失败: {e}")
+        print(f"[X] 港股信息获取测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -161,12 +161,12 @@ def test_hk_stock_data():
             print("✅ 港股数据获取测试通过")
             return True
         else:
-            print("❌ 港股数据获取失败或格式错误")
+            print("[X] 港股数据获取失败或格式错误")
             print(f"返回数据: {data_text[:200]}...")
             return False
             
     except Exception as e:
-        print(f"❌ 港股数据获取测试失败: {e}")
+        print(f"[X] 港股数据获取测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -209,11 +209,11 @@ def test_optimized_us_data_hk_support():
             print("✅ 优化数据模块港股支持测试通过")
             return True
         else:
-            print("❌ 优化数据模块港股支持测试失败")
+            print("[X] 优化数据模块港股支持测试失败")
             return False
             
     except Exception as e:
-        print(f"❌ 优化数据模块港股支持测试失败: {e}")
+        print(f"[X] 优化数据模块港股支持测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -239,7 +239,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"🇭🇰 港股功能测试完成: {passed}/{total} 通过")

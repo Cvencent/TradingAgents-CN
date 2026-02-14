@@ -77,6 +77,13 @@ def create_risky_debator(llm):
             else:
                 new_risky_history = [argument]
 
+        # 🔧 保存当前prompt到risky_prompts列表（用于前端展示）
+        current_risky_prompts = risk_debate_state.get("risky_prompts", [])
+        if not isinstance(current_risky_prompts, list):
+            current_risky_prompts = []
+        new_risky_prompts = current_risky_prompts + [prompt]
+        logger.info(f"🔍 [Risky Analyst] 保存prompt到risky_prompts，当前轮数: {len(new_risky_prompts)}, prompt长度: {len(prompt)} chars")
+
         new_risk_debate_state = {
             "history": history + "\n" + argument,
             "risky_history": new_risky_history,
@@ -89,8 +96,21 @@ def create_risky_debator(llm):
                 "current_neutral_response", ""
             ),
             "count": new_count,
+            "risky_prompts": new_risky_prompts,  # 🔧 保存prompts
         }
 
-        return {"risk_debate_state": new_risk_debate_state}
+        logger.info(f"🔍 [Risky Analyst] 返回risk_debate_state，包含字段: {list(new_risk_debate_state.keys())}")
+        
+        # 🔥 关键修复：同时返回 risky_request_prompt 字段（用于前端展示原始prompt）
+        # 将所有轮次的prompt合并，用分隔符隔开
+        full_risky_prompt = "\n\n" + "="*60 + "\n【风险偏好分析师 - 多轮辩论Prompts】\n" + "="*60 + "\n\n"
+        for i, p in enumerate(new_risky_prompts, 1):
+            full_risky_prompt += f"\n--- 第 {i} 轮 ---\n{p}\n"
+        
+        logger.info(f"🔍 [Risky Analyst] 返回 risky_request_prompt，总长度: {len(full_risky_prompt)} chars")
+        return {
+            "risk_debate_state": new_risk_debate_state,
+            "risky_request_prompt": full_risky_prompt  # 🔥 保存完整的请求prompt
+        }
 
     return risky_node

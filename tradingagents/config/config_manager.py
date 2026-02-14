@@ -45,13 +45,13 @@ try:
     from .mongodb_storage import MongoDBStorage
     MONGODB_AVAILABLE = True
 except ImportError as e:
-    logger.error(f"❌ [ConfigManager] 导入 MongoDBStorage 失败 (ImportError): {e}")
+    logger.error(f"[X] [ConfigManager] 导入 MongoDBStorage 失败 (ImportError): {e}")
     import traceback
     logger.error(f"   堆栈: {traceback.format_exc()}")
     MONGODB_AVAILABLE = False
     MongoDBStorage = None
 except Exception as e:
-    logger.error(f"❌ [ConfigManager] 导入 MongoDBStorage 失败 (Exception): {e}")
+    logger.error(f"[X] [ConfigManager] 导入 MongoDBStorage 失败 (Exception): {e}")
     import traceback
     logger.error(f"   堆栈: {traceback.format_exc()}")
     MONGODB_AVAILABLE = False
@@ -175,7 +175,7 @@ class ConfigManager:
             logger.info(f"🔍 [ConfigManager] MONGODB_DATABASE_NAME={database_name}")
 
             if not connection_string:
-                logger.error("❌ [ConfigManager] MONGODB_CONNECTION_STRING 未设置，无法初始化 MongoDB 存储")
+                logger.error("[X] [ConfigManager] MONGODB_CONNECTION_STRING 未设置，无法初始化 MongoDB 存储")
                 return
 
             logger.info(f"🔄 [ConfigManager] 正在创建 MongoDBStorage 实例...")
@@ -191,7 +191,7 @@ class ConfigManager:
                 logger.warning("⚠️ [ConfigManager] MongoDB连接失败，将使用JSON文件存储")
 
         except Exception as e:
-            logger.error(f"❌ [ConfigManager] MongoDB初始化失败: {e}", exc_info=True)
+            logger.error(f"[X] [ConfigManager] MongoDB初始化失败: {e}", exc_info=True)
             self.mongodb_storage = None
 
     def _init_default_configs(self):
@@ -661,7 +661,7 @@ class ConfigManager:
                     os.makedirs(directory, exist_ok=True)
                     logger.info(f"✅ 创建目录: {directory}")
                 except Exception as e:
-                    logger.error(f"❌ 创建目录失败 {directory}: {e}")
+                    logger.error(f"[X] 创建目录失败 {directory}: {e}")
     
     def set_openai_enabled(self, enabled: bool):
         """设置OpenAI模型启用状态"""

@@ -127,7 +127,7 @@ class NewsDataSyncService:
                         stats.sources_used.append("tushare")
                         self.logger.info(f"✅ Tushare新闻获取成功: {len(tushare_news)}条")
                 except Exception as e:
-                    self.logger.error(f"❌ Tushare新闻获取失败: {e}")
+                    self.logger.error(f"[X] Tushare新闻获取失败: {e}")
             
             # 2. AKShare新闻
             if "akshare" in data_sources:
@@ -140,7 +140,7 @@ class NewsDataSyncService:
                         stats.sources_used.append("akshare")
                         self.logger.info(f"✅ AKShare新闻获取成功: {len(akshare_news)}条")
                 except Exception as e:
-                    self.logger.error(f"❌ AKShare新闻获取失败: {e}")
+                    self.logger.error(f"[X] AKShare新闻获取失败: {e}")
             
             # 3. 实时新闻聚合
             if "realtime" in data_sources:
@@ -153,7 +153,7 @@ class NewsDataSyncService:
                         stats.sources_used.append("realtime")
                         self.logger.info(f"✅ 实时新闻获取成功: {len(realtime_news)}条")
                 except Exception as e:
-                    self.logger.error(f"❌ 实时新闻获取失败: {e}")
+                    self.logger.error(f"[X] 实时新闻获取失败: {e}")
             
             # 保存新闻数据
             if all_news:
@@ -176,7 +176,7 @@ class NewsDataSyncService:
             return stats
             
         except Exception as e:
-            self.logger.error(f"❌ 同步股票新闻失败 {symbol}: {e}")
+            self.logger.error(f"[X] 同步股票新闻失败 {symbol}: {e}")
             stats.end_time = datetime.utcnow()
             return stats
     
@@ -222,7 +222,7 @@ class NewsDataSyncService:
             elif "积分" in str(e) or "point" in str(e).lower():
                 self.logger.warning(f"⚠️ Tushare积分不足: {e}")
             else:
-                self.logger.error(f"❌ Tushare新闻同步失败: {e}")
+                self.logger.error(f"[X] Tushare新闻同步失败: {e}")
             return []
     
     async def _sync_akshare_news(
@@ -254,7 +254,7 @@ class NewsDataSyncService:
             return []
             
         except Exception as e:
-            self.logger.error(f"❌ AKShare新闻同步失败: {e}")
+            self.logger.error(f"[X] AKShare新闻同步失败: {e}")
             return []
     
     async def _sync_realtime_news(
@@ -285,7 +285,7 @@ class NewsDataSyncService:
             return []
             
         except Exception as e:
-            self.logger.error(f"❌ 实时新闻同步失败: {e}")
+            self.logger.error(f"[X] 实时新闻同步失败: {e}")
             return []
     
     def _standardize_tushare_news(self, news: Dict[str, Any], symbol: str) -> Optional[Dict[str, Any]]:
@@ -307,7 +307,7 @@ class NewsDataSyncService:
                 "data_source": "tushare"
             }
         except Exception as e:
-            self.logger.error(f"❌ 标准化Tushare新闻失败: {e}")
+            self.logger.error(f"[X] 标准化Tushare新闻失败: {e}")
             return None
     
     def _standardize_akshare_news(self, news: Dict[str, Any], symbol: str) -> Optional[Dict[str, Any]]:
@@ -329,7 +329,7 @@ class NewsDataSyncService:
                 "data_source": "akshare"
             }
         except Exception as e:
-            self.logger.error(f"❌ 标准化AKShare新闻失败: {e}")
+            self.logger.error(f"[X] 标准化AKShare新闻失败: {e}")
             return None
     
     def _standardize_realtime_news(self, news_item, symbol: str) -> Optional[Dict[str, Any]]:
@@ -351,7 +351,7 @@ class NewsDataSyncService:
                 "data_source": "realtime"
             }
         except Exception as e:
-            self.logger.error(f"❌ 标准化实时新闻失败: {e}")
+            self.logger.error(f"[X] 标准化实时新闻失败: {e}")
             return None
     
     def _classify_news_category(self, title: str) -> str:
@@ -478,7 +478,7 @@ class NewsDataSyncService:
                         self.logger.info(f"✅ 市场新闻获取成功: {len(all_news)}条")
                         
                 except Exception as e:
-                    self.logger.error(f"❌ 市场新闻获取失败: {e}")
+                    self.logger.error(f"[X] 市场新闻获取失败: {e}")
             
             # 保存新闻数据
             if all_news:
@@ -501,7 +501,7 @@ class NewsDataSyncService:
             return stats
             
         except Exception as e:
-            self.logger.error(f"❌ 同步市场新闻失败: {e}")
+            self.logger.error(f"[X] 同步市场新闻失败: {e}")
             stats.end_time = datetime.utcnow()
             return stats
 

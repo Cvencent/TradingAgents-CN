@@ -26,12 +26,12 @@ def test_env_loading():
         # 测试API密钥加载
         print("\n📋 API密钥状态:")
         for provider, configured in env_status['api_keys'].items():
-            status = "✅ 已配置" if configured else "❌ 未配置"
+            status = "✅ 已配置" if configured else "[X] 未配置"
             print(f"  {provider}: {status}")
         
         return True
     except Exception as e:
-        print(f"❌ .env文件加载失败: {e}")
+        print(f"[X] .env文件加载失败: {e}")
         import traceback
         print(f"错误详情: {traceback.format_exc()}")
         return False
@@ -65,7 +65,7 @@ def test_model_config_merge():
         
         return True
     except Exception as e:
-        print(f"❌ 模型配置合并失败: {e}")
+        print(f"[X] 模型配置合并失败: {e}")
         import traceback
         print(f"错误详情: {traceback.format_exc()}")
         return False
@@ -101,7 +101,7 @@ def test_settings_merge():
         
         return True
     except Exception as e:
-        print(f"❌ 系统设置合并失败: {e}")
+        print(f"[X] 系统设置合并失败: {e}")
         import traceback
         print(f"错误详情: {traceback.format_exc()}")
         return False
@@ -117,8 +117,8 @@ def test_backward_compatibility():
         finnhub_key = os.getenv("FINNHUB_API_KEY")
         
         print("🔑 直接环境变量读取:")
-        print(f"  DASHSCOPE_API_KEY: {'✅ 已设置' if dashscope_key else '❌ 未设置'}")
-        print(f"  FINNHUB_API_KEY: {'✅ 已设置' if finnhub_key else '❌ 未设置'}")
+        print(f"  DASHSCOPE_API_KEY: {'✅ 已设置' if dashscope_key else '[X] 未设置'}")
+        print(f"  FINNHUB_API_KEY: {'✅ 已设置' if finnhub_key else '[X] 未设置'}")
         
         # 测试CLI工具兼容性
         from cli.main import check_api_keys
@@ -131,7 +131,7 @@ def test_backward_compatibility():
         
         return True
     except Exception as e:
-        print(f"❌ 向后兼容性测试失败: {e}")
+        print(f"[X] 向后兼容性测试失败: {e}")
         import traceback
         print(f"错误详情: {traceback.format_exc()}")
         return False
@@ -157,9 +157,9 @@ def main():
                 passed += 1
                 print(f"✅ {test_name} 测试通过")
             else:
-                print(f"❌ {test_name} 测试失败")
+                print(f"[X] {test_name} 测试失败")
         except Exception as e:
-            print(f"❌ {test_name} 测试异常: {e}")
+            print(f"[X] {test_name} 测试异常: {e}")
     
     print(f"\n📊 测试结果: {passed}/{total} 通过")
     
@@ -173,7 +173,7 @@ def main():
         print("✅ 新增Web管理界面作为补充")
         return True
     else:
-        print("❌ 部分测试失败，请检查兼容性实现")
+        print("[X] 部分测试失败，请检查兼容性实现")
         return False
 
 if __name__ == "__main__":

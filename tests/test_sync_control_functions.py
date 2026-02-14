@@ -42,7 +42,7 @@ async def test_sync_control_functions():
             if status.get('data_sources_used'):
                 print(f"   🔗 使用的数据源: {status.get('data_sources_used')}")
         except Exception as e:
-            print(f"   ❌ 获取状态失败: {e}")
+            print(f"   [X] 获取状态失败: {e}")
         
         # 2. 测试清空缓存
         print("\n2. 🗑️ 测试清空缓存...")
@@ -60,7 +60,7 @@ async def test_sync_control_functions():
             print(f"   📊 清空后缓存记录数: {cache_count_after}")
             
         except Exception as e:
-            print(f"   ❌ 清空缓存失败: {e}")
+            print(f"   [X] 清空缓存失败: {e}")
         
         # 3. 测试开始同步（小规模测试）
         print("\n3. 🚀 测试开始同步...")
@@ -107,7 +107,7 @@ async def test_sync_control_functions():
                         print(f"   💬 消息: {status.get('message')}")
                 
         except Exception as e:
-            print(f"   ❌ 同步测试失败: {e}")
+            print(f"   [X] 同步测试失败: {e}")
             import traceback
             traceback.print_exc()
         
@@ -123,12 +123,12 @@ async def test_sync_control_functions():
                 print(f"   🔗 使用的数据源: {', '.join(final_status.get('data_sources_used'))}")
             
         except Exception as e:
-            print(f"   ❌ 最终状态检查失败: {e}")
+            print(f"   [X] 最终状态检查失败: {e}")
         
         print(f"\n🎉 同步控制功能测试完成")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -149,7 +149,7 @@ async def test_api_endpoints():
             print(f"   ✅ API响应成功: {response.success}")
             print(f"   📊 状态: {response.data.get('status', 'unknown')}")
         except Exception as e:
-            print(f"   ❌ API调用失败: {e}")
+            print(f"   [X] API调用失败: {e}")
         
         print("\n2. 🗑️ 测试清空缓存API...")
         try:
@@ -158,7 +158,7 @@ async def test_api_endpoints():
             print(f"   💬 消息: {response.message}")
             print(f"   📊 清空项目数: {response.data.get('items_cleared', 0)}")
         except Exception as e:
-            print(f"   ❌ API调用失败: {e}")
+            print(f"   [X] API调用失败: {e}")
         
         print("\n3. 🚀 测试开始同步API...")
         try:
@@ -168,12 +168,12 @@ async def test_api_endpoints():
             print(f"   💬 消息: {response.message}")
             print(f"   📊 同步状态: {response.data.get('status', 'unknown')}")
         except Exception as e:
-            print(f"   ❌ API调用失败: {e}")
+            print(f"   [X] API调用失败: {e}")
         
         print(f"\n🎉 API端点测试完成")
         
     except Exception as e:
-        print(f"❌ API测试失败: {e}")
+        print(f"[X] API测试失败: {e}")
 
 if __name__ == "__main__":
     asyncio.run(test_sync_control_functions())

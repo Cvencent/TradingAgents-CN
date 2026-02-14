@@ -25,7 +25,7 @@ def fetch_stock_basic_df():
 
     # 检查 Tushare 是否启用
     if not settings.TUSHARE_ENABLED:
-        logger.error("❌ Tushare 数据源已禁用 (TUSHARE_ENABLED=false)")
+        logger.error("[X] Tushare 数据源已禁用 (TUSHARE_ENABLED=false)")
         logger.error("💡 请在 .env 文件中设置 TUSHARE_ENABLED=true 或使用多数据源同步服务")
         raise RuntimeError(
             "Tushare is disabled (TUSHARE_ENABLED=false). "
@@ -46,7 +46,7 @@ def fetch_stock_basic_df():
 
     # 检查连接状态和API可用性
     if not getattr(provider, "connected", False) or provider.api is None:
-        logger.error(f"❌ Tushare 连接失败（等待 {max_wait_seconds}s 后超时）")
+        logger.error(f"[X] Tushare 连接失败（等待 {max_wait_seconds}s 后超时）")
         logger.error(f"💡 请检查：")
         logger.error(f"   1. .env 文件中配置了有效的 TUSHARE_TOKEN")
         logger.error(f"   2. Tushare Token 未过期且有足够的积分")
@@ -67,7 +67,7 @@ def fetch_stock_basic_df():
 
         # 🔧 增强错误诊断
         if df is None:
-            logger.error(f"❌ Tushare API 返回 None")
+            logger.error(f"[X] Tushare API 返回 None")
             logger.error(f"💡 可能原因：")
             logger.error(f"   1. Tushare Token 无效或过期")
             logger.error(f"   2. API 积分不足")
@@ -75,7 +75,7 @@ def fetch_stock_basic_df():
             raise RuntimeError("Tushare API returned None. Check token validity and API credits.")
 
         if hasattr(df, 'empty') and df.empty:
-            logger.error(f"❌ Tushare API 返回空 DataFrame")
+            logger.error(f"[X] Tushare API 返回空 DataFrame")
             logger.error(f"💡 可能原因：")
             logger.error(f"   1. list_status='L' 参数可能不正确")
             logger.error(f"   2. Tushare 数据源暂时不可用")
@@ -86,7 +86,7 @@ def fetch_stock_basic_df():
         return df
 
     except Exception as e:
-        logger.error(f"❌ 调用 Tushare API 失败: {e}")
+        logger.error(f"[X] 调用 Tushare API 失败: {e}")
         raise RuntimeError(f"Failed to fetch stock basic DataFrame: {e}")
 
 

@@ -138,7 +138,7 @@ def test_stock_with_all_levels(ticker, stock_name):
             }
             
         except Exception as e:
-            print(f"❌ 数据获取失败: {e}")
+            print(f"[X] 数据获取失败: {e}")
             import traceback
             traceback.print_exc()
             results[level_num] = {
@@ -196,7 +196,7 @@ def main():
             results = test_stock_with_all_levels(ticker, stock_name)
             all_results[ticker] = results
         except Exception as e:
-            print(f"❌ 测试股票 {stock_name} 失败: {e}")
+            print(f"[X] 测试股票 {stock_name} 失败: {e}")
             import traceback
             traceback.print_exc()
     

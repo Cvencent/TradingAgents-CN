@@ -24,7 +24,7 @@ async def test_amount_fix():
     
     provider = get_tushare_provider()
     if not provider.is_available():
-        print("   ❌ Tushare 不可用，请检查 TUSHARE_TOKEN 配置")
+        print("   [X] Tushare 不可用，请检查 TUSHARE_TOKEN 配置")
         return
     
     # 获取历史数据（最近1天）
@@ -43,7 +43,7 @@ async def test_amount_fix():
     )
     
     if df is None or df.empty:
-        print("   ❌ 未获取到数据")
+        print("   [X] 未获取到数据")
         return
     
     print(f"   ✅ 获取到 {len(df)} 条记录")
@@ -99,7 +99,7 @@ async def test_amount_fix():
     print("=" * 80)
     print("\n💡 验证标准:")
     print("   - 如果成交额显示为 90.92亿 左右，说明修复成功 ✅")
-    print("   - 如果成交额显示为 909.18万 或 0.0091亿，说明仍有问题 ❌")
+    print("   - 如果成交额显示为 909.18万 或 0.0091亿，说明仍有问题 [X]")
     print("=" * 80)
 
 if __name__ == "__main__":

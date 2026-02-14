@@ -35,7 +35,7 @@ def test_embedding_selection():
         print(f"   LLM提供商: {memory1.llm_provider}")
         print(f"   客户端: {type(memory1.client)}")
     except Exception as e:
-        print(f"❌ 阿里百炼配置失败: {e}")
+        print(f"[X] 阿里百炼配置失败: {e}")
     
     print()
     
@@ -52,7 +52,7 @@ def test_embedding_selection():
         print(f"   客户端: {type(memory2.client)}")
         print(f"   后端URL: {config2['backend_url']}")
     except Exception as e:
-        print(f"❌ 本地Ollama配置失败: {e}")
+        print(f"[X] 本地Ollama配置失败: {e}")
     
     print()
     
@@ -69,7 +69,7 @@ def test_embedding_selection():
         print(f"   客户端: {type(memory3.client)}")
         print(f"   问题: Google AI没有专门的嵌入配置，默认使用OpenAI")
     except Exception as e:
-        print(f"❌ Google AI配置失败: {e}")
+        print(f"[X] Google AI配置失败: {e}")
     
     print()
     
@@ -85,7 +85,7 @@ def test_embedding_selection():
         print(f"   LLM提供商: {memory4.llm_provider}")
         print(f"   客户端: {type(memory4.client)}")
     except Exception as e:
-        print(f"❌ OpenAI配置失败: {e}")
+        print(f"[X] OpenAI配置失败: {e}")
 
 def test_embedding_functionality():
     """测试嵌入功能是否正常工作"""
@@ -109,7 +109,7 @@ def test_embedding_functionality():
             print(f"   嵌入维度: {len(embedding)}")
             print(f"   嵌入预览: {embedding[:5]}...")
         except Exception as e:
-            print(f"❌ 阿里百炼嵌入失败: {e}")
+            print(f"[X] 阿里百炼嵌入失败: {e}")
     else:
         print("⚠️ 阿里百炼API密钥未配置，跳过测试")
     
@@ -128,7 +128,7 @@ def test_embedding_functionality():
             print(f"✅ Google AI嵌入成功（意外）")
             print(f"   嵌入维度: {len(embedding)}")
         except Exception as e:
-            print(f"❌ Google AI嵌入失败（预期）: {e}")
+            print(f"[X] Google AI嵌入失败（预期）: {e}")
             print("   原因: Google AI没有专门的嵌入配置，尝试使用OpenAI API")
     else:
         print("⚠️ Google API密钥未配置，跳过测试")

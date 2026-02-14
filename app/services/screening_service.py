@@ -235,7 +235,7 @@ class ScreeningService:
                 return ["000001", "000002", "000858", "600519", "600036", "601318", "300750"]
 
         except Exception as e:
-            logger.error(f"❌ 从 MongoDB 获取股票列表失败: {e}")
+            logger.error(f"[X] 从 MongoDB 获取股票列表失败: {e}")
             # 异常时返回常见股票代码作为兜底
             return ["000001", "000002", "000858", "600519", "600036", "601318", "300750"]
 

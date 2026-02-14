@@ -60,7 +60,7 @@ def test_optimized_data_depth():
             print(f"   ✅ 数据总长度: {len(data)} 字符")
             
         except Exception as e:
-            print(f"   ❌ 获取数据失败: {e}")
+            print(f"   [X] 获取数据失败: {e}")
             results[depth] = None
     
     # 分析结果

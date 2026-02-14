@@ -62,7 +62,7 @@ def test_financial_metrics():
                 print(f"  ROE: {roe_line.split(':')[1].strip()}")
                 
         except Exception as e:
-            print(f"❌ {symbol}: 测试失败 - {e}")
+            print(f"[X] {symbol}: 测试失败 - {e}")
 
 def test_tushare_connection():
     """测试Tushare连接"""
@@ -88,10 +88,10 @@ def test_tushare_connection():
             else:
                 print(f"⚠️ 未获取到{test_symbol}财务数据")
         else:
-            print("❌ Tushare连接失败")
+            print("[X] Tushare连接失败")
             
     except Exception as e:
-        print(f"❌ Tushare测试失败: {e}")
+        print(f"[X] Tushare测试失败: {e}")
 
 def main():
     """主函数"""
@@ -109,7 +109,7 @@ def main():
     print("说明:")
     print("- ✅ 表示使用真实财务数据")
     print("- ⚠️ 表示使用估算数据（Tushare不可用时的备用方案）")
-    print("- ❌ 表示测试失败")
+    print("- [X] 表示测试失败")
 
 if __name__ == "__main__":
     main()

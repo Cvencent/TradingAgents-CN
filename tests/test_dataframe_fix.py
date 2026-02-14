@@ -53,7 +53,7 @@ def test_safe_dataframe():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 
@@ -80,7 +80,7 @@ def test_comparison_data():
                 '2025-07-31 13:00',
                 2,  # 整数
                 4,  # 整数
-                "❌ 失败",
+                "[X] 失败",
                 1   # 整数
             ]
         }
@@ -93,12 +93,12 @@ def test_comparison_data():
         if all_string:
             print("✅ 所有列都是字符串类型")
         else:
-            print("❌ 存在非字符串类型的列")
+            print("[X] 存在非字符串类型的列")
             
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 
@@ -117,7 +117,7 @@ def test_timeline_data():
                 '分析时间': datetime.now().strftime('%Y-%m-%d %H:%M'),
                 '分析师': 'analyst1, analyst2',
                 '研究深度': 5,  # 整数
-                '状态': '✅' if i % 2 == 0 else '❌'
+                '状态': '✅' if i % 2 == 0 else '[X]'
             })
         
         df = safe_dataframe(timeline_data)
@@ -127,12 +127,12 @@ def test_timeline_data():
         if df['序号'].dtype == 'object':
             print("✅ 序号列已转换为字符串类型")
         else:
-            print(f"❌ 序号列类型: {df['序号'].dtype}")
+            print(f"[X] 序号列类型: {df['序号'].dtype}")
             
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 
@@ -165,7 +165,7 @@ def test_arrow_conversion():
         return True
         
     except Exception as e:
-        print(f"❌ Arrow转换失败: {e}")
+        print(f"[X] Arrow转换失败: {e}")
         return False
 
 
@@ -190,7 +190,7 @@ def main():
             passed += 1
             print(f"✅ {test_name} 通过")
         else:
-            print(f"❌ {test_name} 失败")
+            print(f"[X] {test_name} 失败")
     
     print("\n" + "=" * 50)
     print(f"📊 测试结果: {passed}/{total} 通过")

@@ -33,7 +33,7 @@ def test_api_format():
             access_token = login_result["data"]["access_token"]
             print("✅ 登录成功，获取到token")
         else:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             return False
         
         # 2. 提交分析请求
@@ -69,7 +69,7 @@ def test_api_format():
             task_id = result["data"]["task_id"]
             print(f"✅ 分析任务已提交: {task_id}")
         else:
-            print(f"❌ 提交分析请求失败: {response.status_code}")
+            print(f"[X] 提交分析请求失败: {response.status_code}")
             print(f"   响应: {response.text}")
             return False
         
@@ -93,7 +93,7 @@ def test_api_format():
                     print("✅ 分析任务完成!")
                     break
                 elif status == "failed":
-                    print(f"❌ 分析任务失败: {message}")
+                    print(f"[X] 分析任务失败: {message}")
                     return False
             
             time.sleep(5)
@@ -130,7 +130,7 @@ def test_api_format():
                         else:
                             print(f"      ⚠️ 内容过短: '{content}'")
                     else:
-                        print(f"   ❌ {report_type}: {content_type} (应该是str)")
+                        print(f"   [X] {report_type}: {content_type} (应该是str)")
                         print(f"      值: {content}")
                 
                 # 验证前端期望的字段
@@ -144,19 +144,19 @@ def test_api_format():
                         else:
                             print(f"   ⚠️ {field}: 内容无效或过短")
                     else:
-                        print(f"   ❌ {field}: 缺失")
+                        print(f"   [X] {field}: 缺失")
                 
                 return True
             else:
-                print(f"❌ API返回未包含reports字段")
+                print(f"[X] API返回未包含reports字段")
                 return False
         else:
-            print(f"❌ 获取API结果失败: {result_response.status_code}")
+            print(f"[X] 获取API结果失败: {result_response.status_code}")
             print(f"   响应: {result_response.text}")
             return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 if __name__ == "__main__":

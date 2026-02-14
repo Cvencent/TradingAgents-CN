@@ -119,13 +119,13 @@ def test_tool_selection_scenarios():
             print(f"   结果:")
             for tool_type, tool_name in results.items():
                 expected_tool = expected[tool_type]
-                status = "✅" if tool_name == expected_tool else "❌"
+                status = "✅" if tool_name == expected_tool else "[X]"
                 print(f"     {tool_type}: {tool_name} {status}")
                 if tool_name != expected_tool:
                     print(f"       期望: {expected_tool}")
             
         except Exception as e:
-            print(f"   ❌ 测试失败: {e}")
+            print(f"   [X] 测试失败: {e}")
 
 def test_trading_graph_integration():
     """测试TradingGraph集成"""
@@ -191,7 +191,7 @@ def test_trading_graph_integration():
                 print("   ✅ TradingGraph创建成功")
                 
             except Exception as e:
-                print(f"   ❌ TradingGraph创建失败: {e}")
+                print(f"   [X] TradingGraph创建失败: {e}")
                 
     except ImportError as e:
         print(f"   ⚠️ 无法导入TradingGraph: {e}")

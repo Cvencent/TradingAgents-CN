@@ -50,7 +50,7 @@ def test_hk_validation():
                 print(f"  ✅ {symbol} ({market_type}): {'通过' if validation_passed else '失败'}")
                 passed += 1
             else:
-                print(f"  ❌ {symbol} ({market_type}): 期望{'通过' if should_pass else '失败'}, 实际{'通过' if validation_passed else '失败'}")
+                print(f"  [X] {symbol} ({market_type}): 期望{'通过' if should_pass else '失败'}, 实际{'通过' if validation_passed else '失败'}")
                 if errors:
                     print(f"      错误: {errors}")
         
@@ -64,7 +64,7 @@ def test_hk_validation():
             return False
         
     except Exception as e:
-        print(f"❌ 验证测试失败: {e}")
+        print(f"[X] 验证测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -97,7 +97,7 @@ def test_specific_case():
             return True
         
     except Exception as e:
-        print(f"❌ 具体案例测试失败: {e}")
+        print(f"[X] 具体案例测试失败: {e}")
         return False
 
 def test_regex_patterns():
@@ -135,7 +135,7 @@ def test_regex_patterns():
         return True
         
     except Exception as e:
-        print(f"❌ 正则表达式测试失败: {e}")
+        print(f"[X] 正则表达式测试失败: {e}")
         return False
 
 def main():
@@ -157,7 +157,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 40)
     print(f"🔧 修复测试完成: {passed}/{total} 通过")

@@ -56,7 +56,7 @@ def debug_config_manager():
         print(f"   计算结果: ¥{cost:.6f}")
         
         if cost == 0.0:
-            print(f"❌ 成本计算返回0，检查匹配逻辑...")
+            print(f"[X] 成本计算返回0，检查匹配逻辑...")
             
             # 详细检查匹配逻辑
             for pricing in pricing_configs:
@@ -71,12 +71,12 @@ def debug_config_manager():
                     print(f"   总成本: {total_cost:.6f}")
                     break
             else:
-                print(f"   ❌ 未找到匹配的配置")
+                print(f"   [X] 未找到匹配的配置")
         
         return True
         
     except Exception as e:
-        print(f"❌ 配置管理器调试失败: {e}")
+        print(f"[X] 配置管理器调试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -123,14 +123,14 @@ def debug_token_tracker():
                 print(f"✅ 成本计算正确")
                 return True
             else:
-                print(f"❌ 成本计算仍为0")
+                print(f"[X] 成本计算仍为0")
                 return False
         else:
-            print(f"❌ Token跟踪失败")
+            print(f"[X] Token跟踪失败")
             return False
         
     except Exception as e:
-        print(f"❌ Token跟踪器调试失败: {e}")
+        print(f"[X] Token跟踪器调试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -173,7 +173,7 @@ def debug_deepseek_adapter():
         return True
         
     except Exception as e:
-        print(f"❌ DeepSeek适配器调试失败: {e}")
+        print(f"[X] DeepSeek适配器调试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -225,7 +225,7 @@ def debug_model_name_issue():
         return True
         
     except Exception as e:
-        print(f"❌ 模型名称调试失败: {e}")
+        print(f"[X] 模型名称调试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -251,10 +251,10 @@ def main():
     print("\n📋 调试总结")
     print("=" * 60)
     
-    print(f"配置管理器: {'✅ 正常' if config_success else '❌ 有问题'}")
-    print(f"Token跟踪器: {'✅ 正常' if tracker_success else '❌ 有问题'}")
-    print(f"模型名称匹配: {'✅ 正常' if model_success else '❌ 有问题'}")
-    print(f"适配器调试: {'✅ 正常' if adapter_success else '❌ 有问题'}")
+    print(f"配置管理器: {'✅ 正常' if config_success else '[X] 有问题'}")
+    print(f"Token跟踪器: {'✅ 正常' if tracker_success else '[X] 有问题'}")
+    print(f"模型名称匹配: {'✅ 正常' if model_success else '[X] 有问题'}")
+    print(f"适配器调试: {'✅ 正常' if adapter_success else '[X] 有问题'}")
     
     overall_success = config_success and tracker_success and model_success and adapter_success
     
@@ -266,7 +266,7 @@ def main():
         print("   3. 有缓存问题")
         print("   4. 模型名称在某个地方被修改了")
     else:
-        print("\n❌ 发现问题，请检查上述失败的组件")
+        print("\n[X] 发现问题，请检查上述失败的组件")
     
     print("\n🎯 调试完成！")
     return overall_success

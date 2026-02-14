@@ -22,7 +22,7 @@ def test_graph_routing():
     
     # 检查API密钥
     if not os.getenv("DEEPSEEK_API_KEY"):
-        print("❌ 未找到DEEPSEEK_API_KEY，无法测试")
+        print("[X] 未找到DEEPSEEK_API_KEY，无法测试")
         return False
     
     try:
@@ -86,15 +86,15 @@ def test_graph_routing():
             
             return True
         else:
-            print("❌ 未获得有效的分析结果")
+            print("[X] 未获得有效的分析结果")
             return False
         
     except KeyError as e:
-        print(f"❌ 图路由KeyError: {e}")
+        print(f"[X] 图路由KeyError: {e}")
         print("   这表明节点名称映射仍有问题")
         return False
     except Exception as e:
-        print(f"❌ 其他错误: {e}")
+        print(f"[X] 其他错误: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -113,7 +113,7 @@ def main():
         print("\n🎉 图路由测试成功！")
         print("   KeyError问题已修复")
     else:
-        print("\n❌ 图路由测试失败")
+        print("\n[X] 图路由测试失败")
         print("   需要进一步调试")
     
     return success

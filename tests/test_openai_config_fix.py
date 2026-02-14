@@ -23,9 +23,9 @@ def test_openai_config_detection():
         finnhub_key = os.getenv("FINNHUB_API_KEY")
         
         print(f"📊 当前环境变量状态:")
-        print(f"   OPENAI_API_KEY: {'✅ 已配置' if openai_key else '❌ 未配置'}")
-        print(f"   DASHSCOPE_API_KEY: {'✅ 已配置' if dashscope_key else '❌ 未配置'}")
-        print(f"   FINNHUB_API_KEY: {'✅ 已配置' if finnhub_key else '❌ 未配置'}")
+        print(f"   OPENAI_API_KEY: {'✅ 已配置' if openai_key else '[X] 未配置'}")
+        print(f"   DASHSCOPE_API_KEY: {'✅ 已配置' if dashscope_key else '[X] 未配置'}")
+        print(f"   FINNHUB_API_KEY: {'✅ 已配置' if finnhub_key else '[X] 未配置'}")
         
         # 检查配置
         from tradingagents.dataflows.config import get_config
@@ -42,7 +42,7 @@ def test_openai_config_detection():
         
         # 检查1: OpenAI API Key
         if not openai_key:
-            print(f"   ❌ 检查1失败: 未配置OPENAI_API_KEY")
+            print(f"   [X] 检查1失败: 未配置OPENAI_API_KEY")
             should_skip_openai = True
         else:
             print(f"   ✅ 检查1通过: OPENAI_API_KEY已配置")
@@ -51,7 +51,7 @@ def test_openai_config_detection():
         # 检查2: 基本配置
         if not should_skip_openai:
             if not config.get("backend_url") or not config.get("quick_think_llm"):
-                print(f"   ❌ 检查2失败: OpenAI配置不完整")
+                print(f"   [X] 检查2失败: OpenAI配置不完整")
                 should_skip_openai = True
             else:
                 print(f"   ✅ 检查2通过: OpenAI基本配置完整")
@@ -60,7 +60,7 @@ def test_openai_config_detection():
         if not should_skip_openai:
             backend_url = config.get("backend_url", "")
             if "openai.com" not in backend_url:
-                print(f"   ❌ 检查3失败: backend_url不是OpenAI API ({backend_url})")
+                print(f"   [X] 检查3失败: backend_url不是OpenAI API ({backend_url})")
                 should_skip_openai = True
             else:
                 print(f"   ✅ 检查3通过: backend_url是OpenAI API")
@@ -74,7 +74,7 @@ def test_openai_config_detection():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -125,12 +125,12 @@ def test_fundamentals_api_selection():
                 print("...")
             print("-" * 40)
         else:
-            print(f"   ❌ 未获取到数据")
+            print(f"   [X] 未获取到数据")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -176,10 +176,10 @@ def test_config_scenarios():
         should_skip = False
         
         if not openai_key:
-            print(f"   ❌ 未配置OPENAI_API_KEY")
+            print(f"   [X] 未配置OPENAI_API_KEY")
             should_skip = True
         elif "openai.com" not in backend_url:
-            print(f"   ❌ backend_url不是OpenAI API")
+            print(f"   [X] backend_url不是OpenAI API")
             should_skip = True
         else:
             print(f"   ✅ 配置检查通过")
@@ -190,7 +190,7 @@ def test_config_scenarios():
         if result == expected:
             print(f"   ✅ 结果符合预期: {result}")
         else:
-            print(f"   ❌ 结果不符合预期: 期望 {expected}, 实际 {result}")
+            print(f"   [X] 结果不符合预期: 期望 {expected}, 实际 {result}")
     
     return True
 
@@ -225,7 +225,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
@@ -239,10 +239,10 @@ def main():
         print("4. ✅ 避免了404错误和配置混乱")
         
         print("\n🔧 解决的问题:")
-        print("- ❌ 在没有OpenAI Key时仍尝试调用OpenAI API")
-        print("- ❌ 使用Google URL调用OpenAI API格式导致404错误")
-        print("- ❌ 配置检查逻辑不够严格")
-        print("- ❌ 错误的API调用浪费时间和资源")
+        print("- [X] 在没有OpenAI Key时仍尝试调用OpenAI API")
+        print("- [X] 使用Google URL调用OpenAI API格式导致404错误")
+        print("- [X] 配置检查逻辑不够严格")
+        print("- [X] 错误的API调用浪费时间和资源")
     else:
         print("⚠️ 部分测试失败，需要进一步优化")
     

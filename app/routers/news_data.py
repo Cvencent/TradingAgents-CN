@@ -111,7 +111,7 @@ async def query_stock_news(
                     logger.warning(f"⚠️ 实时获取新闻失败: {symbol}")
 
             except Exception as e:
-                logger.error(f"❌ 实时获取新闻异常: {e}")
+                logger.error(f"[X] 实时获取新闻异常: {e}")
 
         return ok(data={
                 "symbol": symbol,
@@ -497,7 +497,7 @@ async def _execute_stock_news_sync(sync_service, request: NewsSyncRequest):
             max_news_per_source=request.max_news_per_source
         )
     except Exception as e:
-        logger.error(f"❌ 后台股票新闻同步失败: {e}")
+        logger.error(f"[X] 后台股票新闻同步失败: {e}")
 
 
 async def _execute_market_news_sync(sync_service, request: NewsSyncRequest):
@@ -509,4 +509,4 @@ async def _execute_market_news_sync(sync_service, request: NewsSyncRequest):
             max_news_per_source=request.max_news_per_source
         )
     except Exception as e:
-        logger.error(f"❌ 后台市场新闻同步失败: {e}")
+        logger.error(f"[X] 后台市场新闻同步失败: {e}")

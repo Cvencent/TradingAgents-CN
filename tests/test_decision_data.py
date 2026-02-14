@@ -23,12 +23,12 @@ def test_decision_data():
     )
     
     if response.status_code != 200:
-        print(f"❌ 登录失败: {response.status_code}")
+        print(f"[X] 登录失败: {response.status_code}")
         return
     
     result = response.json()
     if not result.get("success"):
-        print(f"❌ 登录失败: {result.get('message')}")
+        print(f"[X] 登录失败: {result.get('message')}")
         return
     
     token = result["data"]["access_token"]
@@ -60,13 +60,13 @@ def test_decision_data():
         )
         
         if start_response.status_code != 200:
-            print(f"❌ 启动分析失败: {start_response.status_code}")
+            print(f"[X] 启动分析失败: {start_response.status_code}")
             print(f"   错误信息: {start_response.text}")
             return
         
         start_data = start_response.json()
         if not start_data.get("success"):
-            print(f"❌ 启动分析失败: {start_data.get('message')}")
+            print(f"[X] 启动分析失败: {start_data.get('message')}")
             return
         
         task_id = start_data["data"]["task_id"]
@@ -94,14 +94,14 @@ def test_decision_data():
                         print(f"✅ 任务完成!")
                         break
                     elif status == "failed":
-                        print(f"❌ 任务失败!")
+                        print(f"[X] 任务失败!")
                         return
             
             time.sleep(10)
             wait_time += 10
         
         if wait_time >= max_wait:
-            print(f"❌ 任务超时!")
+            print(f"[X] 任务超时!")
             return
         
         # 3. 获取完整结果
@@ -112,13 +112,13 @@ def test_decision_data():
         )
         
         if result_response.status_code != 200:
-            print(f"❌ 获取结果失败: {result_response.status_code}")
+            print(f"[X] 获取结果失败: {result_response.status_code}")
             print(f"   错误信息: {result_response.text}")
             return
         
         result_data = result_response.json()
         if not result_data.get("success"):
-            print(f"❌ 获取结果失败: {result_data.get('message')}")
+            print(f"[X] 获取结果失败: {result_data.get('message')}")
             return
         
         analysis_result = result_data["data"]
@@ -141,7 +141,7 @@ def test_decision_data():
                 json.dump(decision, f, ensure_ascii=False, indent=2, default=str)
             print(f"   Decision数据已保存到 decision_sample.json")
         else:
-            print(f"   ❌ 没有找到decision字段!")
+            print(f"   [X] 没有找到decision字段!")
             print(f"   可用字段: {list(analysis_result.keys())}")
         
         # 5. 检查MongoDB中的数据
@@ -176,13 +176,13 @@ def test_decision_data():
                             print(f"     target_price: {mongo_decision.get('target_price', '无')}")
                             print(f"     confidence: {mongo_decision.get('confidence', '无')}")
                         else:
-                            print(f"   ❌ MongoDB中没有decision字段!")
+                            print(f"   [X] MongoDB中没有decision字段!")
                             print(f"   MongoDB可用字段: {list(report_detail.keys())}")
         
         print(f"\n🎉 Decision数据测试完成!")
         
     except Exception as e:
-        print(f"❌ 测试过程中出现异常: {e}")
+        print(f"[X] 测试过程中出现异常: {e}")
         import traceback
         traceback.print_exc()
 

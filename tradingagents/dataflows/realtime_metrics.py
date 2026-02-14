@@ -360,7 +360,7 @@ def get_pe_pb_with_fallback(
             from tradingagents.config.database_manager import get_database_manager
             db_manager = get_database_manager()
             if not db_manager.is_mongodb_available():
-                logger.error("❌ [PE智能策略-失败] MongoDB不可用")
+                logger.error("[X] [PE智能策略-失败] MongoDB不可用")
                 return {}
             db_client = db_manager.get_mongodb_client()
 
@@ -373,7 +373,7 @@ def get_pe_pb_with_fallback(
             db_client = MongoClient(settings.MONGO_URI)
 
     except Exception as e:
-        logger.error(f"❌ [PE智能策略-失败] 数据库连接失败: {e}")
+        logger.error(f"[X] [PE智能策略-失败] 数据库连接失败: {e}")
         return {}
 
     # 1. 优先使用动态 PE 计算（基于实时股价 + Tushare TTM）
@@ -434,6 +434,6 @@ def get_pe_pb_with_fallback(
     except Exception as e:
         logger.warning(f"⚠️ [PE智能策略-方案2异常] {e}")
 
-    logger.error(f"❌ [PE智能策略-全部失败] 无法获取股票 {symbol} 的PE/PB")
+    logger.error(f"[X] [PE智能策略-全部失败] 无法获取股票 {symbol} 的PE/PB")
     return {}
 

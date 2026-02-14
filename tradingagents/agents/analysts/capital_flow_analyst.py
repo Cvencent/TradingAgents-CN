@@ -59,9 +59,9 @@ def _get_company_name_for_capital_flow(ticker: str, market_info: dict) -> str:
                         logger.info(f"✅ [资金盘分析师] 降级方案成功获取股票名称: {ticker} -> {company_name}")
                         return company_name
                 except Exception as e:
-                    logger.error(f"❌ [资金盘分析师] 降级方案也失败: {e}")
+                    logger.error(f"[X] [资金盘分析师] 降级方案也失败: {e}")
 
-                logger.error(f"❌ [资金盘分析师] 所有方案都无法获取股票名称: {ticker}")
+                logger.error(f"[X] [资金盘分析师] 所有方案都无法获取股票名称: {ticker}")
                 return f"股票代码{ticker}"
 
         elif market_info['is_hk']:
@@ -98,7 +98,7 @@ def _get_company_name_for_capital_flow(ticker: str, market_info: dict) -> str:
             return f"股票{ticker}"
 
     except Exception as e:
-        logger.error(f"❌ [DEBUG] 获取公司名称失败: {e}")
+        logger.error(f"[X] [DEBUG] 获取公司名称失败: {e}")
         return f"股票{ticker}"
 
 
@@ -226,6 +226,19 @@ def create_capital_flow_analyst(llm, toolkit):
         prompt = prompt.partial(currency_name=market_info['currency_name'])
         prompt = prompt.partial(currency_symbol=market_info['currency_symbol'])
 
+        # 🔥 构建完整的请求prompt（用于保存和前端展示）
+        try:
+            formatted_messages = prompt.format_messages(messages=state["messages"])
+            full_request_prompt = ""
+            for msg in formatted_messages:
+                msg_type = type(msg).__name__
+                if hasattr(msg, 'content'):
+                    full_request_prompt += f"\n\n=== {msg_type} ===\n{msg.content}"
+            logger.info(f"💰 [资金盘分析师] 构建完整请求prompt，长度: {len(full_request_prompt)}")
+        except Exception as e:
+            logger.warning(f"⚠️ [资金盘分析师] 构建完整prompt失败: {e}")
+            full_request_prompt = system_prompt  # 降级使用system_prompt
+
         # 添加详细日志
         logger.info(f"💰 [资金盘分析师] LLM类型: {llm.__class__.__name__}")
         logger.info(f"💰 [资金盘分析师] LLM模型: {getattr(llm, 'model_name', 'unknown')}")
@@ -300,7 +313,8 @@ def create_capital_flow_analyst(llm, toolkit):
 
             return {
                 "messages": [result],
-                "capital_flow_report": report
+                "capital_flow_report": report,
+                "capital_flow_request_prompt": full_request_prompt
             }
         else:
             # 非Google模型的处理逻辑
@@ -358,7 +372,7 @@ def create_capital_flow_analyst(llm, toolkit):
                                             logger.info(f"💰 [资金盘分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
                                             break
                                         except Exception as tool_error:
-                                            logger.error(f"❌ [资金盘分析师] 工具执行失败: {tool_error}")
+                                            logger.error(f"[X] [资金盘分析师] 工具执行失败: {tool_error}")
                                             tool_result = f"工具执行失败: {str(tool_error)}"
 
                                 if tool_result:
@@ -401,31 +415,35 @@ def create_capital_flow_analyst(llm, toolkit):
                             # 返回包含工具调用和最终分析的完整消息序列
                             return {
                                 "messages": [result] + tool_messages + [final_result],
-                                "capital_flow_report": report
+                                "capital_flow_report": report,
+                                "capital_flow_request_prompt": full_request_prompt
                             }
                         else:
                             logger.warning(f"💰 [资金盘分析师] ⚠️ 未能成功执行任何工具，返回原始内容")
                             report = str(result.content)
-                            return {
-                                "messages": [result],
-                                "capital_flow_report": report
-                            }
+                        return {
+                            "messages": [result],
+                            "capital_flow_report": report,
+                            "capital_flow_request_prompt": full_request_prompt
+                        }
                     else:
                         logger.warning(f"💰 [资金盘分析师] ⚠️ 未能在内容中提取到JSON工具调用，返回原始内容")
                         report = str(result.content)
                         return {
                             "messages": [result],
-                            "capital_flow_report": report
+                            "capital_flow_report": report,
+                            "capital_flow_request_prompt": full_request_prompt
                         }
                 except Exception as e:
-                    logger.error(f"❌ [资金盘分析师] 解析工具调用时发生错误: {e}")
-                    logger.error(f"❌ [资金盘分析师] 错误堆栈: {traceback.format_exc()}")
+                    logger.error(f"[X] [资金盘分析师] 解析工具调用时发生错误: {e}")
+                    logger.error(f"[X] [资金盘分析师] 错误堆栈: {traceback.format_exc()}")
                     # 降级处理：直接使用原始内容
                     report = str(result.content)
                     logger.info(f"💰 [资金盘分析师] ⚠️ 降级处理，返回原始内容，长度: {len(report)}")
                     return {
                         "messages": [result],
-                        "capital_flow_report": report
+                        "capital_flow_report": report,
+                        "capital_flow_request_prompt": full_request_prompt
                     }
             elif has_real_tool_calls:
                 # 有工具调用，执行工具并生成完整分析报告
@@ -470,7 +488,7 @@ def create_capital_flow_analyst(llm, toolkit):
                                     logger.debug(f"💰 [DEBUG] 工具执行成功，结果长度: {len(str(tool_result))}")
                                     break
                                 except Exception as tool_error:
-                                    logger.error(f"❌ [DEBUG] 工具执行失败: {tool_error}")
+                                    logger.error(f"[X] [DEBUG] 工具执行失败: {tool_error}")
                                     tool_result = f"工具执行失败: {str(tool_error)}"
 
                         if tool_result:
@@ -507,15 +525,17 @@ def create_capital_flow_analyst(llm, toolkit):
 
                     return {
                         "messages": [result] + tool_messages + [final_result],
-                        "capital_flow_report": report
+                        "capital_flow_report": report,
+                        "capital_flow_request_prompt": full_request_prompt
                     }
                 except Exception as e:
-                    logger.error(f"❌ [资金盘分析师] 工具执行或分析生成失败: {e}")
-                    logger.error(f"❌ [资金盘分析师] 错误堆栈: {traceback.format_exc()}")
+                    logger.error(f"[X] [资金盘分析师] 工具执行或分析生成失败: {e}")
+                    logger.error(f"[X] [资金盘分析师] 错误堆栈: {traceback.format_exc()}")
                     report = f"资金盘分析师调用了工具但分析生成失败: {[call.get('name', 'unknown') for call in result.tool_calls]}"
                     return {
                         "messages": [result],
-                        "capital_flow_report": report
+                        "capital_flow_report": report,
+                        "capital_flow_request_prompt": full_request_prompt
                     }
             else:
                 # 没有工具调用，直接使用LLM返回的内容
@@ -523,7 +543,8 @@ def create_capital_flow_analyst(llm, toolkit):
                 report = str(result.content)
                 return {
                     "messages": [result],
-                    "capital_flow_report": report
+                    "capital_flow_report": report,
+                    "capital_flow_request_prompt": full_request_prompt
                 }
 
     return capital_flow_analyst_node

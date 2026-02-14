@@ -82,6 +82,13 @@ def create_neutral_debator(llm):
             else:
                 new_neutral_history = [argument]
 
+        # 🔧 保存当前prompt到neutral_prompts列表（用于前端展示）
+        current_neutral_prompts = risk_debate_state.get("neutral_prompts", [])
+        if not isinstance(current_neutral_prompts, list):
+            current_neutral_prompts = []
+        new_neutral_prompts = current_neutral_prompts + [prompt]
+        logger.info(f"🔍 [Neutral Analyst] 保存prompt到neutral_prompts，当前轮数: {len(new_neutral_prompts)}, prompt长度: {len(prompt)} chars")
+
         new_risk_debate_state = {
             "history": history + "\n" + argument,
             "risky_history": risk_debate_state.get("risky_history", ""),
@@ -94,8 +101,21 @@ def create_neutral_debator(llm):
             "current_safe_response": risk_debate_state.get("current_safe_response", ""),
             "current_neutral_response": argument,
             "count": new_count,
+            "neutral_prompts": new_neutral_prompts,  # 🔧 保存prompts
         }
 
-        return {"risk_debate_state": new_risk_debate_state}
+        logger.info(f"🔍 [Neutral Analyst] 返回risk_debate_state，包含字段: {list(new_risk_debate_state.keys())}")
+        
+        # 🔥 关键修复：同时返回 neutral_request_prompt 字段（用于前端展示原始prompt）
+        # 将所有轮次的prompt合并，用分隔符隔开
+        full_neutral_prompt = "\n\n" + "="*60 + "\n【中性分析师 - 多轮辩论Prompts】\n" + "="*60 + "\n\n"
+        for i, p in enumerate(new_neutral_prompts, 1):
+            full_neutral_prompt += f"\n--- 第 {i} 轮 ---\n{p}\n"
+        
+        logger.info(f"🔍 [Neutral Analyst] 返回 neutral_request_prompt，总长度: {len(full_neutral_prompt)} chars")
+        return {
+            "risk_debate_state": new_risk_debate_state,
+            "neutral_request_prompt": full_neutral_prompt  # 🔥 保存完整的请求prompt
+        }
 
     return neutral_node

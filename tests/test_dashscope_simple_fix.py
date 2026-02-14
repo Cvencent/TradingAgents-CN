@@ -46,7 +46,7 @@ def test_basic_functionality():
         return True
         
     except Exception as e:
-        print(f"❌ 基本功能测试失败: {e}")
+        print(f"[X] 基本功能测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -101,7 +101,7 @@ def test_tool_binding():
             return True
         
     except Exception as e:
-        print(f"❌ 工具绑定测试失败: {e}")
+        print(f"[X] 工具绑定测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -138,7 +138,7 @@ def test_vs_old_adapter():
             old_response = old_llm_with_tools.invoke([HumanMessage(content=prompt)])
             
             old_has_tools = hasattr(old_response, 'tool_calls') and len(old_response.tool_calls) > 0
-            print(f"   旧适配器工具调用: {'✅ 有' if old_has_tools else '❌ 无'}")
+            print(f"   旧适配器工具调用: {'✅ 有' if old_has_tools else '[X] 无'}")
             print(f"   旧适配器响应长度: {len(old_response.content)}字符")
         except Exception as e:
             print(f"   旧适配器测试失败: {e}")
@@ -150,7 +150,7 @@ def test_vs_old_adapter():
             new_response = new_llm_with_tools.invoke([HumanMessage(content=prompt)])
             
             new_has_tools = hasattr(new_response, 'tool_calls') and len(new_response.tool_calls) > 0
-            print(f"   新适配器工具调用: {'✅ 有' if new_has_tools else '❌ 无'}")
+            print(f"   新适配器工具调用: {'✅ 有' if new_has_tools else '[X] 无'}")
             print(f"   新适配器响应长度: {len(new_response.content)}字符")
         except Exception as e:
             print(f"   新适配器测试失败: {e}")
@@ -158,7 +158,7 @@ def test_vs_old_adapter():
         return True
         
     except Exception as e:
-        print(f"❌ 对比测试失败: {e}")
+        print(f"[X] 对比测试失败: {e}")
         return False
 
 
@@ -199,7 +199,7 @@ def test_trading_graph_creation():
             return False
         
     except Exception as e:
-        print(f"❌ TradingGraph创建失败: {e}")
+        print(f"[X] TradingGraph创建失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -224,7 +224,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -233,7 +233,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

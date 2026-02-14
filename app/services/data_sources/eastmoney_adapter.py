@@ -119,7 +119,7 @@ class EastMoneyAdapter(DataSourceAdapter):
                 return None
                 
         except Exception as e:
-            logger.error(f"❌ 东方财富股吧获取失败: {code}, 错误: {e}")
+            logger.error(f"[X] 东方财富股吧获取失败: {code}, 错误: {e}")
             return None
     
     def _format_time(self, time_str: str) -> str:

@@ -27,7 +27,7 @@ def test_baostock_valuation_direct():
         # 登录BaoStock
         lg = bs.login()
         if lg.error_code != '0':
-            print(f"❌ BaoStock登录失败: {lg.error_msg}")
+            print(f"[X] BaoStock登录失败: {lg.error_msg}")
             return
         
         print("✅ BaoStock登录成功")
@@ -71,19 +71,19 @@ def test_baostock_valuation_direct():
                     else:
                         print(f"⚠️ 无数据返回")
                 else:
-                    print(f"❌ 查询失败: {rs.error_msg}")
+                    print(f"[X] 查询失败: {rs.error_msg}")
                     
             except Exception as e:
-                print(f"❌ 测试失败: {e}")
+                print(f"[X] 测试失败: {e}")
         
         # 登出
         bs.logout()
         print(f"\n✅ BaoStock直接API测试完成")
         
     except ImportError:
-        print("❌ BaoStock未安装")
+        print("[X] BaoStock未安装")
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
 
 def test_baostock_provider_valuation():
     """测试BaoStock Provider的估值功能"""
@@ -129,12 +129,12 @@ def test_baostock_provider_valuation():
                     print(f"⚠️ 未获取到估值数据")
                     
             except Exception as e:
-                print(f"❌ 测试失败: {e}")
+                print(f"[X] 测试失败: {e}")
         
         print(f"\n✅ BaoStock Provider估值测试完成")
         
     except Exception as e:
-        print(f"❌ Provider测试失败: {e}")
+        print(f"[X] Provider测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -150,7 +150,7 @@ def test_baostock_adapter_daily_basic():
         adapter = BaoStockAdapter()
         
         if not adapter.is_available():
-            print("❌ BaoStock适配器不可用")
+            print("[X] BaoStock适配器不可用")
             return
         
         print("✅ BaoStock适配器可用")
@@ -181,12 +181,12 @@ def test_baostock_adapter_daily_basic():
             print(f"   有PB数据的股票: {pb_count}只")
             
         else:
-            print(f"❌ 未获取到daily_basic数据")
+            print(f"[X] 未获取到daily_basic数据")
         
         print(f"\n✅ BaoStock适配器测试完成")
         
     except Exception as e:
-        print(f"❌ 适配器测试失败: {e}")
+        print(f"[X] 适配器测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -235,14 +235,14 @@ def test_data_source_manager_with_baostock():
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
             else:
-                print(f"❌ Fallback获取失败")
+                print(f"[X] Fallback获取失败")
         else:
-            print(f"❌ 未找到BaoStock适配器")
+            print(f"[X] 未找到BaoStock适配器")
         
         print(f"\n✅ 数据源管理器测试完成")
         
     except Exception as e:
-        print(f"❌ 数据源管理器测试失败: {e}")
+        print(f"[X] 数据源管理器测试失败: {e}")
         import traceback
         traceback.print_exc()
 

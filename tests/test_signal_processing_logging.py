@@ -89,14 +89,14 @@ def test_signal_processing_logging():
                         print(f"   目标价格: {price}")
                 
             except Exception as e:
-                print(f"❌ 信号处理失败: {e}")
+                print(f"[X] 信号处理失败: {e}")
                 import traceback
                 traceback.print_exc()
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -156,12 +156,12 @@ def test_logging_extraction():
                 print(f"✅ 调用成功: {result}")
                 
             except Exception as e:
-                print(f"❌ 调用失败: {e}")
+                print(f"[X] 调用失败: {e}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -193,7 +193,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
@@ -207,9 +207,9 @@ def main():
         print("4. ✅ 支持多种参数调用方式")
         
         print("\n🔧 解决的问题:")
-        print("- ❌ 信号处理模块日志显示股票代码为 'unknown'")
-        print("- ❌ 日志装饰器无法正确解析信号处理模块的参数")
-        print("- ❌ 股票代码提取逻辑不适配信号处理模块")
+        print("- [X] 信号处理模块日志显示股票代码为 'unknown'")
+        print("- [X] 日志装饰器无法正确解析信号处理模块的参数")
+        print("- [X] 股票代码提取逻辑不适配信号处理模块")
     else:
         print("⚠️ 部分测试失败，需要进一步优化")
     

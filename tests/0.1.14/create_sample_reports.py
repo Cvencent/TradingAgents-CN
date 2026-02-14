@@ -142,7 +142,7 @@ def main():
         from web.utils.mongodb_report_manager import mongodb_report_manager
         
         if not mongodb_report_manager.connected:
-            print("❌ MongoDB未连接")
+            print("[X] MongoDB未连接")
             return
         
         # 创建多个示例报告
@@ -171,13 +171,13 @@ def main():
                 success_count += 1
                 print(f"✅ {stock_name} 报告创建成功")
             else:
-                print(f"❌ {stock_name} 报告创建失败")
+                print(f"[X] {stock_name} 报告创建失败")
         
         print(f"\n🎉 完成！成功创建 {success_count}/{len(sample_stocks)} 个示例报告")
         print("💡 现在可以在Web界面中查看这些报告了")
         
     except Exception as e:
-        print(f"❌ 创建示例报告失败: {e}")
+        print(f"[X] 创建示例报告失败: {e}")
         import traceback
         traceback.print_exc()
 

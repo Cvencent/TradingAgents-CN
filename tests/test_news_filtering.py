@@ -71,7 +71,7 @@ def test_basic_news_filter():
         return True
         
     except Exception as e:
-        print(f"❌ 基础过滤器测试失败: {e}")
+        print(f"[X] 基础过滤器测试失败: {e}")
         return False
 
 
@@ -129,7 +129,7 @@ def test_enhanced_news_filter():
         return True
         
     except Exception as e:
-        print(f"❌ 增强过滤器测试失败: {e}")
+        print(f"[X] 增强过滤器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -151,7 +151,7 @@ def test_real_news_filtering():
         fetch_time = time.time() - start_time
         
         if real_news.empty:
-            print("❌ 未获取到真实新闻数据")
+            print("[X] 未获取到真实新闻数据")
             return False
         
         print(f"✅ 成功获取真实新闻: {len(real_news)}条，耗时: {fetch_time:.2f}秒")
@@ -190,7 +190,7 @@ def test_real_news_filtering():
         return True
         
     except Exception as e:
-        print(f"❌ 真实新闻过滤测试失败: {e}")
+        print(f"[X] 真实新闻过滤测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -228,7 +228,7 @@ def test_news_filter_integration():
         return True
         
     except Exception as e:
-        print(f"❌ 新闻过滤集成测试失败: {e}")
+        print(f"[X] 新闻过滤集成测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -259,7 +259,7 @@ def main():
     
     passed = 0
     for test_name, result in test_results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"  - {test_name}: {status}")
         if result:
             passed += 1

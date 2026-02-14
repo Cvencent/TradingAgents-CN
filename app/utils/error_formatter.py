@@ -213,7 +213,7 @@ class ErrorFormatter:
         if category == ErrorCategory.LLM_API_KEY:
             return {
                 "category": "大模型配置错误",
-                "title": f"❌ {friendly_name or '大模型'} API Key 无效",
+                "title": f"[X] {friendly_name or '大模型'} API Key 无效",
                 "message": f"{friendly_name or '大模型'} 的 API Key 无效或未配置。",
                 "suggestion": (
                     "请检查以下几点：\n"
@@ -275,7 +275,7 @@ class ErrorFormatter:
         elif category == ErrorCategory.LLM_OTHER:
             return {
                 "category": "大模型调用错误",
-                "title": f"❌ {friendly_name or '大模型'} 调用失败",
+                "title": f"[X] {friendly_name or '大模型'} 调用失败",
                 "message": f"调用 {friendly_name or '大模型'} 时发生错误。",
                 "suggestion": (
                     "建议：\n"
@@ -290,7 +290,7 @@ class ErrorFormatter:
         elif category == ErrorCategory.DATA_SOURCE_API_KEY:
             return {
                 "category": "数据源配置错误",
-                "title": f"❌ {friendly_name or '数据源'} Token/API Key 无效",
+                "title": f"[X] {friendly_name or '数据源'} Token/API Key 无效",
                 "message": f"{friendly_name or '数据源'} 的 Token 或 API Key 无效或未配置。",
                 "suggestion": (
                     "请检查以下几点：\n"
@@ -335,7 +335,7 @@ class ErrorFormatter:
         elif category == ErrorCategory.DATA_SOURCE_OTHER:
             return {
                 "category": "数据源错误",
-                "title": f"❌ {friendly_name or '数据源'} 调用失败",
+                "title": f"[X] {friendly_name or '数据源'} 调用失败",
                 "message": f"从 {friendly_name or '数据源'} 获取数据时发生错误。",
                 "suggestion": (
                     "建议：\n"
@@ -350,7 +350,7 @@ class ErrorFormatter:
         elif category == ErrorCategory.STOCK_CODE_INVALID:
             return {
                 "category": "股票代码错误",
-                "title": "❌ 股票代码无效",
+                "title": "[X] 股票代码无效",
                 "message": "输入的股票代码格式不正确或不存在。",
                 "suggestion": (
                     "请检查：\n"
@@ -394,7 +394,7 @@ class ErrorFormatter:
         else:  # UNKNOWN
             return {
                 "category": "未知错误",
-                "title": "❌ 分析失败",
+                "title": "[X] 分析失败",
                 "message": "分析过程中发生错误。",
                 "suggestion": (
                     "建议：\n"

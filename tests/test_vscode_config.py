@@ -34,7 +34,7 @@ def test_python_environment():
     if os.path.exists('tradingagents') and os.path.exists('.env'):
         print("✅ 在项目根目录")
     else:
-        print("❌ 不在项目根目录")
+        print("[X] 不在项目根目录")
     
     return True
 
@@ -47,7 +47,7 @@ def test_vscode_settings():
     settings_path = Path('.vscode/settings.json')
     
     if not settings_path.exists():
-        print("❌ .vscode/settings.json 不存在")
+        print("[X] .vscode/settings.json 不存在")
         return False
     
     try:
@@ -71,15 +71,15 @@ def test_vscode_settings():
                 else:
                     print(f"⚠️ {key}: {actual} (期望: {expected})")
             else:
-                print(f"❌ 缺少配置: {key}")
+                print(f"[X] 缺少配置: {key}")
         
         return True
         
     except json.JSONDecodeError as e:
-        print(f"❌ settings.json 格式错误: {e}")
+        print(f"[X] settings.json 格式错误: {e}")
         return False
     except Exception as e:
-        print(f"❌ 读取settings.json失败: {e}")
+        print(f"[X] 读取settings.json失败: {e}")
         return False
 
 
@@ -91,7 +91,7 @@ def test_virtual_env_path():
     # 检查虚拟环境目录
     env_dir = Path('env')
     if not env_dir.exists():
-        print("❌ env目录不存在")
+        print("[X] env目录不存在")
         return False
     
     print("✅ env目录存在")
@@ -101,7 +101,7 @@ def test_virtual_env_path():
     if python_exe.exists():
         print(f"✅ Python可执行文件: {python_exe}")
     else:
-        print(f"❌ Python可执行文件不存在: {python_exe}")
+        print(f"[X] Python可执行文件不存在: {python_exe}")
         return False
     
     # 检查pip
@@ -109,7 +109,7 @@ def test_virtual_env_path():
     if pip_exe.exists():
         print(f"✅ pip可执行文件: {pip_exe}")
     else:
-        print(f"❌ pip可执行文件不存在: {pip_exe}")
+        print(f"[X] pip可执行文件不存在: {pip_exe}")
     
     return True
 
@@ -137,7 +137,7 @@ def test_package_imports():
             print(f"✅ {name}: v{version}")
             success_count += 1
         except ImportError:
-            print(f"❌ {name}: 未安装")
+            print(f"[X] {name}: 未安装")
         except Exception as e:
             print(f"⚠️ {name}: 导入错误 - {e}")
     
@@ -170,14 +170,14 @@ def test_project_structure():
         if os.path.exists(dir_name):
             print(f"✅ 目录: {dir_name}")
         else:
-            print(f"❌ 目录: {dir_name}")
+            print(f"[X] 目录: {dir_name}")
     
     # 检查文件
     for file_name in required_files:
         if os.path.exists(file_name):
             print(f"✅ 文件: {file_name}")
         else:
-            print(f"❌ 文件: {file_name}")
+            print(f"[X] 文件: {file_name}")
     
     return True
 
@@ -190,7 +190,7 @@ def test_environment_variables():
     # 读取.env文件
     env_file = Path('.env')
     if not env_file.exists():
-        print("❌ .env文件不存在")
+        print("[X] .env文件不存在")
         return False
     
     print("✅ .env文件存在")
@@ -234,7 +234,7 @@ def test_simple_functionality():
         return True
         
     except Exception as e:
-        print(f"❌ 功能测试失败: {e}")
+        print(f"[X] 功能测试失败: {e}")
         return False
 
 
@@ -267,7 +267,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -276,7 +276,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

@@ -94,7 +94,7 @@ class HKStockProvider:
 
                 except Exception as e:
                     error_msg = str(e)
-                    logger.error(f"❌ 港股数据获取失败 (尝试 {attempt + 1}/{self.max_retries}): {error_msg}")
+                    logger.error(f"[X] 港股数据获取失败 (尝试 {attempt + 1}/{self.max_retries}): {error_msg}")
 
                     # 检查是否是频率限制错误
                     if "Rate limited" in error_msg or "Too Many Requests" in error_msg:
@@ -102,17 +102,17 @@ class HKStockProvider:
                             logger.info(f"⏳ 检测到频率限制，等待{self.rate_limit_wait}秒...")
                             time.sleep(self.rate_limit_wait)
                         else:
-                            logger.error(f"❌ 频率限制，跳过重试")
+                            logger.error(f"[X] 频率限制，跳过重试")
                             break
                     else:
                         if attempt < self.max_retries - 1:
                             time.sleep(2 ** attempt)  # 指数退避
 
-            logger.error(f"❌ 港股数据获取最终失败: {symbol}")
+            logger.error(f"[X] 港股数据获取最终失败: {symbol}")
             return None
 
         except Exception as e:
-            logger.error(f"❌ 港股数据获取异常: {e}")
+            logger.error(f"[X] 港股数据获取异常: {e}")
             return None
 
     def get_stock_info(self, symbol: str) -> Dict[str, Any]:
@@ -156,7 +156,7 @@ class HKStockProvider:
                 }
 
         except Exception as e:
-            logger.error(f"❌ 获取港股信息失败: {e}")
+            logger.error(f"[X] 获取港股信息失败: {e}")
             return {
                 'symbol': symbol,
                 'name': f'港股{symbol}',
@@ -202,7 +202,7 @@ class HKStockProvider:
                 return None
 
         except Exception as e:
-            logger.error(f"❌ 获取港股实时价格失败: {e}")
+            logger.error(f"[X] 获取港股实时价格失败: {e}")
             return None
 
     def _normalize_hk_symbol(self, symbol: str) -> str:
@@ -250,7 +250,7 @@ class HKStockProvider:
             str: 格式化的股票数据文本（包含技术指标）
         """
         if data is None or data.empty:
-            return f"❌ 无法获取港股 {symbol} 的数据"
+            return f"[X] 无法获取港股 {symbol} 的数据"
 
         try:
             original_data_count = len(data)
@@ -471,8 +471,8 @@ class HKStockProvider:
             return result
 
         except Exception as e:
-            logger.error(f"❌ 格式化港股数据失败: {e}", exc_info=True)
-            return f"❌ 港股数据格式化失败: {symbol}"
+            logger.error(f"[X] 格式化港股数据失败: {e}", exc_info=True)
+            return f"[X] 港股数据格式化失败: {symbol}"
 
 
 # 全局提供器实例

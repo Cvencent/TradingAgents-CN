@@ -33,17 +33,17 @@ def test_china_data_source():
         result = manager.get_stock_data("000001", "2025-07-01", "2025-07-12")
         end_time = time.time()
         
-        if result and "❌" not in result:
+        if result and "[X]" not in result:
             print(f"✅ 数据获取成功 ({end_time - start_time:.2f}s)")
             print(f"   数据长度: {len(result)} 字符")
             print(f"   数据预览: {result[:100]}...")
             return True
         else:
-            print(f"❌ 数据获取失败: {result[:100]}...")
+            print(f"[X] 数据获取失败: {result[:100]}...")
             return False
             
     except Exception as e:
-        print(f"❌ 中国股票数据源测试失败: {e}")
+        print(f"[X] 中国股票数据源测试失败: {e}")
         return False
 
 def test_us_data_source():
@@ -60,7 +60,7 @@ def test_us_data_source():
         result = get_us_stock_data_cached("AAPL", "2025-07-01", "2025-07-12", force_refresh=True)
         end_time = time.time()
         
-        if result and "❌" not in result:
+        if result and "[X]" not in result:
             print(f"✅ 数据获取成功 ({end_time - start_time:.2f}s)")
             print(f"   数据长度: {len(result)} 字符")
             
@@ -73,11 +73,11 @@ def test_us_data_source():
             print(f"   数据预览: {result[:100]}...")
             return True
         else:
-            print(f"❌ 数据获取失败: {result[:100]}...")
+            print(f"[X] 数据获取失败: {result[:100]}...")
             return False
             
     except Exception as e:
-        print(f"❌ 美股数据源测试失败: {e}")
+        print(f"[X] 美股数据源测试失败: {e}")
         return False
 
 def test_cache_system():
@@ -112,11 +112,11 @@ def test_cache_system():
             print(f"   缓存键: {cache_key}")
             return True
         else:
-            print(f"❌ 缓存数据不匹配")
+            print(f"[X] 缓存数据不匹配")
             return False
             
     except Exception as e:
-        print(f"❌ 缓存系统测试失败: {e}")
+        print(f"[X] 缓存系统测试失败: {e}")
         return False
 
 def test_api_keys():
@@ -139,7 +139,7 @@ def test_api_keys():
             print(f"✅ {key_name}: 已配置")
             configured_count += 1
         else:
-            print(f"❌ {key_name}: 未配置")
+            print(f"[X] {key_name}: 未配置")
     
     print(f"\n📊 API密钥配置率: {configured_count}/{total_count} ({configured_count/total_count*100:.1f}%)")
     
@@ -178,7 +178,7 @@ def main():
     print("=" * 50)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
     
     print(f"\n📈 总体结果:")
@@ -191,8 +191,8 @@ def main():
         print(f"✅ 可以开始使用系统")
     else:
         print(f"\n⚠️ 数据源系统需要优化")
-        print(f"❌ 请检查失败的组件")
-        print(f"❌ 参考错误信息进行修复")
+        print(f"[X] 请检查失败的组件")
+        print(f"[X] 参考错误信息进行修复")
     
     print(f"\n💡 建议:")
     if not api_result:
@@ -219,6 +219,6 @@ if __name__ == "__main__":
             print("   重新测试: python tests/test_data_sources_simple.py")
             
     except Exception as e:
-        print(f"❌ 测试程序异常: {e}")
+        print(f"[X] 测试程序异常: {e}")
         import traceback
         traceback.print_exc()

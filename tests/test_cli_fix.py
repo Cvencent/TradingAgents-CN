@@ -80,7 +80,7 @@ def test_selections_dictionary_keys():
             return True
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_process_signal_call():
@@ -100,12 +100,12 @@ def test_process_signal_call():
         if "selections['ticker']" in content:
             print("✅ 找到正确的键名 selections['ticker']")
         else:
-            print("❌ 未找到 selections['ticker']")
+            print("[X] 未找到 selections['ticker']")
             return False
         
         # 确保不再使用错误的键名
         if "selections['stock_symbol']" in content:
-            print("❌ 仍然存在错误的键名 selections['stock_symbol']")
+            print("[X] 仍然存在错误的键名 selections['stock_symbol']")
             return False
         else:
             print("✅ 确认不存在错误的键名 selections['stock_symbol']")
@@ -114,7 +114,7 @@ def test_process_signal_call():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_code_consistency():
@@ -159,7 +159,7 @@ def test_code_consistency():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def main():
@@ -190,7 +190,7 @@ def main():
         print("🎉 所有测试通过！KeyError: 'stock_symbol' 问题已修复")
         return True
     else:
-        print("❌ 部分测试失败，需要进一步检查")
+        print("[X] 部分测试失败，需要进一步检查")
         return False
 
 if __name__ == "__main__":

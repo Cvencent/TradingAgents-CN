@@ -1,0 +1,177 @@
+{
+  "task_id": "007bc602-771d-4b02-8d57-40d8dace38c2",
+  "user_id": "6974ab6b2658d30e7a06229b",
+  "stock_code": "300033",
+  "status": "failed",
+  "stock_name": "同花顺",
+  "progress": 10,
+  "message": "分析失败",
+  "current_step": 4,
+  "start_time": "2026-02-11T19:34:26.444477",
+  "end_time": "2026-02-11T19:34:43.028293",
+  "result_data": null,
+  "error_message": "❌ 分析失败\n\n分析过程中发生错误。\n\n💡 建议：\n1. 检查输入参数是否正确\n2. 查看技术细节了解具体错误\n3. 稍后重试\n4. 如问题持续，请联系技术支持",
+  "parameters": {
+    "market_type": "A股",
+    "analysis_date": "2026-02-11T00:00:00",
+    "research_depth": "快速",
+    "selected_analysts": [
+      "market"
+    ],
+    "custom_prompt": null,
+    "include_sentiment": true,
+    "include_risk": true,
+    "language": "zh-CN",
+    "quick_analysis_model": "deepseek-v3.2-exp-thinking",
+    "deep_analysis_model": "deepseek-v3.2-exp-thinking",
+    "analysis_level": 1,
+    "custom_workflow": null
+  },
+  "execution_time": 16.583816,
+  "tokens_used": null,
+  "estimated_duration": 192.0,
+  "elapsed_time": 327.9019556045532,
+  "remaining_time": 0,
+  "estimated_total_time": 150.0,
+  "current_step_name": "🚀 启动引擎",
+  "current_step_description": "初始化AI分析引擎，准备开始分析",
+  "steps": [
+    {
+      "name": "📋 准备阶段",
+      "description": "验证股票代码，检查数据源可用性",
+      "status": "completed",
+      "weight": 0.03,
+      "start_time": null,
+      "end_time": 1770809667.907396
+    },
+    {
+      "name": "🔧 环境检查",
+      "description": "检查API密钥配置，确保数据获取正常",
+      "status": "completed",
+      "weight": 0.02,
+      "start_time": null,
+      "end_time": 1770809667.907396
+    },
+    {
+      "name": "💰 成本估算",
+      "description": "根据分析深度预估API调用成本",
+      "status": "completed",
+      "weight": 0.01,
+      "start_time": null,
+      "end_time": 1770809667.907396
+    },
+    {
+      "name": "⚙️ 参数设置",
+      "description": "配置分析参数和AI模型选择",
+      "status": "completed",
+      "weight": 0.02,
+      "start_time": 1770809668.1719725,
+      "end_time": 1770809670.671121
+    },
+    {
+      "name": "🚀 启动引擎",
+      "description": "初始化AI分析引擎，准备开始分析",
+      "status": "completed",
+      "weight": 0.02,
+      "start_time": 1770809670.671121,
+      "end_time": 1770809676.2123072
+    },
+    {
+      "name": "📊 市场分析师",
+      "description": "分析股价走势、成交量、技术指标等市场表现",
+      "status": "failed",
+      "weight": 0.35,
+      "start_time": 1770809668.0235612,
+      "end_time": 1770809682.9322743
+    },
+    {
+      "name": "🐂 看涨研究员",
+      "description": "基于分析师报告构建买入论据",
+      "status": "failed",
+      "weight": 0.0625,
+      "start_time": null,
+      "end_time": 1770809682.932275
+    },
+    {
+      "name": "🐻 看跌研究员",
+      "description": "识别潜在风险和问题",
+      "status": "failed",
+      "weight": 0.0625,
+      "start_time": null,
+      "end_time": 1770809682.9322753
+    },
+    {
+      "name": "🎯 研究辩论 第1轮",
+      "description": "多头空头研究员深度辩论",
+      "status": "failed",
+      "weight": 0.0625,
+      "start_time": null,
+      "end_time": 1770809682.9322755
+    },
+    {
+      "name": "👔 研究经理",
+      "description": "综合辩论结果，形成研究共识",
+      "status": "failed",
+      "weight": 0.0625,
+      "start_time": null,
+      "end_time": 1770809682.9322758
+    },
+    {
+      "name": "💼 交易员决策",
+      "description": "基于研究结果制定具体交易策略",
+      "status": "failed",
+      "weight": 0.08,
+      "start_time": null,
+      "end_time": 1770809682.9322762
+    },
+    {
+      "name": "🔥 激进风险评估",
+      "description": "从激进角度评估投资风险",
+      "status": "failed",
+      "weight": 0.0375,
+      "start_time": null,
+      "end_time": 1770809682.9322765
+    },
+    {
+      "name": "🛡️ 保守风险评估",
+      "description": "从保守角度评估投资风险",
+      "status": "failed",
+      "weight": 0.0375,
+      "start_time": null,
+      "end_time": 1770809682.9322765
+    },
+    {
+      "name": "⚖️ 中性风险评估",
+      "description": "从中性角度评估投资风险",
+      "status": "failed",
+      "weight": 0.0375,
+      "start_time": null,
+      "end_time": 1770809682.9322767
+    },
+    {
+      "name": "🎯 风险经理",
+      "description": "综合风险评估，制定风险控制策略",
+      "status": "failed",
+      "weight": 0.0375,
+      "start_time": null,
+      "end_time": 1770809682.932277
+    },
+    {
+      "name": "📡 信号处理",
+      "description": "处理所有分析结果，生成交易信号",
+      "status": "failed",
+      "weight": 0.04,
+      "start_time": null,
+      "end_time": 1770809682.9322772
+    },
+    {
+      "name": "📊 生成报告",
+      "description": "整理分析结果，生成完整报告",
+      "status": "failed",
+      "weight": 0.03,
+      "start_time": null,
+      "end_time": 1770809682.9322774
+    }
+  ],
+  "last_update": "2026-02-11T19:34:26.444477"
+}

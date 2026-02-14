@@ -24,7 +24,7 @@ def test_basic_imports():
         print("✅ 基本导入成功")
         return True
     except Exception as e:
-        print(f"❌ 基本导入失败: {e}")
+        print(f"[X] 基本导入失败: {e}")
         return False
 
 def test_environment_variables():
@@ -66,7 +66,7 @@ def test_graph_initialization():
         print("✅ 图初始化成功")
         return True, graph
     except Exception as e:
-        print(f"❌ 图初始化失败: {e}")
+        print(f"[X] 图初始化失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False, None
@@ -85,7 +85,7 @@ def test_simple_analysis():
         print(f"决策: {decision}")
         return True
     except Exception as e:
-        print(f"❌ 分析失败: {e}")
+        print(f"[X] 分析失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -103,7 +103,7 @@ def main():
     # 测试环境变量
     print("\n2. 测试环境变量...")
     if not test_environment_variables():
-        print("❌ 环境变量未正确配置")
+        print("[X] 环境变量未正确配置")
         return
     
     # 测试图初始化
@@ -117,7 +117,7 @@ def main():
     if test_simple_analysis():
         print("\n🎉 所有测试通过！")
     else:
-        print("\n❌ 分析测试失败")
+        print("\n[X] 分析测试失败")
 
 if __name__ == "__main__":
     main()

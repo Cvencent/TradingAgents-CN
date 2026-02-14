@@ -87,16 +87,24 @@ class ConditionalLogic:
 
         # 如果已经有报告内容，说明分析已完成，不再循环
         if sentiment_report and len(sentiment_report) > 100:
-            logger.info(f"🔀 [条件判断] ✅ 报告已完成，返回: Msg Clear Social")
+            logger.info(f"🔀 [条件判断] ✅ 已有情绪分析报告，返回: Msg Clear Social")
             return "Msg Clear Social"
 
-        # 只有AIMessage才有tool_calls属性
+        # 检查最后一条消息是否有工具调用
         if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
-            logger.info(f"🔀 [条件判断] 🔧 检测到tool_calls，返回: tools_social")
-            return "tools_social"
+            logger.info(f"🔀 [条件判断] 🔄 有tool_calls，返回: tools_sentiment")
+            return "tools_sentiment"
+
+        # 检查是否包含工具调用结果
+        if hasattr(last_message, 'name') and last_message.name:
+            logger.info(f"🔀 [条件判断] 🔄 有工具调用结果，返回: tools_sentiment")
+            return "tools_sentiment"
 
         logger.info(f"🔀 [条件判断] ✅ 无tool_calls，返回: Msg Clear Social")
         return "Msg Clear Social"
+
+    # 🔥 关键修复：添加 should_continue_sentiment 作为 should_continue_social 的别名
+    should_continue_sentiment = should_continue_social
 
     def should_continue_news(self, state: AgentState):
         """Determine if news analysis should continue."""

@@ -27,7 +27,7 @@ def debug_baostock_query_all_stock():
         # 登录BaoStock
         lg = bs.login()
         if lg.error_code != '0':
-            print(f"❌ BaoStock登录失败: {lg.error_msg}")
+            print(f"[X] BaoStock登录失败: {lg.error_msg}")
             return
         
         print("✅ BaoStock登录成功")
@@ -42,7 +42,7 @@ def debug_baostock_query_all_stock():
             print(f"   字段列表: {rs.fields}")
             
             if rs.error_code != '0':
-                print(f"❌ 查询失败: {rs.error_msg}")
+                print(f"[X] 查询失败: {rs.error_msg}")
                 return
             
             # 解析数据
@@ -81,23 +81,23 @@ def debug_baostock_query_all_stock():
                         for i, row in a_stocks.head(5).iterrows():
                             print(f"     {row['code']} - {row.get('code_name', 'N/A')}")
                     else:
-                        print(f"   ❌ 没有找到匹配A股模式的股票!")
+                        print(f"   [X] 没有找到匹配A股模式的股票!")
                         print(f"   所有代码格式样本:")
                         unique_patterns = df['code'].str.extract(r'^([a-z]+)\.').iloc[:, 0].value_counts()
                         print(f"     {unique_patterns}")
                 else:
-                    print(f"   ❌ 没有找到'code'列")
+                    print(f"   [X] 没有找到'code'列")
             else:
-                print(f"   ❌ 没有获取到任何数据")
+                print(f"   [X] 没有获取到任何数据")
                 
         finally:
             bs.logout()
             print("✅ BaoStock登出成功")
         
     except ImportError:
-        print("❌ BaoStock未安装")
+        print("[X] BaoStock未安装")
     except Exception as e:
-        print(f"❌ 调试失败: {e}")
+        print(f"[X] 调试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -113,7 +113,7 @@ def debug_baostock_stock_basic():
         # 登录BaoStock
         lg = bs.login()
         if lg.error_code != '0':
-            print(f"❌ BaoStock登录失败: {lg.error_msg}")
+            print(f"[X] BaoStock登录失败: {lg.error_msg}")
             return
         
         print("✅ BaoStock登录成功")
@@ -138,16 +138,16 @@ def debug_baostock_stock_basic():
                     else:
                         print(f"   ⚠️ 无数据返回")
                 else:
-                    print(f"   ❌ 查询失败: {rs.error_msg}")
+                    print(f"   [X] 查询失败: {rs.error_msg}")
                     
             except Exception as e:
-                print(f"   ❌ 异常: {e}")
+                print(f"   [X] 异常: {e}")
         
         bs.logout()
         print("\n✅ BaoStock登出成功")
         
     except Exception as e:
-        print(f"❌ 调试失败: {e}")
+        print(f"[X] 调试失败: {e}")
 
 def test_baostock_adapter_stock_list():
     """测试BaoStock适配器的股票列表获取"""
@@ -161,7 +161,7 @@ def test_baostock_adapter_stock_list():
         adapter = BaoStockAdapter()
         
         if not adapter.is_available():
-            print("❌ BaoStock适配器不可用")
+            print("[X] BaoStock适配器不可用")
             return
         
         print("✅ BaoStock适配器可用")
@@ -177,10 +177,10 @@ def test_baostock_adapter_stock_list():
             for i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:
-            print("❌ 股票列表获取失败")
+            print("[X] 股票列表获取失败")
         
     except Exception as e:
-        print(f"❌ 适配器测试失败: {e}")
+        print(f"[X] 适配器测试失败: {e}")
         import traceback
         traceback.print_exc()
 

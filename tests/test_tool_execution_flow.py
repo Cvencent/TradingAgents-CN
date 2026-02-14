@@ -69,7 +69,7 @@ def test_tool_execution_flow():
                     
                     # 检查是否包含实际数据
                     has_data = any(keyword in content for keyword in ['股票', '财务', '营收', '利润', '资产'])
-                    print(f"     - 包含财务数据: {'✅' if has_data else '❌'}")
+                    print(f"     - 包含财务数据: {'✅' if has_data else '[X]'}")
         
         print("\n5. 分析工具执行结果...")
         
@@ -82,12 +82,12 @@ def test_tool_execution_flow():
                 print("   ✅ 这个ToolMessage会被添加到消息历史中")
                 print("   ✅ 然后系统会返回到分析师节点处理数据")
             else:
-                print(f"   ❌ 返回的不是ToolMessage，而是: {type(tool_message)}")
+                print(f"   [X] 返回的不是ToolMessage，而是: {type(tool_message)}")
         else:
-            print("   ❌ 没有返回消息")
+            print("   [X] 没有返回消息")
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 

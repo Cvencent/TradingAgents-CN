@@ -51,7 +51,7 @@ for db_name in ["tradingagents"]:
             print(f"  - Email: {admin_user.get('email')}")
             print(f"  - 激活状态: {admin_user.get('is_active')}")
         else:
-            print("❌ 未找到 admin 用户")
+            print("[X] 未找到 admin 用户")
     else:
         print("⚠️ 没有 users 集合")
 

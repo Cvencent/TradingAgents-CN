@@ -22,7 +22,7 @@ def test_real_estate_screening():
     })
     
     if auth_response.status_code != 200:
-        print(f"❌ 登录失败: {auth_response.status_code}")
+        print(f"[X] 登录失败: {auth_response.status_code}")
         return False
     
     token = auth_response.json()["access_token"]
@@ -92,12 +92,12 @@ def test_real_estate_screening():
                 else:
                     print(f"  ⚠️ 该行业没有100亿以上市值的股票")
             else:
-                print(f"  ❌ 筛选失败: {response.status_code}")
+                print(f"  [X] 筛选失败: {response.status_code}")
                 print(f"     响应: {response.text}")
         
         return True
     else:
-        print(f"❌ 获取行业列表失败: {response.status_code}")
+        print(f"[X] 获取行业列表失败: {response.status_code}")
         print(f"   响应内容: {response.text}")
         return False
 
@@ -107,4 +107,4 @@ if __name__ == "__main__":
     if success:
         print("\n🎉 房地产行业测试完成！")
     else:
-        print("\n❌ 房地产行业测试失败！")
+        print("\n[X] 房地产行业测试失败！")

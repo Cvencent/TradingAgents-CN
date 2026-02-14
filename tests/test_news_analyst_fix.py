@@ -43,7 +43,7 @@ def test_tool_parameters():
         print(f"   📝 返回数据长度: {len(result) if result else 0} 字符")
         
     except Exception as e:
-        print(f"   ❌ get_realtime_stock_news 调用失败: {e}")
+        print(f"   [X] get_realtime_stock_news 调用失败: {e}")
     
     print()
     
@@ -60,7 +60,7 @@ def test_tool_parameters():
         print(f"   📝 返回数据长度: {len(result) if result else 0} 字符")
         
     except Exception as e:
-        print(f"   ❌ get_google_news 调用失败: {e}")
+        print(f"   [X] get_google_news 调用失败: {e}")
     
     print()
     

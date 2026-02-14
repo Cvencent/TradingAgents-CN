@@ -108,7 +108,7 @@ def get_stock_data(stock_code: str, start_date: str = None, end_date: str = None
         >>> print(data)
     """
     if not SERVICE_AVAILABLE:
-        return "❌ 股票数据服务不可用，请检查服务配置"
+        return "[X] 股票数据服务不可用，请检查服务配置"
     
     # 设置默认日期
     if end_date is None:

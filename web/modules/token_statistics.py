@@ -100,7 +100,7 @@ def render_token_statistics():
         render_detailed_records_table(records)
         
     except Exception as e:
-        st.error(f"❌ 获取统计数据失败: {str(e)}")
+        st.error(f"[X] 获取统计数据失败: {str(e)}")
         st.info("请检查配置文件和数据存储是否正常")
 
 def render_overview_metrics(stats: Dict[str, Any], time_range: str):
@@ -425,7 +425,7 @@ def export_statistics_data(days: int):
         st.success(f"✅ 统计数据已准备好下载: {filename}")
         
     except Exception as e:
-        st.error(f"❌ 导出失败: {str(e)}")
+        st.error(f"[X] 导出失败: {str(e)}")
 
 def main():
     """主函数"""

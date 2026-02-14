@@ -110,7 +110,7 @@ class GubaHotCrawler:
             logger.info(f"✅ [股吧爬虫] 获取 {count} 条热门帖子列表")
 
         except Exception as e:
-            logger.error(f"❌ [股吧爬虫] 获取列表失败: {e}")
+            logger.error(f"[X] [股吧爬虫] 获取列表失败: {e}")
             return []
 
         # 去重
@@ -379,7 +379,7 @@ def get_guba_posts(stock_code: str, max_posts: int = 20) -> List[Dict]:
         crawler = GubaHotCrawler(stock_code)
         return crawler.crawl_hot_list(max_posts=max_posts)
     except Exception as e:
-        logger.error(f"❌ [股吧爬虫] 获取帖子失败: {e}")
+        logger.error(f"[X] [股吧爬虫] 获取帖子失败: {e}")
         return []
 
 
@@ -403,5 +403,5 @@ def get_guba_sentiment_report(stock_code: str, max_posts: int = 20) -> str:
 
         return crawler.generate_markdown_report()
     except Exception as e:
-        logger.error(f"❌ [股吧爬虫] 生成报告失败: {e}")
+        logger.error(f"[X] [股吧爬虫] 生成报告失败: {e}")
         return f"## 东方财富股吧讨论 - {stock_code}\n\n获取数据失败: {str(e)}"

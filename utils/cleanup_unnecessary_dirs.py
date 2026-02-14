@@ -49,7 +49,7 @@ def cleanup_directories():
                 logger.info(f"✅ 删除目录: {dir_name}")
                 cleaned_count += 1
             except Exception as e:
-                logger.error(f"❌ 删除失败 {dir_name}: {e}")
+                logger.error(f"[X] 删除失败 {dir_name}: {e}")
     
     # 递归清理文件
     for pattern in cleanup_patterns:
@@ -59,7 +59,7 @@ def cleanup_directories():
                 logger.info(f"✅ 删除文件: {file_path}")
                 cleaned_count += 1
             except Exception as e:
-                logger.error(f"❌ 删除失败 {file_path}: {e}")
+                logger.error(f"[X] 删除失败 {file_path}: {e}")
     
     return cleaned_count
 
@@ -124,7 +124,7 @@ def update_gitignore():
             logger.info(f"✅ .gitignore已经是最新的")
             
     except Exception as e:
-        logger.error(f"❌ 更新.gitignore失败: {e}")
+        logger.error(f"[X] 更新.gitignore失败: {e}")
 
 def analyze_upstream_contribution():
     """分析upstream_contribution目录"""

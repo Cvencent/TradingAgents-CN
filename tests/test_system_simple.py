@@ -27,9 +27,9 @@ def test_basic_system():
             print(f"  MongoDB启用: {config['database']['mongodb']['enabled']}")
             print(f"  Redis启用: {config['database']['redis']['enabled']}")
         except Exception as e:
-            print(f"❌ 配置文件解析失败: {e}")
+            print(f"[X] 配置文件解析失败: {e}")
     else:
-        print(f"❌ 配置文件不存在: {config_file}")
+        print(f"[X] 配置文件不存在: {config_file}")
     
     # 2. 检查数据库包
     print("\n📦 检查数据库包...")
@@ -47,10 +47,10 @@ def test_basic_system():
             print("✅ MongoDB 连接成功")
             mongodb_available = True
         except Exception:
-            print("❌ MongoDB 连接失败（正常，如果没有安装MongoDB）")
+            print("[X] MongoDB 连接失败（正常，如果没有安装MongoDB）")
             mongodb_available = False
     except ImportError:
-        print("❌ pymongo 未安装")
+        print("[X] pymongo 未安装")
         mongodb_available = False
     
     # 检查redis
@@ -65,10 +65,10 @@ def test_basic_system():
             print("✅ Redis 连接成功")
             redis_available = True
         except Exception:
-            print("❌ Redis 连接失败（正常，如果没有安装Redis）")
+            print("[X] Redis 连接失败（正常，如果没有安装Redis）")
             redis_available = False
     except ImportError:
-        print("❌ redis 未安装")
+        print("[X] redis 未安装")
         redis_available = False
     
     # 3. 测试缓存系统
@@ -100,11 +100,11 @@ def test_basic_system():
         if loaded_data == test_data:
             print("✅ 数据加载成功")
         else:
-            print("❌ 数据加载失败")
+            print("[X] 数据加载失败")
             return False
         
     except Exception as e:
-        print(f"❌ 缓存系统测试失败: {e}")
+        print(f"[X] 缓存系统测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -121,13 +121,13 @@ def test_basic_system():
         status = db_manager.get_status_report()
         
         print("📊 数据库状态:")
-        print(f"  数据库可用: {'✅ 是' if status['database_available'] else '❌ 否'}")
-        print(f"  MongoDB: {'✅ 可用' if status['mongodb']['available'] else '❌ 不可用'}")
-        print(f"  Redis: {'✅ 可用' if status['redis']['available'] else '❌ 不可用'}")
+        print(f"  数据库可用: {'✅ 是' if status['database_available'] else '[X] 否'}")
+        print(f"  MongoDB: {'✅ 可用' if status['mongodb']['available'] else '[X] 不可用'}")
+        print(f"  Redis: {'✅ 可用' if status['redis']['available'] else '[X] 不可用'}")
         print(f"  缓存后端: {status['cache_backend']}")
         
     except Exception as e:
-        print(f"❌ 数据库管理器测试失败: {e}")
+        print(f"[X] 数据库管理器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -166,7 +166,7 @@ def main():
         return success
         
     except Exception as e:
-        print(f"❌ 系统测试失败: {e}")
+        print(f"[X] 系统测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False

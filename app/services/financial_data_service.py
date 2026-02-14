@@ -34,7 +34,7 @@ class FinancialDataService:
             logger.info("✅ 财务数据服务初始化成功")
 
         except Exception as e:
-            logger.error(f"❌ 财务数据服务初始化失败: {e}")
+            logger.error(f"[X] 财务数据服务初始化失败: {e}")
             raise
 
     async def _ensure_indexes(self):
@@ -158,7 +158,7 @@ class FinancialDataService:
             return 0
             
         except Exception as e:
-            logger.error(f"❌ 保存财务数据失败 {symbol}: {e}")
+            logger.error(f"[X] 保存财务数据失败 {symbol}: {e}")
             return 0
     
     async def get_financial_data(
@@ -212,7 +212,7 @@ class FinancialDataService:
             return results
             
         except Exception as e:
-            logger.error(f"❌ 查询财务数据失败 {symbol}: {e}")
+            logger.error(f"[X] 查询财务数据失败 {symbol}: {e}")
             return []
     
     async def get_latest_financial_data(
@@ -283,7 +283,7 @@ class FinancialDataService:
             }
             
         except Exception as e:
-            logger.error(f"❌ 获取财务数据统计失败: {e}")
+            logger.error(f"[X] 获取财务数据统计失败: {e}")
             return {}
     
     def _standardize_financial_data(
@@ -317,7 +317,7 @@ class FinancialDataService:
                 return None
                 
         except Exception as e:
-            logger.error(f"❌ 标准化财务数据失败 {symbol}: {e}")
+            logger.error(f"[X] 标准化财务数据失败 {symbol}: {e}")
             return None
     
     def _standardize_tushare_data(

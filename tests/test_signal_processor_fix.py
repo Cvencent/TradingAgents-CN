@@ -73,31 +73,31 @@ def test_signal_processor_currency_fix():
         
         # 检查中国A股结果
         if china_decision.get('action') not in ['买入', '持有', '卖出']:
-            print(f"❌ 中国A股动作错误: {china_decision.get('action')}")
+            print(f"[X] 中国A股动作错误: {china_decision.get('action')}")
             success = False
         
         if china_decision.get('target_price') is None:
-            print("❌ 中国A股目标价位为空")
+            print("[X] 中国A股目标价位为空")
             success = False
         
         # 检查美股结果
         if us_decision.get('action') not in ['买入', '持有', '卖出']:
-            print(f"❌ 美股动作错误: {us_decision.get('action')}")
+            print(f"[X] 美股动作错误: {us_decision.get('action')}")
             success = False
         
         if us_decision.get('target_price') is None:
-            print("❌ 美股目标价位为空")
+            print("[X] 美股目标价位为空")
             success = False
         
         if success:
             print("✅ SignalProcessor货币修复测试通过！")
             return True
         else:
-            print("❌ SignalProcessor货币修复测试失败！")
+            print("[X] SignalProcessor货币修复测试失败！")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -142,7 +142,7 @@ def test_web_currency_display():
         return True
         
     except Exception as e:
-        print(f"❌ Web界面测试失败: {e}")
+        print(f"[X] Web界面测试失败: {e}")
         return False
 
 if __name__ == "__main__":
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     
     # 检查环境变量
     if not os.getenv("DASHSCOPE_API_KEY"):
-        print("❌ DASHSCOPE_API_KEY 环境变量未设置")
+        print("[X] DASHSCOPE_API_KEY 环境变量未设置")
         sys.exit(1)
     
     # 运行测试
@@ -163,5 +163,5 @@ if __name__ == "__main__":
         print("🎉 所有测试通过！修复成功！")
         sys.exit(0)
     else:
-        print("❌ 部分测试失败，需要进一步调试")
+        print("[X] 部分测试失败，需要进一步调试")
         sys.exit(1)

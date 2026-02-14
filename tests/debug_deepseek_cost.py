@@ -71,7 +71,7 @@ def test_token_tracking():
         print(f"      Tokens: {record.input_tokens}+{record.output_tokens}")
         print(f"      Cost: ¥{record.cost:.6f}")
     else:
-        print(f"   ❌ 记录创建失败")
+        print(f"   [X] 记录创建失败")
 
 def test_deepseek_adapter():
     """测试DeepSeek适配器"""
@@ -106,7 +106,7 @@ def test_deepseek_adapter():
         print(f"   ✅ API调用成功，响应长度: {len(response.content)}")
         
     except Exception as e:
-        print(f"   ❌ DeepSeek适配器测试失败: {e}")
+        print(f"   [X] DeepSeek适配器测试失败: {e}")
 
 def check_usage_statistics():
     """检查使用统计"""
@@ -129,7 +129,7 @@ def check_usage_statistics():
         print(f"      请求: {deepseek_stats.get('requests', 0)}")
         print(f"      Token: {deepseek_stats.get('tokens', 0)}")
     else:
-        print(f"   ❌ 未找到DeepSeek统计")
+        print(f"   [X] 未找到DeepSeek统计")
 
 def main():
     """主函数"""
@@ -147,7 +147,7 @@ def main():
         print("✅ 调试完成")
         
     except Exception as e:
-        print(f"\n❌ 调试过程中出现错误: {e}")
+        print(f"\n[X] 调试过程中出现错误: {e}")
         import traceback
         traceback.print_exc()
 

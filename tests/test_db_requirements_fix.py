@@ -24,7 +24,7 @@ def test_python_version_check():
         print(f"  ✅ Python {current_version.major}.{current_version.minor}.{current_version.micro} 符合要求")
         return True
     else:
-        print(f"  ❌ Python {current_version.major}.{current_version.minor}.{current_version.micro} 版本过低")
+        print(f"  [X] Python {current_version.major}.{current_version.minor}.{current_version.micro} 版本过低")
         return False
 
 
@@ -42,7 +42,7 @@ def test_pickle_compatibility():
         if max_protocol >= 5:
             print("  ✅ 支持pickle协议5")
         else:
-            print("  ❌ 不支持pickle协议5")
+            print("  [X] 不支持pickle协议5")
             return False
         
         # 检查是否错误安装了pickle5
@@ -55,7 +55,7 @@ def test_pickle_compatibility():
             return True
             
     except Exception as e:
-        print(f"  ❌ pickle测试失败: {e}")
+        print(f"  [X] pickle测试失败: {e}")
         return False
 
 
@@ -66,7 +66,7 @@ def test_requirements_file_syntax():
     requirements_file = os.path.join(project_root, "requirements_db.txt")
     
     if not os.path.exists(requirements_file):
-        print("  ❌ requirements_db.txt文件不存在")
+        print("  [X] requirements_db.txt文件不存在")
         return False
     
     try:
@@ -85,21 +85,21 @@ def test_requirements_file_syntax():
                 continue
                 
             if 'pickle5' in line and not line.startswith('#'):
-                print(f"  ❌ 第{line_num}行仍包含pickle5: {line}")
+                print(f"  [X] 第{line_num}行仍包含pickle5: {line}")
                 pickle5_found = True
             else:
                 valid_packages.append(line)
                 print(f"  ✅ 第{line_num}行: {line}")
         
         if pickle5_found:
-            print("  ❌ 仍包含pickle5依赖")
+            print("  [X] 仍包含pickle5依赖")
             return False
         
         print(f"  ✅ 语法检查通过，有效包数量: {len(valid_packages)}")
         return True
         
     except Exception as e:
-        print(f"  ❌ 文件读取失败: {e}")
+        print(f"  [X] 文件读取失败: {e}")
         return False
 
 
@@ -145,7 +145,7 @@ def test_compatibility_checker_tool():
     checker_file = os.path.join(project_root, "check_db_requirements.py")
     
     if not os.path.exists(checker_file):
-        print("  ❌ check_db_requirements.py文件不存在")
+        print("  [X] check_db_requirements.py文件不存在")
         return False
     
     try:
@@ -171,15 +171,15 @@ def test_compatibility_checker_tool():
             
             return True
         else:
-            print("  ❌ 兼容性检查工具输出异常")
+            print("  [X] 兼容性检查工具输出异常")
             print(f"  输出: {result.stdout[:200]}...")
             return False
             
     except subprocess.TimeoutExpired:
-        print("  ❌ 兼容性检查工具运行超时")
+        print("  [X] 兼容性检查工具运行超时")
         return False
     except Exception as e:
-        print(f"  ❌ 兼容性检查工具运行失败: {e}")
+        print(f"  [X] 兼容性检查工具运行失败: {e}")
         return False
 
 
@@ -206,7 +206,7 @@ def test_documentation_completeness():
             else:
                 print(f"    ⚠️ 文件较小: {size} 字节")
         else:
-            print(f"  ❌ {doc_path}: 不存在")
+            print(f"  [X] {doc_path}: 不存在")
             all_exist = False
     
     return all_exist
@@ -236,9 +236,9 @@ def main():
                 passed += 1
                 print(f"  ✅ {test_name} 通过")
             else:
-                print(f"  ❌ {test_name} 失败")
+                print(f"  [X] {test_name} 失败")
         except Exception as e:
-            print(f"  ❌ {test_name} 异常: {e}")
+            print(f"  [X] {test_name} 异常: {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

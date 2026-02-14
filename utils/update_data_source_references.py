@@ -33,7 +33,7 @@ def update_file_content(file_path: Path, replacements: list):
             return False
             
     except Exception as e:
-        logger.error(f"❌ 更新失败 {file_path}: {e}")
+        logger.error(f"[X] 更新失败 {file_path}: {e}")
         return False
 
 def main():

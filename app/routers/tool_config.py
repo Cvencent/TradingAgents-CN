@@ -94,7 +94,7 @@ async def get_all_tools(
             total=len(tool_configs)
         )
     except Exception as e:
-        logger.error(f"❌ 获取工具列表失败: {e}", exc_info=True)
+        logger.error(f"[X] 获取工具列表失败: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"获取工具列表失败: {str(e)}"
@@ -150,7 +150,7 @@ async def get_tool_detail(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 获取工具详情失败: {e}", exc_info=True)
+        logger.error(f"[X] 获取工具详情失败: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"获取工具详情失败: {str(e)}"
@@ -223,7 +223,7 @@ async def update_tool_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 更新工具配置失败: {e}", exc_info=True)
+        logger.error(f"[X] 更新工具配置失败: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"更新工具配置失败: {str(e)}"
@@ -285,7 +285,7 @@ async def initialize_default_tools(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 初始化默认工具配置失败: {e}", exc_info=True)
+        logger.error(f"[X] 初始化默认工具配置失败: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"初始化默认工具配置失败: {str(e)}"
@@ -371,7 +371,7 @@ async def test_tool(
 
         except Exception as e:
             error_msg = f"执行失败: {str(e)}"
-            logger.error(f"❌ [工具测试] 执行失败: {e}", exc_info=True)
+            logger.error(f"[X] [工具测试] 执行失败: {e}", exc_info=True)
 
         await log_operation(
             user_id=str(current_user.get("user_id", "")),
@@ -405,7 +405,7 @@ async def test_tool(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 工具测试失败: {e}", exc_info=True)
+        logger.error(f"[X] 工具测试失败: {e}", exc_info=True)
         return ToolTestResponse(
             success=False,
             message=f"工具测试失败",

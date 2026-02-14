@@ -45,13 +45,13 @@ def test_get_china_stock_data_fix():
             # 显示部分结果
             print(f"📋 结果预览: {result[:200]}...")
         else:
-            print("❌ 股票数据获取失败")
+            print("[X] 股票数据获取失败")
             print(f"返回结果: {result}")
         
         return True
         
     except Exception as e:
-        print(f"❌ get_china_stock_data测试失败: {e}")
+        print(f"[X] get_china_stock_data测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -88,13 +88,13 @@ def test_get_china_market_overview_fix():
             # 显示部分结果
             print(f"📋 结果预览: {result[:300]}...")
         else:
-            print("❌ 市场概览获取失败")
+            print("[X] 市场概览获取失败")
             print(f"返回结果: {result}")
         
         return True
         
     except Exception as e:
-        print(f"❌ get_china_market_overview测试失败: {e}")
+        print(f"[X] get_china_market_overview测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -129,13 +129,13 @@ def test_stock_name_mapping_fix():
             # 显示部分结果
             print(f"📋 结果预览: {result[:200]}...")
         else:
-            print("❌ 基本面数据获取失败")
+            print("[X] 基本面数据获取失败")
             print(f"返回结果: {result}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 股票名称映射测试失败: {e}")
+        print(f"[X] 股票名称映射测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -165,7 +165,7 @@ def check_debug_output():
         return True
         
     except Exception as e:
-        print(f"❌ 调试输出检查失败: {e}")
+        print(f"[X] 调试输出检查失败: {e}")
         return False
 
 
@@ -194,7 +194,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -203,7 +203,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

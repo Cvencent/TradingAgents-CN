@@ -111,7 +111,7 @@ async def _get_or_create_account(user_id: str) -> Dict[str, Any]:
                 # 重新读取迁移后的账户
                 acc = await db["paper_accounts"].find_one({"user_id": user_id})
         except Exception as e:
-            logger.error(f"❌ 账户结构迁移失败 user_id={user_id}: {e}")
+            logger.error(f"[X] 账户结构迁移失败 user_id={user_id}: {e}")
     return acc
 
 
@@ -234,7 +234,7 @@ async def _get_last_price(code: str, market: str) -> Optional[float]:
             except Exception as e:
                 logger.warning(f"⚠️ stock_basic_info 价格转换失败 {code}: {e}")
 
-        logger.error(f"❌ 无法从数据库获取A股价格: {code}")
+        logger.error(f"[X] 无法从数据库获取A股价格: {code}")
         return None
 
     # 港股/美股：使用 ForeignStockService
@@ -253,10 +253,10 @@ async def _get_last_price(code: str, market: str) -> Optional[float]:
                     logger.debug(f"✅ 从 ForeignStockService 获取{market}价格: {code} = {price}")
                     return float(price)
         except Exception as e:
-            logger.error(f"❌ 获取{market}股价格失败 {code}: {e}")
+            logger.error(f"[X] 获取{market}股价格失败 {code}: {e}")
             return None
 
-    logger.error(f"❌ 无法获取股票价格: {code} (market={market})")
+    logger.error(f"[X] 无法获取股票价格: {code} (market={market})")
     return None
 
 

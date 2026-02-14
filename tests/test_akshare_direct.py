@@ -24,9 +24,9 @@ def test_akshare_financial_apis():
             print(f"✅ 资产负债表获取成功，共{len(balance_sheet)}条记录")
             print(f"📅 最新报告期: {balance_sheet.iloc[0]['报告期']}")
         else:
-            print("❌ 资产负债表为空")
+            print("[X] 资产负债表为空")
     except Exception as e:
-        print(f"❌ 资产负债表获取失败: {e}")
+        print(f"[X] 资产负债表获取失败: {e}")
     
     # 测试利润表
     try:
@@ -36,9 +36,9 @@ def test_akshare_financial_apis():
             print(f"✅ 利润表获取成功，共{len(income_statement)}条记录")
             print(f"📅 最新报告期: {income_statement.iloc[0]['报告期']}")
         else:
-            print("❌ 利润表为空")
+            print("[X] 利润表为空")
     except Exception as e:
-        print(f"❌ 利润表获取失败: {e}")
+        print(f"[X] 利润表获取失败: {e}")
     
     # 测试现金流量表
     try:
@@ -48,9 +48,9 @@ def test_akshare_financial_apis():
             print(f"✅ 现金流量表获取成功，共{len(cash_flow)}条记录")
             print(f"📅 最新报告期: {cash_flow.iloc[0]['报告期']}")
         else:
-            print("❌ 现金流量表为空")
+            print("[X] 现金流量表为空")
     except Exception as e:
-        print(f"❌ 现金流量表获取失败: {e}")
+        print(f"[X] 现金流量表获取失败: {e}")
     
     # 测试主要财务指标
     try:
@@ -62,9 +62,9 @@ def test_akshare_financial_apis():
             for col in main_indicators.columns[:5]:  # 显示前5列
                 print(f"   {col}: {main_indicators.iloc[0][col]}")
         else:
-            print("❌ 主要财务指标为空")
+            print("[X] 主要财务指标为空")
     except Exception as e:
-        print(f"❌ 主要财务指标获取失败: {e}")
+        print(f"[X] 主要财务指标获取失败: {e}")
 
 def test_akshare_stock_info():
     """测试AKShare股票基本信息"""
@@ -83,9 +83,9 @@ def test_akshare_stock_info():
             for _, row in stock_info.head(10).iterrows():  # 显示前10项
                 print(f"   {row['item']}: {row['value']}")
         else:
-            print("❌ 股票信息为空")
+            print("[X] 股票信息为空")
     except Exception as e:
-        print(f"❌ 股票信息获取失败: {e}")
+        print(f"[X] 股票信息获取失败: {e}")
 
 def main():
     """主测试函数"""

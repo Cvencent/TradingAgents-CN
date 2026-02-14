@@ -77,7 +77,7 @@ def simulate_old_strategy():
                 'description': description,
                 'error': str(e)
             }
-            print(f"   ❌ 获取失败: {e}")
+            print(f"   [X] 获取失败: {e}")
     
     return results
 
@@ -191,7 +191,7 @@ def compare_performance():
             print("-" * 70)
             
             for depth, result in old_results.items():
-                status = "✅" if result['success'] else "❌"
+                status = "✅" if result['success'] else "[X]"
                 data_len = f"{result['data_length']:,}" if result['success'] else "N/A"
                 proc_time = f"{result['processing_time']:.2f}" if result['success'] else "N/A"
                 print(f"{result['description']:<25} | {result['days_requested']:<4} | {data_len:<12} | {proc_time:<8} | {status}")
@@ -210,7 +210,7 @@ def compare_performance():
             print(f"   ✅ 减少了不必要的历史价格数据传输")
         
     else:
-        print(f"❌ 优化后策略测试失败: {new_result.get('error', '未知错误')}")
+        print(f"[X] 优化后策略测试失败: {new_result.get('error', '未知错误')}")
     
     print(f"\n🎉 性能对比测试完成！")
 

@@ -65,7 +65,7 @@ def test_trading_time_logic():
             test_time = test_time.replace(day=test_time.day + days_to_monday)
         
         result = service._is_trading_time(test_time)
-        status = "✅ 通过" if result == expected else "❌ 失败"
+        status = "✅ 通过" if result == expected else "[X] 失败"
         
         if result != expected:
             all_passed = False
@@ -76,7 +76,7 @@ def test_trading_time_logic():
     if all_passed:
         print("✅ 所有测试用例通过")
     else:
-        print("❌ 部分测试用例失败")
+        print("[X] 部分测试用例失败")
     
     return all_passed
 
@@ -127,7 +127,7 @@ async def test_status_record_and_get():
     for key, check_func, description in checks:
         value = status.get(key)
         passed = check_func(value)
-        status_str = "✅ 通过" if passed else "❌ 失败"
+        status_str = "✅ 通过" if passed else "[X] 失败"
         
         if not passed:
             all_passed = False
@@ -138,7 +138,7 @@ async def test_status_record_and_get():
     if all_passed:
         print("✅ 所有验证通过")
     else:
-        print("❌ 部分验证失败")
+        print("[X] 部分验证失败")
     
     return all_passed
 
@@ -185,7 +185,7 @@ async def test_error_status():
     for key, check_func, description in checks:
         value = status.get(key)
         passed = check_func(value)
-        status_str = "✅ 通过" if passed else "❌ 失败"
+        status_str = "✅ 通过" if passed else "[X] 失败"
         
         if not passed:
             all_passed = False
@@ -196,7 +196,7 @@ async def test_error_status():
     if all_passed:
         print("✅ 所有验证通过")
     else:
-        print("❌ 部分验证失败")
+        print("[X] 部分验证失败")
     
     return all_passed
 
@@ -227,7 +227,7 @@ async def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name:30s} - {status}")
     
     print(f"\n总体: {passed}/{total} 测试通过")
@@ -236,7 +236,7 @@ async def main():
         print("\n✅ 所有测试通过！实时行情同步状态功能正常")
         return 0
     else:
-        print(f"\n❌ 有 {total - passed} 个测试失败")
+        print(f"\n[X] 有 {total - passed} 个测试失败")
         return 1
 
 

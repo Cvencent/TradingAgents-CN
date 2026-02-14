@@ -182,7 +182,7 @@ async def sync_single_stock(
                         )
                         logger.info(f"✅ Tushare 全量同步完成: 成功 {realtime_result.get('success_count', 0)} 只")
                     else:
-                        logger.error(f"❌ Tushare 服务不可用，无法回退")
+                        logger.error(f"[X] Tushare 服务不可用，无法回退")
                         realtime_result["fallback_failed"] = True
 
                 success = realtime_result.get("success_count", 0) > 0
@@ -200,7 +200,7 @@ async def sync_single_stock(
                 logger.info(f"✅ {request.symbol} 实时行情同步完成: {success}")
 
             except Exception as e:
-                logger.error(f"❌ {request.symbol} 实时行情同步失败: {e}")
+                logger.error(f"[X] {request.symbol} 实时行情同步失败: {e}")
                 result["realtime_sync"] = {
                     "success": False,
                     "error": str(e)
@@ -264,7 +264,7 @@ async def sync_single_stock(
                 #             logger.warning(f"⚠️ {request.symbol} 实时行情自动同步失败: {e}")
 
             except Exception as e:
-                logger.error(f"❌ {request.symbol} 历史数据同步失败: {e}")
+                logger.error(f"[X] {request.symbol} 历史数据同步失败: {e}")
                 result["historical_sync"] = {
                     "success": False,
                     "error": str(e)
@@ -289,7 +289,7 @@ async def sync_single_stock(
                 logger.info(f"✅ {request.symbol} 财务数据同步完成: {success}")
                 
             except Exception as e:
-                logger.error(f"❌ {request.symbol} 财务数据同步失败: {e}")
+                logger.error(f"[X] {request.symbol} 财务数据同步失败: {e}")
                 result["financial_sync"] = {
                     "success": False,
                     "error": str(e)
@@ -496,7 +496,7 @@ async def sync_single_stock(
                     }
 
             except Exception as e:
-                logger.error(f"❌ {request.symbol} 基础数据同步失败: {e}")
+                logger.error(f"[X] {request.symbol} 基础数据同步失败: {e}")
                 result["basic_sync"] = {
                     "success": False,
                     "error": str(e)
@@ -519,7 +519,7 @@ async def sync_single_stock(
         )
         
     except Exception as e:
-        logger.error(f"❌ 同步单个股票失败: {e}")
+        logger.error(f"[X] 同步单个股票失败: {e}")
         raise HTTPException(status_code=500, detail=f"同步失败: {str(e)}")
 
 
@@ -580,7 +580,7 @@ async def sync_batch_stocks(
                 logger.info(f"✅ 批量历史数据同步完成: {hist_result.get('success_count', 0)}/{len(request.symbols)}")
                 
             except Exception as e:
-                logger.error(f"❌ 批量历史数据同步失败: {e}")
+                logger.error(f"[X] 批量历史数据同步失败: {e}")
                 result["historical_sync"] = {
                     "success_count": 0,
                     "error_count": len(request.symbols),
@@ -617,7 +617,7 @@ async def sync_batch_stocks(
                 logger.info(f"✅ 批量财务数据同步完成: {result['financial_sync']['success_count']}/{len(request.symbols)}")
                 
             except Exception as e:
-                logger.error(f"❌ 批量财务数据同步失败: {e}")
+                logger.error(f"[X] 批量财务数据同步失败: {e}")
                 result["financial_sync"] = {
                     "success_count": 0,
                     "error_count": len(request.symbols),
@@ -664,7 +664,7 @@ async def sync_batch_stocks(
                                     logger.warning(f"⚠️ {symbol} 未获取到基础数据")
                             except Exception as e:
                                 error_count += 1
-                                logger.error(f"❌ {symbol} 基础数据同步失败: {e}")
+                                logger.error(f"[X] {symbol} 基础数据同步失败: {e}")
 
                         result["basic_sync"] = {
                             "success_count": success_count,
@@ -687,7 +687,7 @@ async def sync_batch_stocks(
                     }
 
             except Exception as e:
-                logger.error(f"❌ 批量基础数据同步失败: {e}")
+                logger.error(f"[X] 批量基础数据同步失败: {e}")
                 result["basic_sync"] = {
                     "success_count": 0,
                     "error_count": len(request.symbols),
@@ -710,7 +710,7 @@ async def sync_batch_stocks(
         )
         
     except Exception as e:
-        logger.error(f"❌ 批量同步失败: {e}")
+        logger.error(f"[X] 批量同步失败: {e}")
         raise HTTPException(status_code=500, detail=f"批量同步失败: {str(e)}")
 
 
@@ -762,6 +762,6 @@ async def get_sync_status(
         })
         
     except Exception as e:
-        logger.error(f"❌ 获取同步状态失败: {e}")
+        logger.error(f"[X] 获取同步状态失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取同步状态失败: {str(e)}")
 

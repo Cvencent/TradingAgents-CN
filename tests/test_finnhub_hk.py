@@ -18,7 +18,7 @@ def test_finnhub_connection():
         
         api_key = os.getenv('FINNHUB_API_KEY')
         if not api_key:
-            print("❌ 未配置FINNHUB_API_KEY环境变量")
+            print("[X] 未配置FINNHUB_API_KEY环境变量")
             return False
         
         client = finnhub.Client(api_key=api_key)
@@ -29,14 +29,14 @@ def test_finnhub_connection():
         if quote and 'c' in quote:
             print(f"    ✅ 美股连接成功: AAPL = ${quote['c']:.2f}")
         else:
-            print("    ❌ 美股连接失败")
+            print("    [X] 美股连接失败")
             return False
         
         print("✅ FINNHUB连接测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ FINNHUB连接测试失败: {e}")
+        print(f"[X] FINNHUB连接测试失败: {e}")
         return False
 
 def test_finnhub_hk_symbols():
@@ -48,7 +48,7 @@ def test_finnhub_hk_symbols():
         
         api_key = os.getenv('FINNHUB_API_KEY')
         if not api_key:
-            print("❌ 未配置FINNHUB_API_KEY环境变量")
+            print("[X] 未配置FINNHUB_API_KEY环境变量")
             return False
         
         client = finnhub.Client(api_key=api_key)
@@ -72,20 +72,20 @@ def test_finnhub_hk_symbols():
                     print(f"    ✅ {symbol} = HK${quote['c']:.2f}")
                     success_count += 1
                 else:
-                    print(f"    ❌ {symbol} 无数据或价格为0")
+                    print(f"    [X] {symbol} 无数据或价格为0")
                     
             except Exception as e:
-                print(f"    ❌ {symbol} 获取失败: {e}")
+                print(f"    [X] {symbol} 获取失败: {e}")
         
         if success_count > 0:
             print(f"✅ FINNHUB港股支持测试通过 ({success_count}/{len(hk_symbols)} 成功)")
             return True
         else:
-            print("❌ FINNHUB港股支持测试失败 - 所有港股代码都无法获取数据")
+            print("[X] FINNHUB港股支持测试失败 - 所有港股代码都无法获取数据")
             return False
         
     except Exception as e:
-        print(f"❌ FINNHUB港股支持测试失败: {e}")
+        print(f"[X] FINNHUB港股支持测试失败: {e}")
         return False
 
 def test_finnhub_hk_company_info():
@@ -97,7 +97,7 @@ def test_finnhub_hk_company_info():
         
         api_key = os.getenv('FINNHUB_API_KEY')
         if not api_key:
-            print("❌ 未配置FINNHUB_API_KEY环境变量")
+            print("[X] 未配置FINNHUB_API_KEY环境变量")
             return False
         
         client = finnhub.Client(api_key=api_key)
@@ -116,15 +116,15 @@ def test_finnhub_hk_company_info():
                 print(f"    ✅ 行业: {profile.get('finnhubIndustry', 'N/A')}")
                 return True
             else:
-                print(f"    ❌ {symbol} 公司信息为空")
+                print(f"    [X] {symbol} 公司信息为空")
                 return False
                 
         except Exception as e:
-            print(f"    ❌ {symbol} 公司信息获取失败: {e}")
+            print(f"    [X] {symbol} 公司信息获取失败: {e}")
             return False
         
     except Exception as e:
-        print(f"❌ FINNHUB港股公司信息测试失败: {e}")
+        print(f"[X] FINNHUB港股公司信息测试失败: {e}")
         return False
 
 def test_optimized_us_data_finnhub_hk():
@@ -163,12 +163,12 @@ def test_optimized_us_data_finnhub_hk():
             print("✅ 优化数据模块FINNHUB港股支持测试通过")
             return True
         else:
-            print("❌ 优化数据模块FINNHUB港股支持测试失败")
+            print("[X] 优化数据模块FINNHUB港股支持测试失败")
             print(f"返回数据: {data[:200]}...")
             return False
             
     except Exception as e:
-        print(f"❌ 优化数据模块FINNHUB港股支持测试失败: {e}")
+        print(f"[X] 优化数据模块FINNHUB港股支持测试失败: {e}")
         return False
 
 def test_unified_interface_finnhub_priority():
@@ -203,11 +203,11 @@ def test_unified_interface_finnhub_priority():
             print("✅ 统一接口FINNHUB优先级测试通过")
             return True
         else:
-            print("❌ 统一接口FINNHUB优先级测试失败")
+            print("[X] 统一接口FINNHUB优先级测试失败")
             return False
         
     except Exception as e:
-        print(f"❌ 统一接口FINNHUB优先级测试失败: {e}")
+        print(f"[X] 统一接口FINNHUB优先级测试失败: {e}")
         return False
 
 def main():
@@ -231,7 +231,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"🇭🇰 FINNHUB港股支持测试完成: {passed}/{total} 通过")

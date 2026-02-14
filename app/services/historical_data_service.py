@@ -34,7 +34,7 @@ class HistoricalDataService:
 
             logger.info("✅ 历史数据服务初始化成功")
         except Exception as e:
-            logger.error(f"❌ 历史数据服务初始化失败: {e}")
+            logger.error(f"[X] 历史数据服务初始化失败: {e}")
             raise
 
     async def _ensure_indexes(self):
@@ -164,7 +164,7 @@ class HistoricalDataService:
                 except Exception as e:
                     # 获取日期信息用于错误日志
                     date_str = str(date_index) if hasattr(date_index, '__str__') else 'unknown'
-                    logger.error(f"❌ 处理记录失败 {symbol} {date_str}: {e}")
+                    logger.error(f"[X] 处理记录失败 {symbol} {date_str}: {e}")
                     continue
 
             prepare_duration = (datetime.now() - prepare_start).total_seconds()
@@ -187,7 +187,7 @@ class HistoricalDataService:
             return saved_count
             
         except Exception as e:
-            logger.error(f"❌ 保存历史数据失败 {symbol}: {e}")
+            logger.error(f"[X] 保存历史数据失败 {symbol}: {e}")
             return 0
 
     async def _execute_bulk_write_with_retry(
@@ -224,7 +224,7 @@ class HistoricalDataService:
                     logger.warning(f"⚠️ {symbol} 批量写入超时 (第{retry_count}/{max_retries}次重试)，等待{wait_time}秒后重试...")
                     await asyncio.sleep(wait_time)
                 else:
-                    logger.error(f"❌ {symbol} 批量写入失败，已重试{max_retries}次: {e}")
+                    logger.error(f"[X] {symbol} 批量写入失败，已重试{max_retries}次: {e}")
                     return 0
 
             except Exception as e:
@@ -237,10 +237,10 @@ class HistoricalDataService:
                         logger.warning(f"⚠️ {symbol} 批量写入超时 (第{retry_count}/{max_retries}次重试)，等待{wait_time}秒后重试... 错误: {e}")
                         await asyncio.sleep(wait_time)
                     else:
-                        logger.error(f"❌ {symbol} 批量写入失败，已重试{max_retries}次: {e}")
+                        logger.error(f"[X] {symbol} 批量写入失败，已重试{max_retries}次: {e}")
                         return 0
                 else:
-                    logger.error(f"❌ {symbol} 批量写入失败: {e}")
+                    logger.error(f"[X] {symbol} 批量写入失败: {e}")
                     return 0
 
         return saved_count
@@ -426,7 +426,7 @@ class HistoricalDataService:
             return results
             
         except Exception as e:
-            logger.error(f"❌ 查询历史数据失败 {symbol}: {e}")
+            logger.error(f"[X] 查询历史数据失败 {symbol}: {e}")
             return []
     
     async def get_latest_date(self, symbol: str, data_source: str) -> Optional[str]:
@@ -445,7 +445,7 @@ class HistoricalDataService:
             return None
             
         except Exception as e:
-            logger.error(f"❌ 获取最新日期失败 {symbol}: {e}")
+            logger.error(f"[X] 获取最新日期失败 {symbol}: {e}")
             return None
     
     async def get_data_statistics(self) -> Dict[str, Any]:
@@ -489,7 +489,7 @@ class HistoricalDataService:
             }
             
         except Exception as e:
-            logger.error(f"❌ 获取统计信息失败: {e}")
+            logger.error(f"[X] 获取统计信息失败: {e}")
             return {}
 
 

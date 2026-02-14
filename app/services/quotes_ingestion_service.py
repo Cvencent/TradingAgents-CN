@@ -514,7 +514,7 @@ class QuotesIngestionService:
                 logger.warning("⚠️ 历史数据转换后为空，无法导入")
 
         except Exception as e:
-            logger.error(f"❌ 从历史数据导入失败: {e}")
+            logger.error(f"[X] 从历史数据导入失败: {e}")
             import traceback
             logger.error(f"堆栈跟踪:\n{traceback.format_exc()}")
 
@@ -533,7 +533,7 @@ class QuotesIngestionService:
                 trade_date = datetime.now(self.tz).strftime("%Y%m%d")
             await self._bulk_upsert(quotes_map, trade_date, source)
         except Exception as e:
-            logger.error(f"❌ backfill 行情补数失败: {e}")
+            logger.error(f"[X] backfill 行情补数失败: {e}")
 
     async def backfill_last_close_snapshot_if_needed(self) -> None:
         """若集合为空或 trade_date 落后于最新交易日，则执行一次 backfill"""
@@ -684,7 +684,7 @@ class QuotesIngestionService:
             )
 
         except Exception as e:
-            logger.error(f"❌ 行情入库失败: {e}")
+            logger.error(f"[X] 行情入库失败: {e}")
             # 记录失败状态
             await self._record_sync_status(
                 success=False,

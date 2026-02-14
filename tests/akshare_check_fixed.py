@@ -18,7 +18,7 @@ def check_akshare_import():
         print(f"✅ AKShare导入成功，版本: {ak.__version__}")
         return True
     except ImportError as e:
-        print(f"❌ AKShare导入失败: {e}")
+        print(f"[X] AKShare导入失败: {e}")
         return False
 
 def check_akshare_utils():
@@ -29,7 +29,7 @@ def check_akshare_utils():
         print(f"✅ AKShare工具模块正常，连接状态: {provider.connected}")
         return True, provider
     except Exception as e:
-        print(f"❌ AKShare工具模块异常: {e}")
+        print(f"[X] AKShare工具模块异常: {e}")
         import traceback
         traceback.print_exc()
         return False, None
@@ -55,7 +55,7 @@ def check_data_source_manager():
         
         return True, manager
     except Exception as e:
-        print(f"❌ 数据源管理器检查失败: {e}")
+        print(f"[X] 数据源管理器检查失败: {e}")
         import traceback
         traceback.print_exc()
         return False, None
@@ -79,14 +79,14 @@ def test_akshare_adapter():
                 print(f"✅ AKShare适配器数据获取成功，{len(test_data)}条记录")
                 return True
             else:
-                print("❌ AKShare适配器数据获取失败")
+                print("[X] AKShare适配器数据获取失败")
                 return False
         else:
-            print("❌ AKShare适配器获取失败")
+            print("[X] AKShare适配器获取失败")
             return False
             
     except Exception as e:
-        print(f"❌ AKShare适配器测试失败: {e}")
+        print(f"[X] AKShare适配器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -104,11 +104,11 @@ def test_data_source_switching():
             print("✅ 数据源切换到AKShare成功")
             return True
         else:
-            print("❌ 数据源切换到AKShare失败")
+            print("[X] 数据源切换到AKShare失败")
             return False
             
     except Exception as e:
-        print(f"❌ 数据源切换测试失败: {e}")
+        print(f"[X] 数据源切换测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -129,12 +129,12 @@ def test_unified_interface():
             print(f"   数据长度: {len(data)} 字符")
             return True
         else:
-            print("❌ 统一数据接口测试失败")
+            print("[X] 统一数据接口测试失败")
             print(f"   返回数据: {data}")
             return False
             
     except Exception as e:
-        print(f"❌ 统一数据接口测试失败: {e}")
+        print(f"[X] 统一数据接口测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -156,7 +156,7 @@ def test_basic_akshare():
         
         return True
     except Exception as e:
-        print(f"❌ AKShare基本功能测试失败: {e}")
+        print(f"[X] AKShare基本功能测试失败: {e}")
         return False
 
 def main():
@@ -203,7 +203,7 @@ def main():
     total = len(test_results)
     
     for test_name, result in test_results.items():
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name:25} {status}")
     
     print(f"\n🎯 总体结果: {passed}/{total} 项测试通过")
@@ -215,7 +215,7 @@ def main():
         print("⚠️ AKShare功能基本可用，但有部分问题")
         print("💡 建议修复问题后再删除重复分支")
     else:
-        print("❌ AKShare功能存在严重问题")
+        print("[X] AKShare功能存在严重问题")
         print("💡 不建议删除AKShare分支，需要先修复问题")
     
     return passed >= total * 0.7

@@ -35,14 +35,14 @@ def test_stock_recognition():
             if expected_market in market_info['market_name'] and market_info['currency_symbol'] == expected_currency:
                 print(f"    ✅ 识别正确")
             else:
-                print(f"    ❌ 识别错误")
+                print(f"    [X] 识别错误")
                 return False
         
         print("✅ 股票识别功能测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 股票识别功能测试失败: {e}")
+        print(f"[X] 股票识别功能测试失败: {e}")
         return False
 
 def test_hk_data_unified():
@@ -83,11 +83,11 @@ def test_hk_data_unified():
             print("✅ 港股统一数据接口测试通过")
             return True
         else:
-            print("❌ 港股统一数据接口测试失败")
+            print("[X] 港股统一数据接口测试失败")
             return False
             
     except Exception as e:
-        print(f"❌ 港股统一数据接口测试失败: {e}")
+        print(f"[X] 港股统一数据接口测试失败: {e}")
         return False
 
 def test_hk_info_unified():
@@ -117,11 +117,11 @@ def test_hk_info_unified():
             print("✅ 港股信息统一接口测试通过")
             return True
         else:
-            print("❌ 港股信息统一接口测试失败")
+            print("[X] 港股信息统一接口测试失败")
             return False
             
     except Exception as e:
-        print(f"❌ 港股信息统一接口测试失败: {e}")
+        print(f"[X] 港股信息统一接口测试失败: {e}")
         return False
 
 def test_market_auto_selection():
@@ -155,7 +155,7 @@ def test_market_auto_selection():
         return True
         
     except Exception as e:
-        print(f"❌ 市场自动选择功能测试失败: {e}")
+        print(f"[X] 市场自动选择功能测试失败: {e}")
         return False
 
 def main():
@@ -178,7 +178,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 50)
     print(f"🇭🇰 改进的港股功能测试完成: {passed}/{total} 通过")

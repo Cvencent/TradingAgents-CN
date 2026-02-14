@@ -27,7 +27,7 @@ def test_smart_config():
         return True, config_manager
         
     except Exception as e:
-        print(f"❌ 智能配置测试失败: {e}")
+        print(f"[X] 智能配置测试失败: {e}")
         return False, None
 
 def test_adaptive_cache():
@@ -65,7 +65,7 @@ def test_adaptive_cache():
         if loaded_data == test_data:
             print("✅ 数据加载成功，内容匹配")
         else:
-            print("❌ 数据加载失败或内容不匹配")
+            print("[X] 数据加载失败或内容不匹配")
             return False
         
         # 测试查找
@@ -79,13 +79,13 @@ def test_adaptive_cache():
         if found_key:
             print(f"✅ 缓存查找成功: {found_key}")
         else:
-            print("❌ 缓存查找失败")
+            print("[X] 缓存查找失败")
             return False
         
         return True, cache
         
     except Exception as e:
-        print(f"❌ 自适应缓存测试失败: {e}")
+        print(f"[X] 自适应缓存测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False, None
@@ -151,11 +151,11 @@ def test_performance():
                 print("⚠️ 性能改进有限")
                 return True
         else:
-            print("❌ 缓存性能不如预期")
+            print("[X] 缓存性能不如预期")
             return False
             
     except Exception as e:
-        print(f"❌ 性能测试失败: {e}")
+        print(f"[X] 性能测试失败: {e}")
         return False
 
 def test_fallback_mechanism():
@@ -189,7 +189,7 @@ def test_fallback_mechanism():
         return True
         
     except Exception as e:
-        print(f"❌ 降级机制测试失败: {e}")
+        print(f"[X] 降级机制测试失败: {e}")
         return False
 
 def generate_test_report(results):
@@ -207,7 +207,7 @@ def generate_test_report(results):
     
     print("\n详细结果:")
     for test_name, result in results.items():
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     # 生成建议

@@ -57,7 +57,7 @@ def test_hk_fundamentals_with_interception():
         print(f"  是否港股: {market_info['is_hk']}")
         
         if not market_info['is_hk']:
-            print(f"❌ 股票类型识别错误")
+            print(f"[X] 股票类型识别错误")
             return False
         
         print(f"\n🔄 调用基本面分析师（带工具拦截机制）...")
@@ -91,13 +91,13 @@ def test_hk_fundamentals_with_interception():
             else:
                 print(f"  ⚠️ 报告未包含投资建议")
         else:
-            print(f"  ❌ 未找到基本面报告")
+            print(f"  [X] 未找到基本面报告")
             return False
         
         return True
         
     except Exception as e:
-        print(f"❌ 港股基本面分析测试失败: {e}")
+        print(f"[X] 港股基本面分析测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -152,14 +152,14 @@ def test_tool_selection_logic():
             if primary_tool == expected_tool:
                 print(f"  ✅ 工具选择正确")
             else:
-                print(f"  ❌ 工具选择错误")
+                print(f"  [X] 工具选择错误")
                 return False
         
         print("✅ 工具选择逻辑验证通过")
         return True
         
     except Exception as e:
-        print(f"❌ 工具选择验证失败: {e}")
+        print(f"[X] 工具选择验证失败: {e}")
         return False
 
 
@@ -181,9 +181,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

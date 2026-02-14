@@ -20,7 +20,7 @@ def step1_basic_check():
         print(f"✅ 虚拟环境: {os.environ.get('VIRTUAL_ENV', '未激活')}")
         return True
     except Exception as e:
-        print(f"❌ 基本检查失败: {e}")
+        print(f"[X] 基本检查失败: {e}")
         return False
 
 def step2_path_check():
@@ -40,7 +40,7 @@ def step2_path_check():
             if os.path.exists(dir_path):
                 print(f"✅ {dir_name}目录: 存在")
             else:
-                print(f"❌ {dir_name}目录: 不存在")
+                print(f"[X] {dir_name}目录: 不存在")
         
         # 添加到Python路径
         if project_root not in sys.path:
@@ -49,7 +49,7 @@ def step2_path_check():
         
         return True
     except Exception as e:
-        print(f"❌ 路径检查失败: {e}")
+        print(f"[X] 路径检查失败: {e}")
         traceback.print_exc()
         return False
 
@@ -72,7 +72,7 @@ def step3_import_check():
             print(f"✅ {module}.{item}: 导入成功")
             success_count += 1
         except ImportError as e:
-            print(f"❌ {module}.{item}: 导入失败 - {e}")
+            print(f"[X] {module}.{item}: 导入失败 - {e}")
         except Exception as e:
             print(f"⚠️ {module}.{item}: 导入异常 - {e}")
     
@@ -101,7 +101,7 @@ def step4_env_check():
         
         return True
     except Exception as e:
-        print(f"❌ 环境变量检查失败: {e}")
+        print(f"[X] 环境变量检查失败: {e}")
         return False
 
 def step5_simple_llm_test():
@@ -131,7 +131,7 @@ def step5_simple_llm_test():
         return True
         
     except Exception as e:
-        print(f"❌ 简单LLM测试失败: {e}")
+        print(f"[X] 简单LLM测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -164,7 +164,7 @@ def step6_tool_binding_test():
         return True
         
     except Exception as e:
-        print(f"❌ 工具绑定测试失败: {e}")
+        print(f"[X] 工具绑定测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -210,7 +210,7 @@ def step7_actual_call_test():
         return True
         
     except Exception as e:
-        print(f"❌ 实际调用测试失败: {e}")
+        print(f"[X] 实际调用测试失败: {e}")
         traceback.print_exc()
         return False
 
@@ -240,11 +240,11 @@ def main():
             results.append((step_name, result))
             
             if not result:
-                print(f"\n❌ {step_name}失败，停止后续测试")
+                print(f"\n[X] {step_name}失败，停止后续测试")
                 break
                 
         except Exception as e:
-            print(f"\n❌ {step_name}异常: {e}")
+            print(f"\n[X] {step_name}异常: {e}")
             traceback.print_exc()
             results.append((step_name, False))
             break
@@ -256,7 +256,7 @@ def main():
     
     passed = 0
     for step_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{step_name}: {status}")
         if result:
             passed += 1

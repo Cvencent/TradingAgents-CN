@@ -22,7 +22,7 @@ async def test_akshare_amount():
     
     provider = get_akshare_provider()
     if not provider.is_available():
-        print("   ❌ AKShare 不可用")
+        print("   [X] AKShare 不可用")
         return
     
     print(f"\n2️⃣ 获取实时行情")
@@ -40,7 +40,7 @@ async def test_akshare_amount():
             print(f"   成交额(亿元): {amount / 1e8:.2f}")
             print(f"   成交额(万元): {amount / 1e4:.2f}")
     else:
-        print(f"   ❌ 获取失败")
+        print(f"   [X] 获取失败")
     
     print(f"\n3️⃣ 获取历史数据")
     
@@ -71,7 +71,7 @@ async def test_akshare_amount():
             print(f"   成交额(亿元): {amount / 1e8:.2f}")
             print(f"   成交额(万元): {amount / 1e4:.2f}")
     else:
-        print(f"   ❌ 获取失败")
+        print(f"   [X] 获取失败")
     
     print("\n" + "=" * 80)
     print("💡 AKShare 官方文档说明:")
@@ -80,7 +80,7 @@ async def test_akshare_amount():
     print("=" * 80)
     print("\n✅ 结论:")
     print("   如果成交额显示为 90.92亿 左右，说明 AKShare 单位正确（元）✅")
-    print("   如果成交额显示为 909.18万 或 0.0091亿，说明有问题 ❌")
+    print("   如果成交额显示为 909.18万 或 0.0091亿，说明有问题 [X]")
     print("=" * 80)
 
 if __name__ == "__main__":

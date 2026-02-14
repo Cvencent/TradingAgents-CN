@@ -62,9 +62,9 @@ def _get_company_name_for_fundamentals(ticker: str, market_info: dict) -> str:
                         logger.info(f"✅ [基本面分析师] 降级方案成功获取股票名称: {ticker} -> {company_name}")
                         return company_name
                 except Exception as e:
-                    logger.error(f"❌ [基本面分析师] 降级方案也失败: {e}")
+                    logger.error(f"[X] [基本面分析师] 降级方案也失败: {e}")
 
-                logger.error(f"❌ [基本面分析师] 所有方案都无法获取股票名称: {ticker}")
+                logger.error(f"[X] [基本面分析师] 所有方案都无法获取股票名称: {ticker}")
                 return f"股票代码{ticker}"
 
         elif market_info['is_hk']:
@@ -101,7 +101,7 @@ def _get_company_name_for_fundamentals(ticker: str, market_info: dict) -> str:
             return f"股票{ticker}"
 
     except Exception as e:
-        logger.error(f"❌ [基本面分析师] 获取公司名称失败: {e}")
+        logger.error(f"[X] [基本面分析师] 获取公司名称失败: {e}")
         return f"股票{ticker}"
 
 
@@ -360,7 +360,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 analyst_name="基本面分析师"
             )
         except Exception as e:
-            logger.error(f"📊 [基本面分析师] ❌ 工具绑定失败: {e}")
+            logger.error(f"📊 [基本面分析师] [X] 工具绑定失败: {e}")
             raise e
 
         logger.info(f"📊 [基本面分析师] 开始调用LLM...")
@@ -426,6 +426,20 @@ def create_fundamentals_analyst(llm, toolkit):
         # 打印完整消息历史（调试专用）
         for idx, msg in enumerate(state['messages']):
             logger.debug(f"[基本面分析师] 消息[{idx}] 类型:{type(msg).__name__} 内容:{str(msg.content)[:200]}...")
+
+        # 🔥 构建完整的请求prompt（用于保存和前端展示）
+        try:
+            formatted_messages = prompt.format_messages(messages=state["messages"], start_date=start_date)
+            full_request_prompt = ""
+            for msg in formatted_messages:
+                msg_type = type(msg).__name__
+                if hasattr(msg, 'content'):
+                    full_request_prompt += f"\n\n=== {msg_type} ===\n{msg.content}"
+            logger.info(f"📊 [基本面分析师] 构建完整请求prompt，长度: {len(full_request_prompt)}")
+        except Exception as e:
+            logger.warning(f"⚠️ [基本面分析师] 构建完整prompt失败: {e}")
+            full_request_prompt = system_prompt  # 降级使用system_prompt
+
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
         result = chain.invoke({
             "messages": state["messages"],
@@ -490,7 +504,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 analyst_name="基本面分析师"
             )
 
-            return {"fundamentals_report": report}
+            return {"fundamentals_report": report, "fundamentals_prompt": full_request_prompt}
         else:
             # 非Google模型的处理逻辑
             logger.debug(f"📊 [DEBUG] 非Google模型 ({fresh_llm.__class__.__name__})，使用标准处理逻辑")
@@ -547,7 +561,7 @@ def create_fundamentals_analyst(llm, toolkit):
                                             logger.info(f"📊 [基本面分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
                                             break
                                         except Exception as tool_error:
-                                            logger.error(f"❌ [基本面分析师] 工具执行失败: {tool_error}")
+                                            logger.error(f"[X] [基本面分析师] 工具执行失败: {tool_error}")
                                             tool_result = f"工具执行失败: {str(tool_error)}"
                                 
                                 if tool_result:
@@ -665,6 +679,7 @@ def create_fundamentals_analyst(llm, toolkit):
                             return {
                                 "messages": [result] + tool_messages + [final_result],
                                 "fundamentals_report": report,
+                                "fundamentals_prompt": full_request_prompt,  # 🔥 保存完整的请求prompt
                                 "fundamentals_tool_call_count": tool_call_count + 1
                             }
                         else:
@@ -673,7 +688,7 @@ def create_fundamentals_analyst(llm, toolkit):
                         logger.warning(f"📊 [基本面分析师] ⚠️ 未能在内容中提取到JSON工具调用，继续标准处理流程")
                         
                 except Exception as e:
-                    logger.error(f"❌ [基本面分析师] 解析工具调用时发生错误: {e}")
+                    logger.error(f"[X] [基本面分析师] 解析工具调用时发生错误: {e}")
                     import traceback
                     logger.error(f"异常堆栈: {traceback.format_exc()}")
                     logger.warning(f"📊 [基本面分析师] ⚠️ 降级处理，继续标准处理流程")
@@ -723,6 +738,7 @@ def create_fundamentals_analyst(llm, toolkit):
                     return {
                         "fundamentals_report": report,
                         "messages": [force_result],
+                        "fundamentals_prompt": system_prompt,  # 保存 prompt
                         "fundamentals_tool_call_count": tool_call_count
                     }
 
@@ -733,6 +749,7 @@ def create_fundamentals_analyst(llm, toolkit):
                     return {
                         "messages": [result],
                         "fundamentals_report": fallback_report,
+                        "fundamentals_prompt": system_prompt,  # 保存 prompt
                         "fundamentals_tool_call_count": tool_call_count
                     }
                 else:
@@ -811,6 +828,7 @@ def create_fundamentals_analyst(llm, toolkit):
                     return {
                         "fundamentals_report": report,
                         "messages": [result],
+                        "fundamentals_prompt": system_prompt,  # 保存 prompt
                         "fundamentals_tool_call_count": tool_call_count
                     }
 
@@ -912,21 +930,24 @@ def create_fundamentals_analyst(llm, toolkit):
                     logger.info(f"📊 [基本面分析师] 强制工具调用完成，报告长度: {len(report)}")
 
                 except Exception as e:
-                    logger.error(f"❌ [DEBUG] 强制工具调用分析失败: {e}")
+                    logger.error(f"[X] [DEBUG] 强制工具调用分析失败: {e}")
                     report = f"基本面分析失败：{str(e)}"
 
                 # 🔧 保持工具调用计数器不变（已在开始时根据ToolMessage更新）
                 return {
                     "fundamentals_report": report,
+                    "fundamentals_prompt": system_prompt,  # 保存 prompt
                     "fundamentals_tool_call_count": tool_call_count
                 }
 
         # 这里不应该到达，但作为备用
-        logger.debug(f"📊 [DEBUG] 返回状态: fundamentals_report长度={len(result.content) if hasattr(result, 'content') else 0}")
+        logger.info(f"📊 [基本面分析师] 准备返回结果(备用路径):")
+        logger.info(f"  - fundamentals_report长度: {len(report) if report else 0}")
+        logger.info(f"  - fundamentals_prompt长度: {len(system_prompt) if system_prompt else 0}")
         # 🔧 保持工具调用计数器不变（已在开始时根据ToolMessage更新）
         return {
-            "messages": [result],
-            "fundamentals_report": result.content if hasattr(result, 'content') else str(result),
+            "fundamentals_report": report,
+            "fundamentals_prompt": system_prompt,  # 保存 prompt
             "fundamentals_tool_call_count": tool_call_count
         }
 

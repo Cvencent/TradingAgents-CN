@@ -366,7 +366,7 @@ pre, code {
             return docx_content
             
         except Exception as e:
-            logger.error(f"❌ Word 文档生成失败: {e}", exc_info=True)
+            logger.error(f"[X] Word 文档生成失败: {e}", exc_info=True)
             # 清理临时文件
             try:
                 if 'output_file' in locals() and os.path.exists(output_file):
@@ -647,7 +647,7 @@ pre, code {
             if PDFKIT_ERROR:
                 error_msg += f"\n错误详情: {PDFKIT_ERROR}"
 
-            logger.error(f"❌ {error_msg}")
+            logger.error(f"[X] {error_msg}")
             raise Exception(error_msg)
 
         # 生成 Markdown 内容
@@ -659,7 +659,7 @@ pre, code {
             return self._generate_pdf_with_pdfkit(html_content)
         except Exception as e:
             error_msg = f"PDF 生成失败: {e}"
-            logger.error(f"❌ {error_msg}")
+            logger.error(f"[X] {error_msg}")
             raise Exception(error_msg)
 
 

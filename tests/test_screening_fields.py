@@ -64,7 +64,7 @@ async def test_screening_fields():
             print("前端期望的字段:")
             for field in expected_fields:
                 value = first_result.get(field)
-                status = "✅" if field in first_result else "❌"
+                status = "✅" if field in first_result else "[X]"
                 print(f"  {status} {field}: {value}")
             
             print(f"\n📄 完整结果示例:")
@@ -80,7 +80,7 @@ async def test_screening_fields():
         print("\n🎉 字段映射测试完成！")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 

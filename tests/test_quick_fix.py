@@ -33,7 +33,7 @@ def quick_test():
             access_token = login_result["data"]["access_token"]
             print("✅ 登录成功，获取到token")
         else:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             return False
         
         # 2. 提交分析请求
@@ -69,7 +69,7 @@ def quick_test():
             task_id = result["data"]["task_id"]
             print(f"✅ 分析任务已提交: {task_id}")
         else:
-            print(f"❌ 提交分析请求失败: {response.status_code}")
+            print(f"[X] 提交分析请求失败: {response.status_code}")
             print(f"   响应: {response.text}")
             return False
         
@@ -93,7 +93,7 @@ def quick_test():
                     print("✅ 分析任务完成!")
                     return True
                 elif status == "failed":
-                    print(f"❌ 分析任务失败: {message}")
+                    print(f"[X] 分析任务失败: {message}")
                     return False
             
             time.sleep(5)
@@ -102,7 +102,7 @@ def quick_test():
         return False
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 if __name__ == "__main__":

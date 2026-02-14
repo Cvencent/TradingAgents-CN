@@ -26,10 +26,21 @@ class DataSourceManager:
     def __init__(self):
         self.adapters: List[DataSourceAdapter] = [
             EastMoneyAdapter(),
-            TushareAdapter(),
+        ]
+
+        # 尝试添加 TushareAdapter，但捕获文件访问错误
+        try:
+            self.adapters.append(TushareAdapter())
+        except Exception as e:
+            if "Permission" in str(e) or "restricted" in str(e) or "tk.csv" in str(e):
+                logger.warning(f"⚠️ Tushare 文件访问受限，跳过 TushareAdapter: {e}")
+            else:
+                logger.warning(f"⚠️ TushareAdapter 初始化失败: {e}")
+
+        self.adapters.extend([
             AKShareAdapter(),
             BaoStockAdapter(),
-        ]
+        ])
 
         # 从数据库加载优先级配置
         self._load_priority_from_database()
@@ -275,7 +286,7 @@ class DataSourceManager:
                 logger.warning("⚠️ 一致性检查器不可用，使用主数据源")
                 return primary_data, primary_adapter.name, None
         except Exception as e:
-            logger.error(f"❌ 一致性检查失败: {e}")
+            logger.error(f"[X] 一致性检查失败: {e}")
             df, source = self.get_daily_basic_with_fallback(trade_date)
             return df, source, None
 

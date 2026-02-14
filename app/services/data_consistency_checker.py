@@ -119,7 +119,7 @@ class DataConsistencyChecker:
             return consistency_result
             
         except Exception as e:
-            logger.error(f"❌ 数据一致性检查失败: {e}")
+            logger.error(f"[X] 数据一致性检查失败: {e}")
             return DataConsistencyResult(
                 is_consistent=False,
                 primary_source=primary_source,
@@ -314,5 +314,5 @@ class DataConsistencyChecker:
             return primary_data, f"数据差异显著（置信度: {consistency_result.confidence_score:.2f}），仅使用主数据源"
         
         else:  # investigate_sources
-            logger.error("❌ 数据源存在严重问题，需要人工调查")
+            logger.error("[X] 数据源存在严重问题，需要人工调查")
             return primary_data, f"数据源存在严重不一致（置信度: {consistency_result.confidence_score:.2f}），建议检查数据源"

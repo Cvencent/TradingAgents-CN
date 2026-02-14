@@ -71,9 +71,9 @@ def test_optimized_fundamentals():
                 has_company = "公司" in result or "企业" in result
                 
                 print(f"🔍 数据质量检查:")
-                print(f"   - 包含价格信息: {'✅' if has_price else '❌'}")
-                print(f"   - 包含基本面信息: {'✅' if has_fundamentals else '❌'}")
-                print(f"   - 包含公司信息: {'✅' if has_company else '❌'}")
+                print(f"   - 包含价格信息: {'✅' if has_price else '[X]'}")
+                print(f"   - 包含基本面信息: {'✅' if has_fundamentals else '[X]'}")
+                print(f"   - 包含公司信息: {'✅' if has_company else '[X]'}")
                 
             else:
                 results[depth_name] = {
@@ -82,7 +82,7 @@ def test_optimized_fundamentals():
                     'preview': "无数据返回",
                     'description': description
                 }
-                print(f"❌ 未获取到数据")
+                print(f"[X] 未获取到数据")
                 
         except Exception as e:
             results[depth_name] = {
@@ -91,7 +91,7 @@ def test_optimized_fundamentals():
                 'preview': f"错误: {str(e)}",
                 'description': description
             }
-            print(f"❌ 获取数据时出错: {e}")
+            print(f"[X] 获取数据时出错: {e}")
     
     # 汇总结果
     print("\n" + "=" * 80)
@@ -124,7 +124,7 @@ def test_optimized_fundamentals():
     # 详细结果
     print(f"\n📋 各深度详细结果:")
     for depth_name, result in results.items():
-        status = "✅ 成功" if result['success'] else "❌ 失败"
+        status = "✅ 成功" if result['success'] else "[X] 失败"
         print(f"   {result['description']:20} | {status} | {result['data_length']:6,} 字符")
     
     print("\n🎉 测试完成！")

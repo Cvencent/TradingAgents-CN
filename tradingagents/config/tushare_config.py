@@ -185,9 +185,9 @@ def diagnose_tushare_issues():
     # 显示配置状态
     print(f"\n📊 配置状态:")
     validation = compatibility['validation_result']
-    print(f"   配置有效: {'✅' if validation['valid'] else '❌'}")
-    print(f"   Tushare启用: {'✅' if validation['enabled'] else '❌'}")
-    print(f"   Token设置: {'✅' if validation['token_set'] else '❌'}")
+    print(f"   配置有效: {'✅' if validation['valid'] else '[X]'}")
+    print(f"   Tushare启用: {'✅' if validation['enabled'] else '[X]'}")
+    print(f"   Token设置: {'✅' if validation['token_set'] else '[X]'}")
     
     # 显示问题
     if validation['issues']:
@@ -204,7 +204,7 @@ def diagnose_tushare_issues():
     # 显示环境变量详情
     print(f"\n🔍 环境变量详情:")
     for var, info in compatibility['env_debug_info'].items():
-        status = "✅" if info['exists'] and not info['empty'] else "❌"
+        status = "✅" if info['exists'] and not info['empty'] else "[X]"
         print(f"   {var}: {status} {info['value']}")
     
     # 显示布尔值解析测试
@@ -213,7 +213,7 @@ def diagnose_tushare_issues():
     failed_tests = [k for k, v in bool_tests.items() if not v['correct']]
     
     if failed_tests:
-        print(f"   ❌ 失败的测试: {failed_tests}")
+        print(f"   [X] 失败的测试: {failed_tests}")
         print(f"   ⚠️ 可能存在Python版本兼容性问题")
     else:
         print(f"   ✅ 所有布尔值解析测试通过")

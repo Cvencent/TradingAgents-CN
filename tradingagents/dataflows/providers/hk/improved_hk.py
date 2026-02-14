@@ -286,7 +286,7 @@ class ImprovedHKStockProvider:
             return default_name
             
         except Exception as e:
-            logger.error(f"❌ [港股] 获取公司名称失败: {e}")
+            logger.error(f"[X] [港股] 获取公司名称失败: {e}")
             clean_symbol = self._normalize_hk_symbol(symbol)
             return f"港股{clean_symbol}"
     
@@ -383,7 +383,7 @@ class ImprovedHKStockProvider:
             return indicators
 
         except Exception as e:
-            logger.error(f"❌ [港股财务指标] 获取失败: {symbol} - {e}")
+            logger.error(f"[X] [港股财务指标] 获取失败: {symbol} - {e}")
             return {}
 
     def get_stock_info(self, symbol: str) -> Dict[str, Any]:
@@ -409,7 +409,7 @@ class ImprovedHKStockProvider:
             }
             
         except Exception as e:
-            logger.error(f"❌ [港股] 获取股票信息失败: {e}")
+            logger.error(f"[X] [港股] 获取股票信息失败: {e}")
             clean_symbol = self._normalize_hk_symbol(symbol)
             return {
                 'symbol': symbol,
@@ -518,7 +518,7 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str = None, end_date: str
 
         if df is None or df.empty:
             logger.warning(f"⚠️ [AKShare-新浪] 返回空数据: {symbol}")
-            return f"❌ 无法获取港股{symbol}的历史数据"
+            return f"[X] 无法获取港股{symbol}的历史数据"
 
         # 过滤日期范围
         df['date'] = pd.to_datetime(df['date'])
@@ -527,7 +527,7 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str = None, end_date: str
 
         if df.empty:
             logger.warning(f"⚠️ [AKShare-新浪] 日期范围内无数据: {symbol}")
-            return f"❌ 港股{symbol}在指定日期范围内无数据"
+            return f"[X] 港股{symbol}在指定日期范围内无数据"
 
         # 🔥 添加 pre_close 字段（从前一天的 close 获取）
         # AKShare 不返回 pre_close 字段，需要手动计算
@@ -650,8 +650,8 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str = None, end_date: str
         return result
 
     except Exception as e:
-        logger.error(f"❌ [AKShare-新浪] 港股历史数据获取失败: {symbol} - {e}")
-        return f"❌ 港股{symbol}历史数据获取失败: {str(e)}"
+        logger.error(f"[X] [AKShare-新浪] 港股历史数据获取失败: {symbol} - {e}")
+        return f"[X] 港股{symbol}历史数据获取失败: {str(e)}"
 
 
 # 🔥 全局缓存：缓存 AKShare 的所有港股数据
@@ -788,7 +788,7 @@ def get_hk_stock_info_akshare(symbol: str) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"❌ [港股AKShare-新浪] 获取信息失败: {e}")
+        logger.error(f"[X] [港股AKShare-新浪] 获取信息失败: {e}")
         return {
             'symbol': symbol,
             'name': f'港股{symbol}',

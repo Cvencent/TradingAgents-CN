@@ -54,12 +54,12 @@ def test_web_interface_config():
             if param in test_config:
                 print(f"   ✅ {param}: {test_config[param]}")
             else:
-                print(f"   ❌ {param}: 缺失")
+                print(f"   [X] {param}: 缺失")
         
         return True
         
     except Exception as e:
-        print(f"❌ Web界面配置测试失败: {e}")
+        print(f"[X] Web界面配置测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -109,7 +109,7 @@ def test_api_requirements():
         if value:
             print(f"✅ {description}: 已配置")
         else:
-            print(f"❌ {description}: 未配置")
+            print(f"[X] {description}: 未配置")
             all_configured = False
     
     if all_configured:
@@ -138,7 +138,7 @@ def main():
     print("=" * 50)
     
     for test_name, success in results.items():
-        status = "✅ 通过" if success else "❌ 失败"
+        status = "✅ 通过" if success else "[X] 失败"
         print(f"  {test_name}: {status}")
     
     successful_tests = sum(results.values())

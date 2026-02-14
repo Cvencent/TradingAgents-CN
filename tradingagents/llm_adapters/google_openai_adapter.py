@@ -88,7 +88,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
         logger.info(f"🔍 [Google初始化] 最终使用的 API Key: {'有值' if google_api_key else '空'}")
 
         if not google_api_key:
-            logger.error("❌ [Google初始化] API Key 检查失败，即将抛出异常")
+            logger.error("[X] [Google初始化] API Key 检查失败，即将抛出异常")
             raise ValueError(
                 "Google API key not found. Please configure API key in web interface "
                 "(Settings -> LLM Providers) or set GOOGLE_API_KEY environment variable."
@@ -183,7 +183,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
             return result
 
         except Exception as e:
-            logger.error(f"❌ Google AI 生成失败: {e}")
+            logger.error(f"[X] Google AI 生成失败: {e}")
             logger.exception(e)  # 打印完整的堆栈跟踪
 
             # 检查是否为 API Key 无效错误
@@ -411,11 +411,11 @@ def test_google_openai_connection(
             logger.info(f"   响应: {response.content[:100]}...")
             return True
         else:
-            logger.error(f"❌ Google AI OpenAI 兼容接口响应为空")
+            logger.error(f"[X] Google AI OpenAI 兼容接口响应为空")
             return False
             
     except Exception as e:
-        logger.error(f"❌ Google AI OpenAI 兼容接口连接失败: {e}")
+        logger.error(f"[X] Google AI OpenAI 兼容接口连接失败: {e}")
         return False
 
 
@@ -466,7 +466,7 @@ def test_google_openai_function_calling(
             return True  # 即使没有工具调用也算成功，因为模型可能选择不调用工具
             
     except Exception as e:
-        logger.error(f"❌ Google AI Function Calling 测试失败: {e}")
+        logger.error(f"[X] Google AI Function Calling 测试失败: {e}")
         return False
 
 
@@ -487,4 +487,4 @@ if __name__ == "__main__":
         else:
             logger.error(f"\n⚠️ Function Calling 测试失败")
     else:
-        logger.error(f"\n❌ 连接测试失败")
+        logger.error(f"\n[X] 连接测试失败")

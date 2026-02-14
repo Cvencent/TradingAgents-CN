@@ -86,7 +86,7 @@ async def create_backup_native(name: str, backup_dir: str, collections: Optional
     except subprocess.TimeoutExpired:
         raise Exception("备份超时（超过1小时）")
     except Exception as e:
-        logger.error(f"❌ mongodump 备份失败: {e}")
+        logger.error(f"[X] mongodump 备份失败: {e}")
         # 清理失败的备份目录
         if os.path.exists(backup_path):
             await asyncio.to_thread(shutil.rmtree, backup_path)

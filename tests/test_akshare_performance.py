@@ -28,7 +28,7 @@ def test_akshare_performance():
         adapter = AKShareAdapter()
         
         if not adapter.is_available():
-            print("❌ AKShare适配器不可用")
+            print("[X] AKShare适配器不可用")
             return
         
         print("✅ AKShare适配器可用")
@@ -72,13 +72,13 @@ def test_akshare_performance():
             elif duration < 60:
                 print(f"   ⚠️ 性能评估: 可接受 (< 60秒)")
             else:
-                print(f"   ❌ 性能评估: 需要优化 (> 60秒)")
+                print(f"   [X] 性能评估: 需要优化 (> 60秒)")
                 
         else:
-            print(f"❌ daily_basic数据获取失败，耗时: {duration:.1f}秒")
+            print(f"[X] daily_basic数据获取失败，耗时: {duration:.1f}秒")
         
     except Exception as e:
-        print(f"❌ 性能测试失败: {e}")
+        print(f"[X] 性能测试失败: {e}")
         import traceback
         traceback.print_exc()
 
@@ -110,7 +110,7 @@ def test_web_api_simulation():
                 break
         
         if not akshare_adapter:
-            print("   ❌ 未找到AKShare适配器")
+            print("   [X] 未找到AKShare适配器")
             return
         
         stock_df = akshare_adapter.get_stock_list()
@@ -119,7 +119,7 @@ def test_web_api_simulation():
         if stock_df is not None and not stock_df.empty:
             print(f"   ✅ 股票列表: {len(stock_df)}条记录，耗时: {stock_time:.1f}秒")
         else:
-            print(f"   ❌ 股票列表获取失败")
+            print(f"   [X] 股票列表获取失败")
             return
         
         # 2. 测试交易日期
@@ -138,7 +138,7 @@ def test_web_api_simulation():
         if basic_df is not None and not basic_df.empty:
             print(f"   ✅ 财务数据: {len(basic_df)}条记录，耗时: {basic_time:.1f}秒")
         else:
-            print(f"   ❌ 财务数据获取失败，耗时: {basic_time:.1f}秒")
+            print(f"   [X] 财务数据获取失败，耗时: {basic_time:.1f}秒")
         
         total_time = time.time() - start_time
         print(f"\n📊 总体测试结果:")
@@ -153,10 +153,10 @@ def test_web_api_simulation():
         elif total_time < 60:
             print(f"   ⚠️ Web兼容性: 可接受 (< 60秒)")
         else:
-            print(f"   ❌ Web兼容性: 超时风险 (> 60秒)")
+            print(f"   [X] Web兼容性: 超时风险 (> 60秒)")
         
     except Exception as e:
-        print(f"❌ Web API模拟测试失败: {e}")
+        print(f"[X] Web API模拟测试失败: {e}")
         import traceback
         traceback.print_exc()
 

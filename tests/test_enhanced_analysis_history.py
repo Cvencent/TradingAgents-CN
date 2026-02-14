@@ -33,12 +33,12 @@ def test_load_analysis_results():
                 if field in first_result:
                     print(f"✅ 字段 '{field}' 存在")
                 else:
-                    print(f"❌ 字段 '{field}' 缺失")
+                    print(f"[X] 字段 '{field}' 缺失")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 
@@ -72,7 +72,7 @@ def test_comparison_functions():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 
@@ -112,7 +112,7 @@ def test_chart_functions():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 
@@ -142,7 +142,7 @@ def create_test_data():
         return True
         
     except Exception as e:
-        print(f"❌ 创建测试数据失败: {e}")
+        print(f"[X] 创建测试数据失败: {e}")
         return False
 
 
@@ -167,7 +167,7 @@ def main():
             passed += 1
             print(f"✅ {test_name} 通过")
         else:
-            print(f"❌ {test_name} 失败")
+            print(f"[X] {test_name} 失败")
     
     print("\n" + "=" * 50)
     print(f"📊 测试结果: {passed}/{total} 通过")

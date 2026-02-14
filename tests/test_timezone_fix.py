@@ -77,7 +77,7 @@ async def test_timezone_fix():
             else:
                 print("❓ 存储的时间不明确")
         else:
-            print("❌ 未找到记录")
+            print("[X] 未找到记录")
         
         # 测试API返回的时间格式
         print("\n🌐 测试API返回格式...")
@@ -99,12 +99,12 @@ async def test_timezone_fix():
                     parsed_time = datetime.datetime.fromisoformat(log.timestamp.replace('Z', ''))
                     print(f"📋 解析后的时间: {parsed_time}")
                 except:
-                    print("❌ 时间字符串解析失败")
+                    print("[X] 时间字符串解析失败")
         
         print("\n🎉 时区测试完成！")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 

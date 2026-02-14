@@ -78,7 +78,7 @@ def test_code_normalization():
             status = "✅"
             passed += 1
         else:
-            status = "❌"
+            status = "[X]"
             failed += 1
         
         input_display = f"'{input_code}'" if input_code else "(空)"
@@ -144,6 +144,6 @@ if __name__ == "__main__":
         print("   4. 可以正确处理带交易所前缀的代码（sz, sh, bj）")
     else:
         print("\n" + "="*70)
-        print("❌ 部分测试失败，请检查代码")
+        print("[X] 部分测试失败，请检查代码")
         print("="*70)
 

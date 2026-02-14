@@ -54,7 +54,7 @@ def test_hk_data_error_handling():
                     print(f"  ⚠️ 结果未包含港股相关信息")
                 
                 # 检查错误处理
-                if "❌" in result:
+                if "[X]" in result:
                     if "备用" in result or "建议" in result:
                         print(f"  ✅ 包含优雅的错误处理和建议")
                     else:
@@ -65,14 +65,14 @@ def test_hk_data_error_handling():
                 print(f"  结果前300字符: {result[:300]}...")
                 
             except Exception as e:
-                print(f"  ❌ 工具调用失败: {e}")
+                print(f"  [X] 工具调用失败: {e}")
                 return False
         
         print("✅ 港股数据获取错误处理测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 港股数据获取错误处理测试失败: {e}")
+        print(f"[X] 港股数据获取错误处理测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -123,7 +123,7 @@ def test_akshare_error_recovery():
                 print(f"  ⚠️ 缺少信息: {missing_info}")
             
             # 检查错误处理
-            if "获取失败" in result or "❌" in result:
+            if "获取失败" in result or "[X]" in result:
                 if "默认" in result or "备用" in result:
                     print(f"  ✅ 包含优雅的错误处理")
                 else:
@@ -133,11 +133,11 @@ def test_akshare_error_recovery():
             
             return True
         else:
-            print(f"  ❌ 格式化失败或结果太短")
+            print(f"  [X] 格式化失败或结果太短")
             return False
         
     except Exception as e:
-        print(f"❌ AKShare错误恢复机制测试失败: {e}")
+        print(f"[X] AKShare错误恢复机制测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -172,7 +172,7 @@ def test_hk_fallback_mechanisms():
             else:
                 print(f"  ⚠️ 未明确标识数据源")
         else:
-            print(f"  ❌ 数据接口调用失败")
+            print(f"  [X] 数据接口调用失败")
             return False
         
         # 测试信息获取
@@ -193,14 +193,14 @@ def test_hk_fallback_mechanisms():
             else:
                 print(f"  ⚠️ 港股信息可能不完整")
         else:
-            print(f"  ❌ 信息接口调用失败")
+            print(f"  [X] 信息接口调用失败")
             return False
         
         print("✅ 港股备用机制测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 港股备用机制测试失败: {e}")
+        print(f"[X] 港股备用机制测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -225,9 +225,9 @@ def main():
             if test():
                 passed += 1
             else:
-                print(f"❌ 测试失败: {test.__name__}")
+                print(f"[X] 测试失败: {test.__name__}")
         except Exception as e:
-            print(f"❌ 测试异常: {test.__name__} - {e}")
+            print(f"[X] 测试异常: {test.__name__} - {e}")
     
     print("\n" + "=" * 60)
     print(f"📊 测试结果: {passed}/{total} 通过")

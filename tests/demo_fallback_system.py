@@ -65,10 +65,10 @@ def demo_fallback_mechanism():
         
         for key, value in status.items():
             if key == 'mongodb_status':
-                icon = "✅" if value == 'connected' else "⚠️" if value == 'disconnected' else "❌"
+                icon = "✅" if value == 'connected' else "⚠️" if value == 'disconnected' else "[X]"
                 print(f"  {icon} MongoDB: {value}")
             elif key == 'unified_api_status':
-                icon = "✅" if value == 'available' else "⚠️" if value == 'limited' else "❌"
+                icon = "✅" if value == 'available' else "⚠️" if value == 'limited' else "[X]"
                 print(f"  {icon} 统一数据接口: {value}")
         
         print("\n🔍 2. 测试股票查询（展示降级过程）:")
@@ -79,7 +79,7 @@ def demo_fallback_mechanism():
             result = get_stock_info(code)
             
             if 'error' in result:
-                print(f"    ❌ 查询失败: {result['error']}")
+                print(f"    [X] 查询失败: {result['error']}")
                 if 'suggestion' in result:
                     print(f"    💡 建议: {result['suggestion']}")
             else:
@@ -91,7 +91,7 @@ def demo_fallback_mechanism():
         summary = get_market_summary()
         
         if 'error' in summary:
-            print(f"  ❌ 获取失败: {summary['error']}")
+            print(f"  [X] 获取失败: {summary['error']}")
         else:
             print(f"  ✅ 总股票数: {summary.get('total_count', 0):,}")
             print(f"  🔗 数据源: {summary.get('data_source')}")
@@ -99,10 +99,10 @@ def demo_fallback_mechanism():
             print(f"  🏢 深市: {summary.get('shenzhen_count', 0):,} 只")
         
     except ImportError as e:
-        print(f"❌ 无法导入股票API: {e}")
+        print(f"[X] 无法导入股票API: {e}")
         print("💡 请确保所有依赖文件都已正确创建")
     except Exception as e:
-        print(f"❌ 演示过程中出错: {e}")
+        print(f"[X] 演示过程中出错: {e}")
 
 def demo_configuration_benefits():
     """
@@ -241,7 +241,7 @@ def main():
     except KeyboardInterrupt:
         print("\n⚠️ 演示被用户中断")
     except Exception as e:
-        print(f"\n❌ 演示过程中出错: {e}")
+        print(f"\n[X] 演示过程中出错: {e}")
         import traceback
         traceback.print_exc()
 

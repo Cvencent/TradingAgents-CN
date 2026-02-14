@@ -34,7 +34,7 @@ def test_reports_and_analysts_fix():
             access_token = login_result["data"]["access_token"]
             print("✅ 登录成功，获取到token")
         else:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             return False
         
         # 2. 提交分析请求（包含多个分析师）
@@ -71,7 +71,7 @@ def test_reports_and_analysts_fix():
             print(f"✅ 分析任务已提交: {task_id}")
             print(f"📋 选择的分析师: {analysis_request['parameters']['selected_analysts']}")
         else:
-            print(f"❌ 提交分析请求失败: {response.status_code}")
+            print(f"[X] 提交分析请求失败: {response.status_code}")
             return False
         
         # 3. 等待任务完成
@@ -94,7 +94,7 @@ def test_reports_and_analysts_fix():
                     print("✅ 分析任务完成!")
                     break
                 elif status == "failed":
-                    print(f"❌ 分析任务失败")
+                    print(f"[X] 分析任务失败")
                     return False
             
             time.sleep(5)
@@ -128,9 +128,9 @@ def test_reports_and_analysts_fix():
                     else:
                         print(f"   - {report_type}: {type(content)}")
             else:
-                print(f"❌ API返回未包含reports字段")
+                print(f"[X] API返回未包含reports字段")
         else:
-            print(f"❌ 获取API结果失败: {result_response.status_code}")
+            print(f"[X] 获取API结果失败: {result_response.status_code}")
         
         # 5. 检查MongoDB保存的数据
         print(f"\n5. 检查MongoDB保存的数据...")
@@ -165,21 +165,21 @@ def test_reports_and_analysts_fix():
                     
                     return True
                 else:
-                    print(f"❌ MongoDB未包含reports字段或为空")
+                    print(f"[X] MongoDB未包含reports字段或为空")
                     return False
             
-            print(f"❌ 未找到MongoDB记录")
+            print(f"[X] 未找到MongoDB记录")
             return False
             
         except Exception as e:
-            print(f"❌ MongoDB检查失败: {e}")
+            print(f"[X] MongoDB检查失败: {e}")
             return False
         finally:
             if 'client' in locals():
                 client.close()
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 if __name__ == "__main__":

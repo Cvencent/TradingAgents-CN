@@ -218,7 +218,7 @@ class UnifiedConfigManager:
 
             return True
         except Exception as e:
-            print(f"❌ [unified_config] 保存系统设置失败: {e}")
+            print(f"[X] [unified_config] 保存系统设置失败: {e}")
             import traceback
             print(traceback.format_exc())
             return False

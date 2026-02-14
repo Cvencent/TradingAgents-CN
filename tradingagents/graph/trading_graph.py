@@ -1077,7 +1077,12 @@ class TradingAgentsGraph:
                                     new_messages = node_update["messages"]
                                     if isinstance(new_messages, list):
                                         final_state["messages"].extend(new_messages)
+                                    # 🔥 关键修复：处理其他字段，但不要覆盖messages
+                                    for key, value in node_update.items():
+                                        if key != "messages":
+                                            final_state[key] = value
                                 else:
+                                    # 如果没有messages，直接更新
                                     final_state.update(node_update)
 
                         # 🔧 保存中间状态（用于超时恢复）
@@ -1148,7 +1153,12 @@ class TradingAgentsGraph:
                                     new_messages = node_update["messages"]
                                     if isinstance(new_messages, list):
                                         final_state["messages"].extend(new_messages)
+                                    # 🔥 关键修复：处理其他字段，但不要覆盖messages
+                                    for key, value in node_update.items():
+                                        if key != "messages":
+                                            final_state[key] = value
                                 else:
+                                    # 如果没有messages，直接更新
                                     final_state.update(node_update)
 
                         # 🔧 保存中间状态（用于超时恢复）
@@ -1189,7 +1199,12 @@ class TradingAgentsGraph:
                                     new_messages = node_update["messages"]
                                     if isinstance(new_messages, list):
                                         final_state["messages"].extend(new_messages)
+                                    # 🔥 关键修复：处理其他字段，但不要覆盖messages
+                                    for key, value in node_update.items():
+                                        if key != "messages":
+                                            final_state[key] = value
                                 else:
+                                    # 如果没有messages，直接更新
                                     final_state.update(node_update)
 
                         # 🔧 保存中间状态（用于超时恢复）
@@ -1218,18 +1233,49 @@ class TradingAgentsGraph:
             logger.info("🔍 [TIMING DEBUG] _print_timing_summary 调用完成")
 
             # 构建性能数据
+            logger.info("🔍 [DEBUG] 开始构建性能数据...")
             performance_data = self._build_performance_data(node_timings, total_elapsed)
+            logger.info(f"🔍 [DEBUG] 性能数据构建完成: {type(performance_data)}")
 
             # 将性能数据添加到状态中
+            logger.info("🔍 [DEBUG] 开始添加性能数据到state...")
             final_state['performance_metrics'] = performance_data
+            logger.info("🔍 [DEBUG] 性能数据已添加到state")
+            
+            # 🔥 关键调试：检查final_state中是否有messages
+            logger.info(f"🔥 [CRITICAL] 检查final_state结构...")
+            logger.info(f"🔥 [CRITICAL] final_state类型: {type(final_state)}")
+            if isinstance(final_state, dict):
+                logger.info(f"🔥 [CRITICAL] final_state keys: {list(final_state.keys())}")
+                if 'messages' in final_state:
+                    messages = final_state['messages']
+                    logger.info(f"🔥 [CRITICAL] ✅ final_state中有messages!")
+                    logger.info(f"🔥 [CRITICAL] messages类型: {type(messages)}")
+                    logger.info(f"🔥 [CRITICAL] messages数量: {len(messages) if isinstance(messages, list) else 'not a list'}")
+                    if isinstance(messages, list):
+                        if len(messages) > 0:
+                            logger.info(f"🔥 [CRITICAL] 第一条消息: {type(messages[0]).__name__}")
+                            logger.info(f"🔥 [CRITICAL] 最后一条消息: {type(messages[-1]).__name__}")
+                        else:
+                            logger.error(f"[X] [CRITICAL] messages列表为空!")
+                else:
+                    logger.error(f"[X] [CRITICAL] final_state中没有messages字段!")
+                    logger.error(f"[X] [CRITICAL] 这是问题所在 - messages没有被累积!")
+            else:
+                logger.error(f"[X] [CRITICAL] final_state不是字典: {type(final_state)}")
 
             # Store current state for reflection
+            logger.info("🔍 [DEBUG] 开始保存curr_state...")
             self.curr_state = final_state
+            logger.info("🔍 [DEBUG] curr_state保存完成")
 
             # Log state
+            logger.info("🔍 [DEBUG] 开始调用_log_state...")
             self._log_state(trade_date, final_state)
+            logger.info("🔍 [DEBUG] _log_state调用完成")
 
             # 获取模型信息
+            logger.info("🔍 [DEBUG] 开始获取模型信息...")
             model_info = ""
             try:
                 if hasattr(self.deep_thinking_llm, 'model_name'):
@@ -1238,10 +1284,20 @@ class TradingAgentsGraph:
                     model_info = self.deep_thinking_llm.__class__.__name__
             except Exception:
                 model_info = "Unknown"
+            logger.info(f"🔍 [DEBUG] 模型信息: {model_info}")
 
             # 处理决策并添加模型信息
-            decision = self.process_signal(final_state["final_trade_decision"], company_name)
-            decision['model_info'] = model_info
+            logger.info("🔍 [DEBUG] 开始调用process_signal...")
+            final_trade_decision = final_state.get("final_trade_decision", "")
+            logger.info(f"🔍 [DEBUG] final_trade_decision类型: {type(final_trade_decision)}, 长度: {len(str(final_trade_decision))}")
+            decision = self.process_signal(final_trade_decision, company_name)
+            logger.info(f"🔍 [DEBUG] process_signal返回类型: {type(decision)}")
+            if isinstance(decision, dict):
+                decision['model_info'] = model_info
+                logger.info("🔍 [DEBUG] model_info已添加到decision")
+            else:
+                logger.error(f"[X] [DEBUG] decision不是字典! 类型: {type(decision)}, 值: {decision}")
+                decision = {'action': '持有', 'confidence': 0.5, 'risk_score': 0.5, 'target_price': None, 'reasoning': '决策解析失败', 'model_info': model_info}
 
             # Return decision and processed signal
             return final_state, decision
@@ -1294,7 +1350,7 @@ class TradingAgentsGraph:
                     }
                     return timeout_state, timeout_decision
         except Exception as e:
-            logger.error(f"❌ [执行错误] 分析执行失败: {e}")
+            logger.error(f"[X] [执行错误] 分析执行失败: {e}")
             raise
 
     def _send_progress_update(self, chunk, progress_callback):
@@ -1380,7 +1436,7 @@ class TradingAgentsGraph:
                 progress_callback(f"🔍 {node_name}")
 
         except Exception as e:
-            logger.error(f"❌ 进度更新失败: {e}", exc_info=True)
+            logger.error(f"[X] 进度更新失败: {e}", exc_info=True)
 
     def _build_performance_data(self, node_timings: Dict[str, float], total_elapsed: float) -> Dict[str, Any]:
         """构建性能数据结构
@@ -1569,7 +1625,7 @@ class TradingAgentsGraph:
             }
             
         except Exception as e:
-            logger.error(f"❌ [超时恢复] 构建部分决策失败: {e}")
+            logger.error(f"[X] [超时恢复] 构建部分决策失败: {e}")
             return None
 
     def _print_timing_summary(self, node_timings: Dict[str, float], total_elapsed: float):
@@ -1673,6 +1729,23 @@ class TradingAgentsGraph:
                     return default
             return result if result else default
 
+        # 🔧 安全获取嵌套字典值
+        investment_debate = safe_get(final_state, "investment_debate_state", {})
+        risk_debate = safe_get(final_state, "risk_debate_state", {})
+        
+        # 🔧 处理 prompts：如果存在且是列表，用 "\n\n" 连接；否则使用空字符串
+        bull_prompts_list = investment_debate.get("bull_prompts", []) if isinstance(investment_debate, dict) else []
+        bear_prompts_list = investment_debate.get("bear_prompts", []) if isinstance(investment_debate, dict) else []
+        risky_prompts_list = risk_debate.get("risky_prompts", []) if isinstance(risk_debate, dict) else []
+        safe_prompts_list = risk_debate.get("safe_prompts", []) if isinstance(risk_debate, dict) else []
+        neutral_prompts_list = risk_debate.get("neutral_prompts", []) if isinstance(risk_debate, dict) else []
+        
+        bull_prompts_str = "\n\n".join(bull_prompts_list) if isinstance(bull_prompts_list, list) and bull_prompts_list else ""
+        bear_prompts_str = "\n\n".join(bear_prompts_list) if isinstance(bear_prompts_list, list) and bear_prompts_list else ""
+        risky_prompts_str = "\n\n".join(risky_prompts_list) if isinstance(risky_prompts_list, list) and risky_prompts_list else ""
+        safe_prompts_str = "\n\n".join(safe_prompts_list) if isinstance(safe_prompts_list, list) and safe_prompts_list else ""
+        neutral_prompts_str = "\n\n".join(neutral_prompts_list) if isinstance(neutral_prompts_list, list) and neutral_prompts_list else ""
+        
         self.log_states_dict[str(trade_date)] = {
             "company_of_interest": safe_get(final_state, "company_of_interest", ""),
             "trade_date": safe_get(final_state, "trade_date", ""),
@@ -1681,19 +1754,24 @@ class TradingAgentsGraph:
             "news_report": safe_get(final_state, "news_report", ""),
             "fundamentals_report": safe_get(final_state, "fundamentals_report", ""),
             "investment_debate_state": {
-                "bull_history": safe_get_nested(final_state, "investment_debate_state", "bull_history", ""),
-                "bear_history": safe_get_nested(final_state, "investment_debate_state", "bear_history", ""),
-                "history": safe_get_nested(final_state, "investment_debate_state", "history", ""),
-                "current_response": safe_get_nested(final_state, "investment_debate_state", "current_response", ""),
-                "judge_decision": safe_get_nested(final_state, "investment_debate_state", "judge_decision", ""),
+                "bull_history": investment_debate.get("bull_history", "") if isinstance(investment_debate, dict) else "",
+                "bear_history": investment_debate.get("bear_history", "") if isinstance(investment_debate, dict) else "",
+                "history": investment_debate.get("history", "") if isinstance(investment_debate, dict) else "",
+                "current_response": investment_debate.get("current_response", "") if isinstance(investment_debate, dict) else "",
+                "judge_decision": investment_debate.get("judge_decision", "") if isinstance(investment_debate, dict) else "",
+                "bull_prompts": bull_prompts_str,
+                "bear_prompts": bear_prompts_str,
             },
             "trader_investment_decision": safe_get(final_state, "trader_investment_plan", ""),
             "risk_debate_state": {
-                "risky_history": safe_get_nested(final_state, "risk_debate_state", "risky_history", ""),
-                "safe_history": safe_get_nested(final_state, "risk_debate_state", "safe_history", ""),
-                "neutral_history": safe_get_nested(final_state, "risk_debate_state", "neutral_history", ""),
-                "history": safe_get_nested(final_state, "risk_debate_state", "history", ""),
-                "judge_decision": safe_get_nested(final_state, "risk_debate_state", "judge_decision", ""),
+                "risky_history": risk_debate.get("risky_history", "") if isinstance(risk_debate, dict) else "",
+                "safe_history": risk_debate.get("safe_history", "") if isinstance(risk_debate, dict) else "",
+                "neutral_history": risk_debate.get("neutral_history", "") if isinstance(risk_debate, dict) else "",
+                "history": risk_debate.get("history", "") if isinstance(risk_debate, dict) else "",
+                "judge_decision": risk_debate.get("judge_decision", "") if isinstance(risk_debate, dict) else "",
+                "risky_prompts": risky_prompts_str,
+                "safe_prompts": safe_prompts_str,
+                "neutral_prompts": neutral_prompts_str,
             },
             "investment_plan": safe_get(final_state, "investment_plan", ""),
             "final_trade_decision": safe_get(final_state, "final_trade_decision", ""),

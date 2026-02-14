@@ -53,9 +53,9 @@ def _get_company_name_for_social_media(ticker: str, market_info: dict) -> str:
                         logger.info(f"✅ [社交媒体分析师] 降级方案成功获取股票名称: {ticker} -> {company_name}")
                         return company_name
                 except Exception as e:
-                    logger.error(f"❌ [社交媒体分析师] 降级方案也失败: {e}")
+                    logger.error(f"[X] [社交媒体分析师] 降级方案也失败: {e}")
 
-                logger.error(f"❌ [社交媒体分析师] 所有方案都无法获取股票名称: {ticker}")
+                logger.error(f"[X] [社交媒体分析师] 所有方案都无法获取股票名称: {ticker}")
                 return f"股票代码{ticker}"
 
         elif market_info['is_hk']:
@@ -92,7 +92,7 @@ def _get_company_name_for_social_media(ticker: str, market_info: dict) -> str:
             return f"股票{ticker}"
 
     except Exception as e:
-        logger.error(f"❌ [社交媒体分析师] 获取公司名称失败: {e}")
+        logger.error(f"[X] [社交媒体分析师] 获取公司名称失败: {e}")
         return f"股票{ticker}"
 
 
@@ -194,6 +194,19 @@ def create_social_media_analyst(llm, toolkit):
         prompt = prompt.partial(current_date=current_date)
         prompt = prompt.partial(ticker=ticker)
 
+        # 🔥 构建完整的请求prompt（用于保存和前端展示）
+        try:
+            formatted_messages = prompt.format_messages(messages=state["messages"])
+            full_request_prompt = ""
+            for msg in formatted_messages:
+                msg_type = type(msg).__name__
+                if hasattr(msg, 'content'):
+                    full_request_prompt += f"\n\n=== {msg_type} ===\n{msg.content}"
+            logger.info(f"📊 [社交媒体分析师] 构建完整请求prompt，长度: {len(full_request_prompt)}")
+        except Exception as e:
+            logger.warning(f"⚠️ [社交媒体分析师] 构建完整prompt失败: {e}")
+            full_request_prompt = system_message  # 降级使用system_message
+
         # 使用统一的LLM链创建工具（支持DeepSeek/302AI等模型）
         log_model_usage(llm, "社交媒体分析师")
         chain = create_llm_chain(
@@ -282,7 +295,7 @@ def create_social_media_analyst(llm, toolkit):
                                             logger.info(f"📊 [社交媒体分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
                                             break
                                         except Exception as tool_error:
-                                            logger.error(f"❌ [社交媒体分析师] 工具执行失败: {tool_error}")
+                                            logger.error(f"[X] [社交媒体分析师] 工具执行失败: {tool_error}")
                                             tool_result = f"工具执行失败: {str(tool_error)}"
                                 
                                 if tool_result:
@@ -347,6 +360,7 @@ def create_social_media_analyst(llm, toolkit):
                             return {
                                 "messages": [result] + tool_messages + [final_result],
                                 "sentiment_report": report,
+                                "sentiment_request_prompt": full_request_prompt,
                                 "sentiment_tool_call_count": tool_call_count + 1
                             }
                         else:
@@ -357,7 +371,7 @@ def create_social_media_analyst(llm, toolkit):
                         report = content_str
                         
                 except Exception as e:
-                    logger.error(f"❌ [社交媒体分析师] 解析工具调用时发生错误: {e}")
+                    logger.error(f"[X] [社交媒体分析师] 解析工具调用时发生错误: {e}")
                     import traceback
                     logger.error(f"异常堆栈: {traceback.format_exc()}")
                     # 降级处理：返回原始内容
@@ -409,7 +423,7 @@ def create_social_media_analyst(llm, toolkit):
                                     logger.debug(f"📊 [DEBUG] 工具执行成功，结果长度: {len(str(tool_result))}")
                                     break
                                 except Exception as tool_error:
-                                    logger.error(f"❌ [DEBUG] 工具执行失败: {tool_error}")
+                                    logger.error(f"[X] [DEBUG] 工具执行失败: {tool_error}")
                                     tool_result = f"工具执行失败: {str(tool_error)}"
                         
                         if tool_result is None:
@@ -470,7 +484,7 @@ def create_social_media_analyst(llm, toolkit):
                     logger.info(f"📊 [社交媒体分析师] ✅ 报告生成完成，长度: {len(report)}")
                     
                 except Exception as e:
-                    logger.error(f"❌ [社交媒体分析师] 工具调用处理失败: {e}")
+                    logger.error(f"[X] [社交媒体分析师] 工具调用处理失败: {e}")
                     import traceback
                     logger.error(f"📋 异常堆栈: {traceback.format_exc()}")
                     # 降级：返回原始内容
@@ -480,6 +494,7 @@ def create_social_media_analyst(llm, toolkit):
         return {
             "messages": [result],
             "sentiment_report": report,
+            "sentiment_request_prompt": full_request_prompt,
             "sentiment_tool_call_count": tool_call_count + 1
         }
 

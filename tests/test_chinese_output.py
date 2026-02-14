@@ -57,11 +57,11 @@ def test_dashscope_chinese():
             print("✅ 模型正确输出中文内容")
             return True
         else:
-            print("❌ 模型输出中文比例较低")
+            print("[X] 模型输出中文比例较低")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -107,7 +107,7 @@ def test_signal_processor_chinese():
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -119,7 +119,7 @@ def main():
     
     # 检查环境变量
     if not os.getenv("DASHSCOPE_API_KEY"):
-        print("❌ DASHSCOPE_API_KEY 环境变量未设置")
+        print("[X] DASHSCOPE_API_KEY 环境变量未设置")
         return
     
     # 测试基本中文输出
@@ -129,8 +129,8 @@ def main():
     success2 = test_signal_processor_chinese()
     
     print(f"\n📊 测试结果:")
-    print(f"  基本中文输出: {'✅ 通过' if success1 else '❌ 失败'}")
-    print(f"  信号处理器: {'✅ 通过' if success2 else '❌ 失败'}")
+    print(f"  基本中文输出: {'✅ 通过' if success1 else '[X] 失败'}")
+    print(f"  信号处理器: {'✅ 通过' if success2 else '[X] 失败'}")
     
     if success1 and success2:
         print("\n🎉 所有测试通过！中文输出功能正常")

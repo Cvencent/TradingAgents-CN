@@ -58,10 +58,10 @@ def test_get_stock_codes():
             print(f"\n💾 股票代码列表已保存到: {output_file}")
 
         else:
-            print("❌ 未能获取到股票数据")
+            print("[X] 未能获取到股票数据")
 
     except Exception as e:
-        print(f"❌ 获取股票数据时发生错误: {e}")
+        print(f"[X] 获取股票数据时发生错误: {e}")
         import traceback
         traceback.print_exc()
 

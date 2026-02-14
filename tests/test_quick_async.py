@@ -25,7 +25,7 @@ def test_api_non_blocking():
         }, timeout=10)
         
         if login_response.status_code != 200:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             return False
         
         token = login_response.json()["data"]["access_token"]
@@ -33,7 +33,7 @@ def test_api_non_blocking():
         print("✅ 登录成功")
         
     except Exception as e:
-        print(f"❌ 登录异常: {e}")
+        print(f"[X] 登录异常: {e}")
         return False
     
     # 2. 提交分析任务（关键测试：应该立即返回）
@@ -69,15 +69,15 @@ def test_api_non_blocking():
                 success = False
                 
         else:
-            print(f"❌ 任务提交失败: {analysis_response.status_code}")
+            print(f"[X] 任务提交失败: {analysis_response.status_code}")
             print(f"错误信息: {analysis_response.text}")
             return False
             
     except requests.exceptions.Timeout:
-        print("❌ 请求超时！API可能仍然阻塞")
+        print("[X] 请求超时！API可能仍然阻塞")
         return False
     except Exception as e:
-        print(f"❌ 提交任务异常: {e}")
+        print(f"[X] 提交任务异常: {e}")
         return False
     
     # 3. 立即测试其他API（验证服务器没有被阻塞）
@@ -95,7 +95,7 @@ def test_api_non_blocking():
             success = False
             
     except Exception as e:
-        print(f"❌ 健康检查失败: {e}")
+        print(f"[X] 健康检查失败: {e}")
         success = False
     
     # 任务状态查询
@@ -117,7 +117,7 @@ def test_api_non_blocking():
             success = False
             
     except Exception as e:
-        print(f"❌ 状态查询失败: {e}")
+        print(f"[X] 状态查询失败: {e}")
         success = False
     
     # 4. 总结
@@ -129,7 +129,7 @@ def test_api_non_blocking():
     if success:
         print("🎉 异步实现成功！API不再阻塞")
     else:
-        print("❌ 仍有阻塞问题，需要进一步优化")
+        print("[X] 仍有阻塞问题，需要进一步优化")
     
     return success
 

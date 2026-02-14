@@ -118,7 +118,7 @@ async def simulate_sync_with_feedback():
             feedback_message = f"⚠️ 同步完成但有错误！处理了 {total} 条记录，新增 {inserted} 条，更新 {updated} 条，错误 {errors} 条"
             feedback_type = "警告通知"
         elif status == 'failed':
-            feedback_message = f"❌ 同步失败！{final_status.get('message', '未知错误')}"
+            feedback_message = f"[X] 同步失败！{final_status.get('message', '未知错误')}"
             feedback_type = "错误通知"
         else:
             feedback_message = f"ℹ️ 同步状态: {status}"
@@ -153,7 +153,7 @@ async def simulate_sync_with_feedback():
         }
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -192,7 +192,7 @@ async def test_status_polling_simulation():
         print("🎯 状态轮询模拟完成")
         
     except Exception as e:
-        print(f"❌ 轮询模拟失败: {e}")
+        print(f"[X] 轮询模拟失败: {e}")
 
 if __name__ == "__main__":
     result = asyncio.run(simulate_sync_with_feedback())

@@ -81,7 +81,7 @@ async def list_log_files(
         return files
         
     except Exception as e:
-        logger.error(f"❌ 获取日志文件列表失败: {e}")
+        logger.error(f"[X] 获取日志文件列表失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取日志文件列表失败: {str(e)}")
 
 
@@ -117,7 +117,7 @@ async def read_log_file(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        logger.error(f"❌ 读取日志文件失败: {e}")
+        logger.error(f"[X] 读取日志文件失败: {e}")
         raise HTTPException(status_code=500, detail=f"读取日志文件失败: {str(e)}")
 
 
@@ -165,7 +165,7 @@ async def export_logs(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"❌ 导出日志文件失败: {e}")
+        logger.error(f"[X] 导出日志文件失败: {e}")
         raise HTTPException(status_code=500, detail=f"导出日志文件失败: {str(e)}")
 
 
@@ -192,7 +192,7 @@ async def get_log_statistics(
         return stats
         
     except Exception as e:
-        logger.error(f"❌ 获取日志统计失败: {e}")
+        logger.error(f"[X] 获取日志统计失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取日志统计失败: {str(e)}")
 
 
@@ -229,6 +229,6 @@ async def delete_log_file(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 删除日志文件失败: {e}")
+        logger.error(f"[X] 删除日志文件失败: {e}")
         raise HTTPException(status_code=500, detail=f"删除日志文件失败: {str(e)}")
 

@@ -34,7 +34,7 @@ def test_basic():
         return True
         
     except Exception as e:
-        print(f"❌ 基本测试失败: {e}")
+        print(f"[X] 基本测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False

@@ -52,9 +52,9 @@ def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:
                         logger.info(f"✅ [中国市场分析师] 降级方案成功获取股票名称: {ticker} -> {company_name}")
                         return company_name
                 except Exception as e:
-                    logger.error(f"❌ [中国市场分析师] 降级方案也失败: {e}")
+                    logger.error(f"[X] [中国市场分析师] 降级方案也失败: {e}")
 
-                logger.error(f"❌ [中国市场分析师] 所有方案都无法获取股票名称: {ticker}")
+                logger.error(f"[X] [中国市场分析师] 所有方案都无法获取股票名称: {ticker}")
                 return f"股票代码{ticker}"
 
         elif market_info['is_hk']:
@@ -91,7 +91,7 @@ def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:
             return f"股票{ticker}"
 
     except Exception as e:
-        logger.error(f"❌ [中国市场分析师] 获取公司名称失败: {e}")
+        logger.error(f"[X] [中国市场分析师] 获取公司名称失败: {e}")
         return f"股票{ticker}"
 
 

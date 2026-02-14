@@ -28,7 +28,7 @@ def test_screening_api():
         }, timeout=10)
         
         if login_response.status_code != 200:
-            print(f"❌ 登录失败: {login_response.status_code}")
+            print(f"[X] 登录失败: {login_response.status_code}")
             return False
         
         login_data = login_response.json()
@@ -73,7 +73,7 @@ def test_screening_api():
         )
         
         if screening_response.status_code != 200:
-            print(f"❌ 筛选失败: {screening_response.status_code}")
+            print(f"[X] 筛选失败: {screening_response.status_code}")
             print(f"响应内容: {screening_response.text}")
             return False
         
@@ -129,13 +129,13 @@ def test_screening_api():
             print(f"  - 总数量: {complex_data.get('total', 0)}")
             print(f"  - 返回数量: {len(complex_data.get('items', []))}")
         else:
-            print(f"❌ 复杂筛选失败: {complex_response.status_code}")
+            print(f"[X] 复杂筛选失败: {complex_response.status_code}")
         
         print("\n🎉 筛选功能测试完成!")
         return True
         
     except Exception as e:
-        print(f"❌ 测试异常: {e}")
+        print(f"[X] 测试异常: {e}")
         return False
 
 if __name__ == "__main__":

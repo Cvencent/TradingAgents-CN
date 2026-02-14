@@ -20,7 +20,7 @@ def test_config_page_import():
         print("✅ 配置管理页面导入成功")
         return True
     except Exception as e:
-        print(f"❌ 配置管理页面导入失败: {e}")
+        print(f"[X] 配置管理页面导入失败: {e}")
         import traceback
         print(f"错误详情: {traceback.format_exc()}")
         return False
@@ -46,7 +46,7 @@ def test_config_manager_import():
         
         return True
     except Exception as e:
-        print(f"❌ 配置管理器导入失败: {e}")
+        print(f"[X] 配置管理器导入失败: {e}")
         import traceback
         print(f"错误详情: {traceback.format_exc()}")
         return False
@@ -68,7 +68,7 @@ def test_streamlit_components():
         
         return True
     except Exception as e:
-        print(f"❌ Streamlit组件导入失败: {e}")
+        print(f"[X] Streamlit组件导入失败: {e}")
         return False
 
 def main():
@@ -91,9 +91,9 @@ def main():
                 passed += 1
                 print(f"✅ {test_name} 测试通过")
             else:
-                print(f"❌ {test_name} 测试失败")
+                print(f"[X] {test_name} 测试失败")
         except Exception as e:
-            print(f"❌ {test_name} 测试异常: {e}")
+            print(f"[X] {test_name} 测试异常: {e}")
     
     print(f"\n📊 测试结果: {passed}/{total} 通过")
     
@@ -106,7 +106,7 @@ def main():
         print("4. 查看使用统计和成本分析")
         return True
     else:
-        print("❌ 部分测试失败，请检查配置")
+        print("[X] 部分测试失败，请检查配置")
         return False
 
 if __name__ == "__main__":

@@ -39,7 +39,7 @@ async def test_normalize_stock_code():
     
     for input_code, expected, description in test_cases:
         result = service._normalize_stock_code(input_code)
-        status = "✅" if result == expected else "❌"
+        status = "✅" if result == expected else "[X]"
         
         if result == expected:
             passed += 1
@@ -183,7 +183,7 @@ async def test_historical_data_import():
             print(f"   ⚠️ 集合为空但未导入数据，可能历史数据不足")
         
     except Exception as e:
-        print(f"   ❌ 导入失败: {e}")
+        print(f"   [X] 导入失败: {e}")
         import traceback
         traceback.print_exc()
         await close_db()
@@ -224,7 +224,7 @@ async def test_akshare_realtime_quotes():
         for i, (code, data) in enumerate(list(quotes_map.items())[:10], 1):
             code_len = len(code)
             is_digit = code.isdigit()
-            status = "✅" if code_len == 6 and is_digit else "❌"
+            status = "✅" if code_len == 6 and is_digit else "[X]"
             
             if code_len != 6 or not is_digit:
                 abnormal_codes.append(code)
@@ -239,7 +239,7 @@ async def test_akshare_realtime_quotes():
             return True
         
     except Exception as e:
-        print(f"   ❌ 测试失败: {e}")
+        print(f"   [X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -276,7 +276,7 @@ async def main():
     print("="*60)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{status:8s} | {test_name}")
     
     passed = sum(1 for _, result in results if result)

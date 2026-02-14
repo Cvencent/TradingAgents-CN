@@ -374,7 +374,7 @@ class TradingAgentsLogger:
                            session_id: str, duration: float, success: bool = True,
                            result_length: int = 0, **extra_data):
         """记录模块完成分析"""
-        status = "✅ 成功" if success else "❌ 失败"
+        status = "✅ 成功" if success else "[X] 失败"
         logger.info(
             f"📊 [模块完成] {module_name} - {status} - 股票: {stock_symbol}, 耗时: {duration:.2f}s",
             extra={
@@ -394,7 +394,7 @@ class TradingAgentsLogger:
                         session_id: str, duration: float, error: str, **extra_data):
         """记录模块分析错误"""
         logger.error(
-            f"❌ [模块错误] {module_name} - 股票: {stock_symbol}, 耗时: {duration:.2f}s, 错误: {error}",
+            f"[X] [模块错误] {module_name} - 股票: {stock_symbol}, 耗时: {duration:.2f}s, 错误: {error}",
             extra={
                 'module_name': module_name,
                 'stock_symbol': stock_symbol,

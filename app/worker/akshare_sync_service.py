@@ -51,12 +51,12 @@ class AKShareSyncService:
 
             # 测试连接
             if not await self.provider.test_connection():
-                raise RuntimeError("❌ AKShare连接失败，无法启动同步服务")
+                raise RuntimeError("[X] AKShare连接失败，无法启动同步服务")
 
             logger.info("✅ AKShare同步服务初始化完成")
             
         except Exception as e:
-            logger.error(f"❌ AKShare同步服务初始化失败: {e}")
+            logger.error(f"[X] AKShare同步服务初始化失败: {e}")
             raise
     
     async def sync_stock_basic_info(self, force_update: bool = False) -> Dict[str, Any]:
@@ -126,7 +126,7 @@ class AKShareSyncService:
             return stats
             
         except Exception as e:
-            logger.error(f"❌ 股票基础信息同步失败: {e}")
+            logger.error(f"[X] 股票基础信息同步失败: {e}")
             stats["errors"].append({"error": str(e), "context": "sync_stock_basic_info"})
             return stats
     
@@ -382,7 +382,7 @@ class AKShareSyncService:
             return stats
 
         except Exception as e:
-            logger.error(f"❌ 实时行情同步失败: {e}")
+            logger.error(f"[X] 实时行情同步失败: {e}")
             stats["errors"].append({"error": str(e), "context": "sync_realtime_quotes"})
             return stats
     
@@ -448,7 +448,7 @@ class AKShareSyncService:
             return batch_stats
 
         except Exception as e:
-            logger.error(f"❌ 批量处理行情失败: {e}")
+            logger.error(f"[X] 批量处理行情失败: {e}")
             # 回退到原来的逐个获取方式
             return await self._process_quotes_batch_fallback(batch)
 
@@ -526,7 +526,7 @@ class AKShareSyncService:
                 return True
             return False
         except Exception as e:
-            logger.error(f"❌ 获取 {symbol} 行情失败: {e}", exc_info=True)
+            logger.error(f"[X] 获取 {symbol} 行情失败: {e}", exc_info=True)
             return False
 
     async def sync_historical_data(
@@ -625,7 +625,7 @@ class AKShareSyncService:
             return stats
 
         except Exception as e:
-            logger.error(f"❌ 历史数据同步失败: {e}")
+            logger.error(f"[X] 历史数据同步失败: {e}")
             stats["errors"].append({"error": str(e), "context": "sync_historical_data"})
             return stats
 
@@ -747,7 +747,7 @@ class AKShareSyncService:
             return (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
 
         except Exception as e:
-            logger.error(f"❌ 获取最后同步日期失败 {symbol}: {e}")
+            logger.error(f"[X] 获取最后同步日期失败 {symbol}: {e}")
             # 出错时返回30天前，确保不漏数据
             return (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
 
@@ -828,7 +828,7 @@ class AKShareSyncService:
             return stats
 
         except Exception as e:
-            logger.error(f"❌ 财务数据同步失败: {e}")
+            logger.error(f"[X] 财务数据同步失败: {e}")
             stats["errors"].append({"error": str(e), "context": "sync_financial_data"})
             return stats
 
@@ -896,7 +896,7 @@ class AKShareSyncService:
             return saved_count > 0
 
         except Exception as e:
-            logger.error(f"❌ 保存 {symbol} 财务数据失败: {e}")
+            logger.error(f"[X] 保存 {symbol} 财务数据失败: {e}")
             return False
 
     async def run_status_check(self) -> Dict[str, Any]:
@@ -940,7 +940,7 @@ class AKShareSyncService:
             return status_result
 
         except Exception as e:
-            logger.error(f"❌ AKShare状态检查失败: {e}")
+            logger.error(f"[X] AKShare状态检查失败: {e}")
             return {
                 "provider_connected": False,
                 "error": str(e),
@@ -992,7 +992,7 @@ class AKShareSyncService:
             return result
 
         except Exception as e:
-            logger.error(f"❌ 获取自选股列表失败: {e}")
+            logger.error(f"[X] 获取自选股列表失败: {e}")
             return []
 
     async def sync_news_data(
@@ -1085,7 +1085,7 @@ class AKShareSyncService:
             return stats
 
         except Exception as e:
-            logger.error(f"❌ AKShare新闻数据同步失败: {e}")
+            logger.error(f"[X] AKShare新闻数据同步失败: {e}")
             stats["errors"].append({"error": str(e), "context": "sync_news_data"})
             return stats
 
@@ -1133,7 +1133,7 @@ class AKShareSyncService:
                 batch_stats["error_count"] += 1
                 error_msg = f"{symbol}: {str(e)}"
                 batch_stats["errors"].append(error_msg)
-                logger.error(f"❌ {symbol} 新闻同步失败: {e}")
+                logger.error(f"[X] {symbol} 新闻同步失败: {e}")
 
                 # 🔥 失败后也要休眠，避免"失败雪崩"
                 # 失败时休眠更长时间，给API服务器恢复的机会
@@ -1163,7 +1163,7 @@ async def run_akshare_basic_info_sync(force_update: bool = False):
         logger.info(f"✅ AKShare基础信息同步完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ AKShare基础信息同步失败: {e}")
+        logger.error(f"[X] AKShare基础信息同步失败: {e}")
         raise
 
 
@@ -1181,7 +1181,7 @@ async def run_akshare_quotes_sync(force: bool = False):
         logger.info(f"✅ AKShare行情同步完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ AKShare行情同步失败: {e}")
+        logger.error(f"[X] AKShare行情同步失败: {e}")
         raise
 
 
@@ -1193,7 +1193,7 @@ async def run_akshare_historical_sync(incremental: bool = True):
         logger.info(f"✅ AKShare历史数据同步完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ AKShare历史数据同步失败: {e}")
+        logger.error(f"[X] AKShare历史数据同步失败: {e}")
         raise
 
 
@@ -1205,7 +1205,7 @@ async def run_akshare_financial_sync():
         logger.info(f"✅ AKShare财务数据同步完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ AKShare财务数据同步失败: {e}")
+        logger.error(f"[X] AKShare财务数据同步失败: {e}")
         raise
 
 
@@ -1217,7 +1217,7 @@ async def run_akshare_status_check():
         logger.info(f"✅ AKShare状态检查完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ AKShare状态检查失败: {e}")
+        logger.error(f"[X] AKShare状态检查失败: {e}")
         raise
 
 
@@ -1231,5 +1231,5 @@ async def run_akshare_news_sync(max_news_per_stock: int = 20):
         logger.info(f"✅ AKShare新闻数据同步完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ AKShare新闻数据同步失败: {e}")
+        logger.error(f"[X] AKShare新闻数据同步失败: {e}")
         raise

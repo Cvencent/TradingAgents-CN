@@ -32,7 +32,7 @@ def test_fundamentals_analyst_import():
         return True
         
     except Exception as e:
-        print(f"❌ 基本面分析师导入失败: {e}")
+        print(f"[X] 基本面分析师导入失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -65,21 +65,21 @@ def test_stock_utils_functions():
             us_result = is_us_stock(ticker)
             
             print(f"  {ticker} ({market}):")
-            print(f"    中国A股: {china_result} {'✅' if china_result == expect_china else '❌'}")
-            print(f"    港股: {hk_result} {'✅' if hk_result == expect_hk else '❌'}")
-            print(f"    美股: {us_result} {'✅' if us_result == expect_us else '❌'}")
+            print(f"    中国A股: {china_result} {'✅' if china_result == expect_china else '[X]'}")
+            print(f"    港股: {hk_result} {'✅' if hk_result == expect_hk else '[X]'}")
+            print(f"    美股: {us_result} {'✅' if us_result == expect_us else '[X]'}")
             
             if (china_result != expect_china or 
                 hk_result != expect_hk or 
                 us_result != expect_us):
-                print(f"❌ {ticker} 识别结果不正确")
+                print(f"[X] {ticker} 识别结果不正确")
                 return False
         
         print("  ✅ 所有股票工具函数测试通过")
         return True
         
     except Exception as e:
-        print(f"❌ 股票工具函数测试失败: {e}")
+        print(f"[X] 股票工具函数测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -109,7 +109,7 @@ def test_web_analysis_runner():
         return True
         
     except Exception as e:
-        print(f"❌ Web分析运行器测试失败: {e}")
+        print(f"[X] Web分析运行器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -136,7 +136,7 @@ def test_complete_analysis_flow():
         return True
         
     except Exception as e:
-        print(f"❌ 完整分析流程导入测试失败: {e}")
+        print(f"[X] 完整分析流程导入测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -161,7 +161,7 @@ def main():
             if test_func():
                 passed += 1
         except Exception as e:
-            print(f"❌ 测试 {test_func.__name__} 异常: {e}")
+            print(f"[X] 测试 {test_func.__name__} 异常: {e}")
     
     print("\n" + "=" * 40)
     print(f"🔧 导入修复测试完成: {passed}/{total} 通过")

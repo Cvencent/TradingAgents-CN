@@ -46,7 +46,7 @@ async def test_database_service():
         print('\n🎉 所有测试通过！')
         
     except Exception as e:
-        print(f'❌ 测试失败: {e}')
+        print(f'[X] 测试失败: {e}')
         import traceback
         traceback.print_exc()
 

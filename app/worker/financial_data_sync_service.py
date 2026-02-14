@@ -60,16 +60,24 @@ class FinancialDataSyncService:
             self.financial_service = await get_financial_data_service()
             
             # 初始化数据源提供者
-            self.providers = {
-                "tushare": get_tushare_provider(),
-                "akshare": get_akshare_provider(),
-                "baostock": get_baostock_provider()
-            }
+            self.providers = {}
+
+            # 尝试初始化 Tushare，但捕获文件访问错误
+            try:
+                self.providers["tushare"] = get_tushare_provider()
+            except Exception as e:
+                if "Permission" in str(e) or "restricted" in str(e) or "tk.csv" in str(e):
+                    logger.warning(f"⚠️ Tushare 文件访问受限，跳过 Tushare 初始化: {e}")
+                else:
+                    logger.warning(f"⚠️ Tushare 初始化失败: {e}")
+
+            self.providers["akshare"] = get_akshare_provider()
+            self.providers["baostock"] = get_baostock_provider()
             
             logger.info("✅ 财务数据同步服务初始化成功")
             
         except Exception as e:
-            logger.error(f"❌ 财务数据同步服务初始化失败: {e}")
+            logger.error(f"[X] 财务数据同步服务初始化失败: {e}")
             raise
     
     async def sync_financial_data(
@@ -195,7 +203,7 @@ class FinancialDataSyncService:
                         "error": str(result),
                         "timestamp": datetime.now(timezone.utc).isoformat()
                     })
-                    logger.error(f"❌ {symbol} 财务数据同步失败 ({data_source}): {result}")
+                    logger.error(f"[X] {symbol} 财务数据同步失败 ({data_source}): {result}")
                 elif result:
                     stats.success_count += 1
                     logger.debug(f"✅ {symbol} 财务数据同步成功 ({data_source})")
@@ -242,7 +250,7 @@ class FinancialDataSyncService:
             return saved_count > 0
             
         except Exception as e:
-            logger.error(f"❌ {symbol} 财务数据同步异常 ({data_source}): {e}")
+            logger.error(f"[X] {symbol} 财务数据同步异常 ({data_source}): {e}")
             raise
     
     async def _get_stock_symbols(self) -> List[str]:
@@ -265,7 +273,7 @@ class FinancialDataSyncService:
             return symbols
 
         except Exception as e:
-            logger.error(f"❌ 获取股票代码列表失败: {e}")
+            logger.error(f"[X] 获取股票代码列表失败: {e}")
             return []
     
     async def get_sync_statistics(self) -> Dict[str, Any]:
@@ -277,7 +285,7 @@ class FinancialDataSyncService:
             return await self.financial_service.get_financial_statistics()
             
         except Exception as e:
-            logger.error(f"❌ 获取同步统计失败: {e}")
+            logger.error(f"[X] 获取同步统计失败: {e}")
             return {}
     
     async def sync_single_stock(
@@ -316,7 +324,7 @@ class FinancialDataSyncService:
                 results[data_source] = result
                 
             except Exception as e:
-                logger.error(f"❌ {symbol} 单股票财务数据同步失败 ({data_source}): {e}")
+                logger.error(f"[X] {symbol} 单股票财务数据同步失败 ({data_source}): {e}")
                 results[data_source] = False
         
         return results

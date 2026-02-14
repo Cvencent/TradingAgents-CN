@@ -163,7 +163,7 @@ class TushareInitService:
             return self._get_initialization_summary()
             
         except Exception as e:
-            logger.error(f"❌ Tushare数据初始化失败: {e}")
+            logger.error(f"[X] Tushare数据初始化失败: {e}")
             self.stats.errors.append({
                 "step": self.stats.current_step,
                 "error": str(e),
@@ -455,5 +455,5 @@ async def run_tushare_full_initialization(
         logger.info(f"✅ Tushare完整初始化完成: {result}")
         return result
     except Exception as e:
-        logger.error(f"❌ Tushare完整初始化失败: {e}")
+        logger.error(f"[X] Tushare完整初始化失败: {e}")
         raise

@@ -117,7 +117,7 @@ def test_complete_analysis_flow():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -135,7 +135,7 @@ def test_problem_solving_effect():
         print("📊 对比修复前后的用户体验:")
         print("-" * 50)
         
-        print("\n❌ 修复前的用户体验:")
+        print("\n[X] 修复前的用户体验:")
         print("   ✅ 📊 基本面分析完成")
         print("   [长时间等待，用户不知道系统在做什么...]")
         print("   [用户可能以为程序卡死了...]")
@@ -167,7 +167,7 @@ def test_problem_solving_effect():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def test_analysis_stages():
@@ -232,7 +232,7 @@ def test_analysis_stages():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         return False
 
 def main():
@@ -266,7 +266,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")

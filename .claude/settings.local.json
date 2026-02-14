@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill:*)",
+      "Bash(timeout /t 15 /nobreak)",
+      "Bash(curl:*)",
+      "Bash(python test_300033_deepseek.py:*)",
+      "Bash(python -c:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MDg2NjI0Mn0.CB4MiE-i6QyX_O2BOgBOwnaHAHhXBxPUvVqiBcejMwM\")",
+      "Bash(xargs kill:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MDg2OTkxMX0.zXqtxOCqJPKqLqJqvhHqJqJqJqJqJqJqJqJqJqJqJqI\")"
+    ]
+  }
+}

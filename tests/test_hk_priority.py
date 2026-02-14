@@ -55,12 +55,12 @@ def test_hk_data_source_priority():
                     print(f"   ⚠️ 使用默认格式")
                     
             except Exception as e:
-                print(f"❌ 获取失败: {e}")
+                print(f"[X] 获取失败: {e}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -83,7 +83,7 @@ def test_hk_data_priority():
         
         result = get_hk_stock_data_unified(test_symbol, start_date, end_date)
         
-        if result and "❌" not in result:
+        if result and "[X]" not in result:
             print(f"✅ 港股数据获取成功")
             print(f"   数据长度: {len(result)}")
             
@@ -97,13 +97,13 @@ def test_hk_data_priority():
             else:
                 print(f"   ⚠️ 数据可能不完整")
         else:
-            print(f"❌ 港股数据获取失败")
+            print(f"[X] 港股数据获取失败")
             print(f"   返回结果: {result}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -149,12 +149,12 @@ def test_improved_hk_provider_priority():
                     print(f"   ⚠️ 使用默认格式")
                     
             except Exception as e:
-                print(f"❌ 获取失败: {e}")
+                print(f"[X] 获取失败: {e}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -171,7 +171,7 @@ def test_data_source_availability():
             print("✅ AKShare港股工具可用")
             akshare_available = True
         except ImportError as e:
-            print(f"❌ AKShare港股工具不可用: {e}")
+            print(f"[X] AKShare港股工具不可用: {e}")
             akshare_available = False
         
         # 检查Yahoo Finance可用性
@@ -180,7 +180,7 @@ def test_data_source_availability():
             print("✅ Yahoo Finance港股工具可用")
             yf_available = True
         except ImportError as e:
-            print(f"❌ Yahoo Finance港股工具不可用: {e}")
+            print(f"[X] Yahoo Finance港股工具不可用: {e}")
             yf_available = False
         
         # 检查统一接口
@@ -190,17 +190,17 @@ def test_data_source_availability():
             print(f"   AKShare可用标志: {AKSHARE_HK_AVAILABLE}")
             print(f"   Yahoo Finance可用标志: {HK_STOCK_AVAILABLE}")
         except ImportError as e:
-            print(f"❌ 统一港股接口不可用: {e}")
+            print(f"[X] 统一港股接口不可用: {e}")
         
         print(f"\n📊 数据源优先级验证:")
-        print(f"   1. AKShare (优先): {'✅ 可用' if akshare_available else '❌ 不可用'}")
-        print(f"   2. Yahoo Finance (备用): {'✅ 可用' if yf_available else '❌ 不可用'}")
+        print(f"   1. AKShare (优先): {'✅ 可用' if akshare_available else '[X] 不可用'}")
+        print(f"   2. Yahoo Finance (备用): {'✅ 可用' if yf_available else '[X] 不可用'}")
         print(f"   3. 默认格式 (降级): ✅ 总是可用")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -240,7 +240,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")

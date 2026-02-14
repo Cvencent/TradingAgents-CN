@@ -47,7 +47,7 @@ class AsyncProgressDisplay:
         progress_data = get_progress_by_id(self.analysis_id)
         
         if not progress_data:
-            self.status_text.error("❌ 无法获取分析进度，请检查分析是否正在运行")
+            self.status_text.error("[X] 无法获取分析进度，请检查分析是否正在运行")
             return False
         
         # 更新显示
@@ -81,7 +81,7 @@ class AsyncProgressDisplay:
             status_icon = {
                 'running': '🔄',
                 'completed': '✅',
-                'failed': '❌'
+                'failed': '[X]'
             }.get(status, '🔄')
             
             # 显示当前状态
@@ -89,7 +89,7 @@ class AsyncProgressDisplay:
             
             # 显示步骤信息
             if status == 'failed':
-                self.step_info.error(f"❌ **分析失败**: {last_message}")
+                self.step_info.error(f"[X] **分析失败**: {last_message}")
             elif status == 'completed':
                 self.step_info.success(f"🎉 **分析完成**: 所有步骤已完成")
 
@@ -143,7 +143,7 @@ class AsyncProgressDisplay:
                 
         except Exception as e:
             logger.error(f"📊 [异步显示] 渲染失败: {e}")
-            self.status_text.error(f"❌ 显示更新失败: {str(e)}")
+            self.status_text.error(f"[X] 显示更新失败: {str(e)}")
 
 def create_async_progress_display(container, analysis_id: str, refresh_interval: float = 1.0) -> AsyncProgressDisplay:
     """创建异步进度显示组件"""
@@ -183,7 +183,7 @@ def streamlit_auto_refresh_progress(analysis_id: str, refresh_interval: int = 2)
     progress_data = get_progress_by_id(analysis_id)
 
     if not progress_data:
-        st.error("❌ 无法获取分析进度，请检查分析是否正在运行")
+        st.error("[X] 无法获取分析进度，请检查分析是否正在运行")
         return False
 
     status = progress_data.get('status', 'running')
@@ -205,14 +205,14 @@ def streamlit_auto_refresh_progress(analysis_id: str, refresh_interval: int = 2)
     status_icon = {
         'running': '🔄',
         'completed': '✅',
-        'failed': '❌'
+        'failed': '[X]'
     }.get(status, '🔄')
 
     # 显示信息
     st.info(f"{status_icon} **当前状态**: {last_message}")
 
     if status == 'failed':
-        st.error(f"❌ **分析失败**: {last_message}")
+        st.error(f"[X] **分析失败**: {last_message}")
     elif status == 'completed':
         st.success(f"🎉 **分析完成**: 所有步骤已完成")
 
@@ -291,7 +291,7 @@ def display_static_progress(analysis_id: str) -> bool:
     progress_data = get_progress_by_id(analysis_id)
 
     if not progress_data:
-        st.error("❌ 无法获取分析进度，请检查分析是否正在运行")
+        st.error("[X] 无法获取分析进度，请检查分析是否正在运行")
         return False
 
     status = progress_data.get('status', 'running')
@@ -342,12 +342,12 @@ def display_static_progress(analysis_id: str) -> bool:
     status_icon = {
         'running': '🔄',
         'completed': '✅',
-        'failed': '❌'
+        'failed': '[X]'
     }.get(status, '🔄')
 
     # 显示状态
     if status == 'failed':
-        st.error(f"❌ **分析失败**: {last_message}")
+        st.error(f"[X] **分析失败**: {last_message}")
     elif status == 'completed':
         st.success(f"🎉 **分析完成**: {last_message}")
 
@@ -481,7 +481,7 @@ def display_static_progress_with_controls(analysis_id: str, show_refresh_control
     status_icon = {
         'running': '🔄',
         'completed': '✅',
-        'failed': '❌'
+        'failed': '[X]'
     }.get(status, '🔄')
 
     st.info(f"{status_icon} **{current_step_name}** - {current_step_description}")
@@ -494,7 +494,7 @@ def display_static_progress_with_controls(analysis_id: str, show_refresh_control
         if status == 'completed':
             st.caption("✅ 分析完成")
         elif status == 'failed':
-            st.caption("❌ 分析失败")
+            st.caption("[X] 分析失败")
         else:
             st.caption(f"⏳ 预计剩余: {format_time(remaining_time)}")
 
@@ -502,7 +502,7 @@ def display_static_progress_with_controls(analysis_id: str, show_refresh_control
     status_icon = {
         'running': '🔄',
         'completed': '✅',
-        'failed': '❌'
+        'failed': '[X]'
     }.get(status, '🔄')
 
     if status == 'completed':

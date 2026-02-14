@@ -358,7 +358,7 @@ def render_analysis_form():
     elif submitted and not stock_symbol:
         # 用户点击了提交但没有输入股票代码
         logger.error(f"🔍 [FORM DEBUG] 提交失败：股票代码为空")
-        st.error("❌ 请输入股票代码后再提交")
+        st.error("[X] 请输入股票代码后再提交")
         return {'submitted': False}
     else:
         return {'submitted': False}

@@ -29,11 +29,11 @@ def test_recommended_model():
         dashscope_key = os.getenv('DASHSCOPE_API_KEY')
         
         print(f"🔑 API密钥状态:")
-        print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
-        print(f"   阿里百炼API: {'✅ 已配置' if dashscope_key else '❌ 未配置'}")
+        print(f"   Google API: {'✅ 已配置' if google_key else '[X] 未配置'}")
+        print(f"   阿里百炼API: {'✅ 已配置' if dashscope_key else '[X] 未配置'}")
         
         if not google_key:
-            print("❌ Google API密钥未配置")
+            print("[X] Google API密钥未配置")
             return False
         
         # 创建配置
@@ -98,17 +98,17 @@ def test_recommended_model():
                 
                 return True
             else:
-                print("❌ 分析完成但结果为空")
+                print("[X] 分析完成但结果为空")
                 return False
                 
         except Exception as e:
-            print(f"❌ 股票分析失败: {e}")
+            print(f"[X] 股票分析失败: {e}")
             import traceback
             print(traceback.format_exc())
             return False
             
     except Exception as e:
-        print(f"❌ 最终验证失败: {e}")
+        print(f"[X] 最终验证失败: {e}")
         import traceback
         print(traceback.format_exc())
         return False
@@ -120,13 +120,13 @@ def compare_models():
     
     models_comparison = {
         "gemini-2.5-pro": {
-            "状态": "❌ LangChain集成问题",
+            "状态": "[X] LangChain集成问题",
             "优势": "最新版本，理论性能最强",
             "劣势": "LangChain集成不稳定",
             "推荐": "不推荐（集成问题）"
         },
         "gemini-2.5-flash": {
-            "状态": "❌ LangChain集成问题", 
+            "状态": "[X] LangChain集成问题", 
             "优势": "最新版本，速度快",
             "劣势": "LangChain集成不稳定",
             "推荐": "不推荐（集成问题）"
@@ -180,7 +180,7 @@ def main():
         print("   📊 准确的金融分析")
         print("\n🚀 您现在可以在Web界面中使用这个配置！")
     else:
-        print("❌ 验证失败")
+        print("[X] 验证失败")
         print("💡 建议使用gemini-1.5-pro作为备选方案")
 
 if __name__ == "__main__":

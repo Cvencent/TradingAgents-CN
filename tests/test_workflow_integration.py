@@ -64,7 +64,7 @@ def test_news_analyst_integration():
             print(f"  📝 工具名称: {getattr(test_tool, 'name', '未设置')}")
             print(f"  📝 工具描述: {test_tool.description[:100]}...")
         except Exception as e:
-            print(f"  ❌ 统一新闻工具导入失败: {e}")
+            print(f"  [X] 统一新闻工具导入失败: {e}")
         
         # 3. 检查新闻分析师源码中的集成情况
         print(f"\n💬 第三步：检查新闻分析师源码集成...")
@@ -92,10 +92,10 @@ def test_news_analyst_integration():
                 if check_pattern in source_code:
                     print(f"  ✅ {check_name}: 已正确集成")
                 else:
-                    print(f"  ❌ {check_name}: 未找到")
+                    print(f"  [X] {check_name}: 未找到")
                     
         except Exception as e:
-            print(f"  ❌ 无法读取新闻分析师源码: {e}")
+            print(f"  [X] 无法读取新闻分析师源码: {e}")
         
         # 4. 验证工作流程中的使用
         print(f"\n🔄 第四步：验证工作流程中的使用...")
@@ -116,10 +116,10 @@ def test_news_analyst_integration():
                 if check_pattern in setup_code:
                     print(f"  ✅ {check_name}: 已在工作流程中集成")
                 else:
-                    print(f"  ❌ {check_name}: 未在工作流程中找到")
+                    print(f"  [X] {check_name}: 未在工作流程中找到")
                     
         except Exception as e:
-            print(f"  ❌ 无法读取工作流程设置文件: {e}")
+            print(f"  [X] 无法读取工作流程设置文件: {e}")
         
         # 5. 测试工具调用
         print(f"\n🧪 第五步：测试工具调用...")
@@ -165,7 +165,7 @@ def test_news_analyst_integration():
         print(f"✨ 大模型已通过 llm.bind_tools(tools) 绑定了统一新闻工具！")
         
     except Exception as e:
-        print(f"❌ 验证过程中出现错误: {str(e)}")
+        print(f"[X] 验证过程中出现错误: {str(e)}")
         import traceback
         traceback.print_exc()
 

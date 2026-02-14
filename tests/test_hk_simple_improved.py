@@ -50,13 +50,13 @@ def test_hk_provider_direct():
                     print(f"      ⚠️ 使用默认格式")
                     
             except Exception as e:
-                print(f"   {symbol:10} -> ❌ 错误: {e}")
+                print(f"   {symbol:10} -> [X] 错误: {e}")
         
         print(f"\n✅ 成功获取具体名称的数量: {success_count}")
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -103,7 +103,7 @@ def test_cache_direct():
         if name1 == name2:
             print("✅ 缓存结果一致")
         else:
-            print("❌ 缓存结果不一致")
+            print("[X] 缓存结果不一致")
         
         # 检查缓存文件
         if os.path.exists(cache_file):
@@ -123,7 +123,7 @@ def test_cache_direct():
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -153,13 +153,13 @@ def test_normalization():
         print("📊 港股代码标准化测试:")
         for input_symbol, expected in test_cases:
             normalized = provider._normalize_hk_symbol(input_symbol)
-            status = "✅" if normalized == expected else "❌"
+            status = "✅" if normalized == expected else "[X]"
             print(f"   {input_symbol:10} -> {normalized:10} (期望: {expected}) {status}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -195,7 +195,7 @@ def main():
     ]
     
     for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{i+1}. {name}: {status}")
     
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
@@ -210,10 +210,10 @@ def main():
         print("5. ✅ 友好的错误处理")
         
         print("\n🔧 解决的问题:")
-        print("1. ❌ 'Too Many Requests' API限制错误")
-        print("2. ❌ 港股名称获取失败问题")
-        print("3. ❌ 缺乏缓存导致的重复API调用")
-        print("4. ❌ 港股代码格式不统一问题")
+        print("1. [X] 'Too Many Requests' API限制错误")
+        print("2. [X] 港股名称获取失败问题")
+        print("3. [X] 缺乏缓存导致的重复API调用")
+        print("4. [X] 港股代码格式不统一问题")
     else:
         print("⚠️ 部分测试失败，需要进一步优化")
     

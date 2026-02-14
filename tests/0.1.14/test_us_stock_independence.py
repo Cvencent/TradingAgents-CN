@@ -16,7 +16,7 @@ try:
     from tradingagents.agents.utils.agent_utils import Toolkit
     from tradingagents.default_config import DEFAULT_CONFIG
 except ImportError:
-    print("❌ 无法导入Toolkit，请检查项目结构")
+    print("[X] 无法导入Toolkit，请检查项目结构")
     sys.exit(1)
 
 def test_us_stock_data_independence():
@@ -48,7 +48,7 @@ def test_us_stock_data_independence():
             if hasattr(toolkit, tool_name):
                 print(f"   ✅ {tool_name} 可用")
             else:
-                print(f"   ❌ {tool_name} 不可用")
+                print(f"   [X] {tool_name} 不可用")
                 
         # 测试实际调用
         try:
@@ -62,7 +62,7 @@ def test_us_stock_data_independence():
             print(f"   ⚠️ 美股数据获取异常: {e}")
             
     except Exception as e:
-        print(f"   ❌ Toolkit创建失败: {e}")
+        print(f"   [X] Toolkit创建失败: {e}")
     
     # 测试场景2: OpenAI启用，实时数据禁用
     print("\n📋 场景2: OpenAI启用 + 实时数据禁用")
@@ -82,10 +82,10 @@ def test_us_stock_data_independence():
             if hasattr(toolkit, tool_name):
                 print(f"   ✅ {tool_name} 可用")
             else:
-                print(f"   ❌ {tool_name} 不可用")
+                print(f"   [X] {tool_name} 不可用")
                 
     except Exception as e:
-        print(f"   ❌ Toolkit创建失败: {e}")
+        print(f"   [X] Toolkit创建失败: {e}")
     
     print("\n💡 结论:")
     print("   美股数据获取现在基于 REALTIME_DATA_ENABLED 配置")

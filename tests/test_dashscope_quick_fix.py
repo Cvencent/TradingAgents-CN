@@ -34,7 +34,7 @@ def test_adapter_creation():
         return True
         
     except Exception as e:
-        print(f"❌ 适配器创建失败: {e}")
+        print(f"[X] 适配器创建失败: {e}")
         return False
 
 
@@ -65,7 +65,7 @@ def test_tool_binding_basic():
         return True
         
     except Exception as e:
-        print(f"❌ 工具绑定失败: {e}")
+        print(f"[X] 工具绑定失败: {e}")
         return False
 
 
@@ -88,12 +88,12 @@ def test_vs_old_adapter():
         # 检查继承关系
         from langchain_openai import ChatOpenAI
         is_openai_compatible = isinstance(new_llm, ChatOpenAI)
-        print(f"   OpenAI兼容: {'✅ 是' if is_openai_compatible else '❌ 否'}")
+        print(f"   OpenAI兼容: {'✅ 是' if is_openai_compatible else '[X] 否'}")
         
         return True
         
     except Exception as e:
-        print(f"❌ 对比测试失败: {e}")
+        print(f"[X] 对比测试失败: {e}")
         return False
 
 
@@ -116,7 +116,7 @@ def test_import_completeness():
             print(f"✅ {item}: 导入成功")
             success_count += 1
         except ImportError as e:
-            print(f"❌ {item}: 导入失败 - {e}")
+            print(f"[X] {item}: 导入失败 - {e}")
         except Exception as e:
             print(f"⚠️ {item}: 导入异常 - {e}")
     
@@ -189,7 +189,7 @@ def test_technical_analysis_simulation():
         return True
         
     except Exception as e:
-        print(f"❌ 技术面分析模拟失败: {e}")
+        print(f"[X] 技术面分析模拟失败: {e}")
         return False
 
 
@@ -216,7 +216,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ {test_name}测试异常: {e}")
+            print(f"[X] {test_name}测试异常: {e}")
             results.append((test_name, False))
     
     # 总结
@@ -225,7 +225,7 @@ def main():
     
     passed = 0
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1

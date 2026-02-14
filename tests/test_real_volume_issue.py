@@ -51,7 +51,7 @@ def test_real_tushare_volume_access():
             try:
                 result = manager._get_tushare_data('000001', '2025-07-20', '2025-07-26')
                 
-                if result and "❌" not in result:
+                if result and "[X]" not in result:
                     print(f"✅ 成功获取数据，长度: {len(result)}")
                     print(f"📊 结果预览: {result[:200]}...")
                     
@@ -63,30 +63,30 @@ def test_real_tushare_volume_access():
                         print(f"⚠️ 结果不包含成交量信息")
                         return False
                 else:
-                    print(f"❌ 获取数据失败: {result}")
+                    print(f"[X] 获取数据失败: {result}")
                     return False
                     
             except KeyError as e:
                 if "'volume'" in str(e):
                     print(f"🎯 确认存在KeyError: 'volume'问题！")
-                    print(f"❌ 错误详情: {e}")
+                    print(f"[X] 错误详情: {e}")
                     return False
                 else:
-                    print(f"❌ 其他KeyError: {e}")
+                    print(f"[X] 其他KeyError: {e}")
                     return False
             except Exception as e:
-                print(f"❌ 其他错误: {e}")
+                print(f"[X] 其他错误: {e}")
                 if "volume" in str(e).lower():
                     print(f"🎯 可能与volume相关的错误")
                 import traceback
                 traceback.print_exc()
                 return False
         else:
-            print("❌ Tushare数据源不可用")
+            print("[X] Tushare数据源不可用")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -130,32 +130,32 @@ def test_tushare_adapter_direct():
                         print(f"✅ 成功访问volume列: {volume_values[:3]}...")
                         return True
                     except KeyError as e:
-                        print(f"❌ KeyError访问volume列: {e}")
+                        print(f"[X] KeyError访问volume列: {e}")
                         return False
                 else:
-                    print(f"❌ volume列不存在")
+                    print(f"[X] volume列不存在")
                     print(f"📊 可用列: {list(data.columns)}")
                     return False
             else:
-                print(f"❌ 未获取到数据")
+                print(f"[X] 未获取到数据")
                 return False
                 
         except KeyError as e:
             if "'volume'" in str(e):
                 print(f"🎯 确认存在KeyError: 'volume'问题！")
-                print(f"❌ 错误详情: {e}")
+                print(f"[X] 错误详情: {e}")
                 return False
             else:
-                print(f"❌ 其他KeyError: {e}")
+                print(f"[X] 其他KeyError: {e}")
                 return False
         except Exception as e:
-            print(f"❌ 其他错误: {e}")
+            print(f"[X] 其他错误: {e}")
             import traceback
             traceback.print_exc()
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -192,7 +192,7 @@ def test_column_mapping_in_real_data():
                 vol_values = raw_data['vol'].tolist()
                 print(f"📊 vol列值: {vol_values}")
             else:
-                print(f"❌ 原始数据不包含'vol'列")
+                print(f"[X] 原始数据不包含'vol'列")
                 return False
             
             # 测试我们的标准化函数
@@ -214,17 +214,17 @@ def test_column_mapping_in_real_data():
                     print(f"✅ vol -> volume 映射正确")
                     return True
                 else:
-                    print(f"❌ vol -> volume 映射错误")
+                    print(f"[X] vol -> volume 映射错误")
                     return False
             else:
-                print(f"❌ 标准化后不包含'volume'列")
+                print(f"[X] 标准化后不包含'volume'列")
                 return False
         else:
-            print(f"❌ 未获取到原始数据")
+            print(f"[X] 未获取到原始数据")
             return False
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -249,7 +249,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试{test_name}异常: {e}")
+            print(f"[X] 测试{test_name}异常: {e}")
             results.append((test_name, False))
     
     # 总结结果
@@ -260,7 +260,7 @@ def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
+        status = "✅ 通过" if result else "[X] 失败"
         print(f"  {test_name}: {status}")
         if result:
             passed += 1
@@ -279,7 +279,7 @@ def main():
         print("  4. 📝 要求提供完整的错误堆栈信息")
         print("  5. ⚠️ 可能是已经修复的旧问题")
     else:
-        print("❌ 部分真实环境测试失败")
+        print("[X] 部分真实环境测试失败")
         print("🎯 确实存在volume相关问题，PR #173的修复是必要的")
         print("\n💡 建议:")
         print("  1. ✅ 接受PR #173的修复")

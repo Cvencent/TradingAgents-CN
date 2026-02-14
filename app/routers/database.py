@@ -199,7 +199,7 @@ async def import_data(
             "data": result
         }
     except Exception as e:
-        logger.error(f"❌ 导入数据失败: {e}")
+        logger.error(f"[X] 导入数据失败: {e}")
         import traceback
         logger.error(traceback.format_exc())
         raise HTTPException(

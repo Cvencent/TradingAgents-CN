@@ -145,11 +145,11 @@ def test_dashscope_tool_call_detection():
                         report = f"基于备用新闻数据的分析报告：\n\n{backup_news}\n\n分析结论..."
                         print(f"✅ 备用工具补救成功，长度: {len(report)} 字符")
                     else:
-                        print("❌ 所有新闻获取方式都失败，使用原始结果")
+                        print("[X] 所有新闻获取方式都失败，使用原始结果")
                         report = result.content
                         
             except Exception as e:
-                print(f"❌ 强制补救过程失败: {e}")
+                print(f"[X] 强制补救过程失败: {e}")
                 report = result.content
     
     if not report:
@@ -169,7 +169,7 @@ def test_dashscope_tool_call_detection():
         print("✅ 成功检测到工具调用失败并强制获取了真实新闻数据")
         print("✅ 基于真实新闻数据重新生成了分析报告")
     else:
-        print("❌ 补救机制可能存在问题")
+        print("[X] 补救机制可能存在问题")
     
     return True
 
@@ -178,5 +178,5 @@ if __name__ == "__main__":
         test_dashscope_tool_call_detection()
         print("\n🎉 所有测试完成！")
     except Exception as e:
-        print(f"\n❌ 测试过程中出现错误: {e}")
+        print(f"\n[X] 测试过程中出现错误: {e}")
         sys.exit(1)

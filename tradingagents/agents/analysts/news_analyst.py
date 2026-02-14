@@ -99,7 +99,7 @@ def create_news_analyst(llm, toolkit):
                     return f"股票{ticker}"
                     
             except Exception as e:
-                logger.error(f"❌ [DEBUG] 获取公司名称失败: {e}")
+                logger.error(f"[X] [DEBUG] 获取公司名称失败: {e}")
                 return f"股票{ticker}"
         
         company_name = _get_company_name(ticker, market_info)
@@ -165,7 +165,7 @@ def create_news_analyst(llm, toolkit):
         default_prompt_template = """您是一位专业的财经新闻分析师。
 🚨 CRITICAL REQUIREMENT - 绝对强制要求：
 
-❌ 禁止行为：
+[X] 禁止行为：
 - 绝对禁止在没有调用工具的情况下直接回答
 - 绝对禁止基于推测或假设生成任何分析内容
 - 绝对禁止跳过工具调用步骤
@@ -221,7 +221,20 @@ def create_news_analyst(llm, toolkit):
         prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
         prompt = prompt.partial(current_date=current_date)
         prompt = prompt.partial(ticker=ticker)
-        
+
+        # 🔥 构建完整的请求prompt（用于保存和前端展示）
+        try:
+            formatted_messages = prompt.format_messages(messages=state["messages"])
+            full_request_prompt = ""
+            for msg in formatted_messages:
+                msg_type = type(msg).__name__
+                if hasattr(msg, 'content'):
+                    full_request_prompt += f"\n\n=== {msg_type} ===\n{msg.content}"
+            logger.info(f"📊 [新闻分析师] 构建完整请求prompt，长度: {len(full_request_prompt)}")
+        except Exception as e:
+            logger.warning(f"⚠️ [新闻分析师] 构建完整prompt失败: {e}")
+            full_request_prompt = system_message  # 降级使用system_message
+
         # 获取模型信息用于统一新闻工具的特殊处理
         model_info = ""
         try:
@@ -311,6 +324,7 @@ def create_news_analyst(llm, toolkit):
                         return {
                             "messages": [clean_message],
                             "news_report": report,
+                            "news_request_prompt": full_request_prompt,
                             "news_tool_call_count": tool_call_count + 1
                         }
                     else:
@@ -322,7 +336,7 @@ def create_news_analyst(llm, toolkit):
                         logger.warning(f"[新闻分析师] 📄 失败的新闻内容: {pre_fetched_news}")
 
             except Exception as e:
-                logger.error(f"[新闻分析师] ❌ 预处理失败: {e}，回退到标准模式")
+                logger.error(f"[新闻分析师] [X] 预处理失败: {e}，回退到标准模式")
                 import traceback
                 logger.error(f"[新闻分析师] 📋 异常堆栈: {traceback.format_exc()}")
         
@@ -423,7 +437,7 @@ def create_news_analyst(llm, toolkit):
                                 logger.warning(f"📊 [新闻分析师] JSON解析失败: {e}")
                                 continue
                             except Exception as tool_error:
-                                logger.error(f"❌ [新闻分析师] 工具执行失败: {tool_error}")
+                                logger.error(f"[X] [新闻分析师] 工具执行失败: {tool_error}")
                                 continue
                         
                         if tool_messages:
@@ -486,14 +500,15 @@ def create_news_analyst(llm, toolkit):
                             # 直接返回结果，跳过后续处理
                             from langchain_core.messages import AIMessage
                             clean_message = AIMessage(content=report)
-                            
+
                             end_time = datetime.now()
                             time_taken = (end_time - start_time).total_seconds()
                             logger.info(f"[新闻分析师] 新闻分析完成（DeepSeek工具解析模式），总耗时: {time_taken:.2f}秒")
-                            
+
                             return {
                                 "messages": [clean_message],
                                 "news_report": report,
+                                "news_request_prompt": full_request_prompt,
                                 "news_tool_call_count": tool_call_count + 1
                             }
                         else:
@@ -502,7 +517,7 @@ def create_news_analyst(llm, toolkit):
                         logger.warning(f"📊 [新闻分析师] ⚠️ 未能在内容中提取到JSON工具调用，回退到补救机制")
                         
                 except Exception as e:
-                    logger.error(f"❌ [新闻分析师] 解析工具调用时发生错误: {e}")
+                    logger.error(f"[X] [新闻分析师] 解析工具调用时发生错误: {e}")
                     import traceback
                     logger.error(f"异常堆栈: {traceback.format_exc()}")
                     logger.warning(f"📊 [新闻分析师] ⚠️ 降级处理，回退到补救机制")
@@ -556,7 +571,7 @@ def create_news_analyst(llm, toolkit):
                         report = result.content if hasattr(result, 'content') else ""
 
                 except Exception as e:
-                    logger.error(f"[新闻分析师] ❌ 强制补救过程失败: {e}")
+                    logger.error(f"[新闻分析师] [X] 强制补救过程失败: {e}")
                     import traceback
                     logger.error(f"[新闻分析师] 📋 异常堆栈: {traceback.format_exc()}")
                     report = result.content if hasattr(result, 'content') else ""
@@ -578,6 +593,7 @@ def create_news_analyst(llm, toolkit):
         return {
             "messages": [clean_message],
             "news_report": report,
+            "news_request_prompt": full_request_prompt,
             "news_tool_call_count": tool_call_count + 1
         }
 

@@ -34,7 +34,7 @@ def test_env_config():
                     else:
                         print(f"  {line}")
     else:
-        print(f"❌ .env文件不存在: {env_file}")
+        print(f"[X] .env文件不存在: {env_file}")
         return False
     
     # 2. 测试数据库管理器
@@ -49,21 +49,21 @@ def test_env_config():
         status = db_manager.get_status_report()
         
         print("📊 数据库状态:")
-        print(f"  数据库可用: {'✅ 是' if status['database_available'] else '❌ 否'}")
+        print(f"  数据库可用: {'✅ 是' if status['database_available'] else '[X] 否'}")
         
         mongodb_info = status['mongodb']
-        print(f"  MongoDB: {'✅ 可用' if mongodb_info['available'] else '❌ 不可用'}")
+        print(f"  MongoDB: {'✅ 可用' if mongodb_info['available'] else '[X] 不可用'}")
         print(f"    地址: {mongodb_info['host']}:{mongodb_info['port']}")
         
         redis_info = status['redis']
-        print(f"  Redis: {'✅ 可用' if redis_info['available'] else '❌ 不可用'}")
+        print(f"  Redis: {'✅ 可用' if redis_info['available'] else '[X] 不可用'}")
         print(f"    地址: {redis_info['host']}:{redis_info['port']}")
         
         print(f"  缓存后端: {status['cache_backend']}")
-        print(f"  降级支持: {'✅ 启用' if status['fallback_enabled'] else '❌ 禁用'}")
+        print(f"  降级支持: {'✅ 启用' if status['fallback_enabled'] else '[X] 禁用'}")
         
     except Exception as e:
-        print(f"❌ 数据库管理器测试失败: {e}")
+        print(f"[X] 数据库管理器测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -98,11 +98,11 @@ def test_env_config():
         if loaded_data == test_data:
             print("✅ 数据加载成功，内容匹配")
         else:
-            print("❌ 数据加载失败或内容不匹配")
+            print("[X] 数据加载失败或内容不匹配")
             return False
         
     except Exception as e:
-        print(f"❌ 缓存系统测试失败: {e}")
+        print(f"[X] 缓存系统测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -159,7 +159,7 @@ def main():
         return success
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
         return False

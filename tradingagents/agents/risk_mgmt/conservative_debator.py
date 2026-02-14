@@ -77,6 +77,13 @@ def create_safe_debator(llm):
             else:
                 new_safe_history = [argument]
 
+        # 🔧 保存当前prompt到safe_prompts列表（用于前端展示）
+        current_safe_prompts = risk_debate_state.get("safe_prompts", [])
+        if not isinstance(current_safe_prompts, list):
+            current_safe_prompts = []
+        new_safe_prompts = current_safe_prompts + [prompt]
+        logger.info(f"🔍 [Safe Analyst] 保存prompt到safe_prompts，当前轮数: {len(new_safe_prompts)}, prompt长度: {len(prompt)} chars")
+
         new_risk_debate_state = {
             "history": history + "\n" + argument,
             "risky_history": risk_debate_state.get("risky_history", ""),
@@ -91,8 +98,21 @@ def create_safe_debator(llm):
                 "current_neutral_response", ""
             ),
             "count": new_count,
+            "safe_prompts": new_safe_prompts,  # 🔧 保存prompts
         }
 
-        return {"risk_debate_state": new_risk_debate_state}
+        logger.info(f"🔍 [Safe Analyst] 返回risk_debate_state，包含字段: {list(new_risk_debate_state.keys())}")
+        
+        # 🔥 关键修复：同时返回 safe_request_prompt 字段（用于前端展示原始prompt）
+        # 将所有轮次的prompt合并，用分隔符隔开
+        full_safe_prompt = "\n\n" + "="*60 + "\n【保守分析师 - 多轮辩论Prompts】\n" + "="*60 + "\n\n"
+        for i, p in enumerate(new_safe_prompts, 1):
+            full_safe_prompt += f"\n--- 第 {i} 轮 ---\n{p}\n"
+        
+        logger.info(f"🔍 [Safe Analyst] 返回 safe_request_prompt，总长度: {len(full_safe_prompt)} chars")
+        return {
+            "risk_debate_state": new_risk_debate_state,
+            "safe_request_prompt": full_safe_prompt  # 🔥 保存完整的请求prompt
+        }
 
     return safe_node

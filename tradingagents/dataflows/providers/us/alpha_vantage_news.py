@@ -104,7 +104,7 @@ def get_news(
             return format_response_as_string(data, f"News for {ticker}")
             
     except Exception as e:
-        logger.error(f"❌ [Alpha Vantage] 获取新闻失败 {ticker}: {e}")
+        logger.error(f"[X] [Alpha Vantage] 获取新闻失败 {ticker}: {e}")
         return f"Error retrieving news for {ticker}: {str(e)}"
 
 
@@ -167,7 +167,7 @@ def get_insider_transactions(
             return format_response_as_string(data, f"Insider Transactions for {symbol}")
             
     except Exception as e:
-        logger.error(f"❌ [Alpha Vantage] 获取内部人交易失败 {symbol}: {e}")
+        logger.error(f"[X] [Alpha Vantage] 获取内部人交易失败 {symbol}: {e}")
         return f"Error retrieving insider transactions for {symbol}: {str(e)}"
 
 
@@ -248,6 +248,6 @@ def get_market_news(
             return format_response_as_string(data, "Market News")
             
     except Exception as e:
-        logger.error(f"❌ [Alpha Vantage] 获取市场新闻失败: {e}")
+        logger.error(f"[X] [Alpha Vantage] 获取市场新闻失败: {e}")
         return f"Error retrieving market news: {str(e)}"
 

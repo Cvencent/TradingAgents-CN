@@ -636,7 +636,7 @@ async def add_llm_config(
             llm_config = LLMConfig(**llm_config_data)
             logger.info(f"✅ LLMConfig对象创建成功")
         except Exception as e:
-            logger.error(f"❌ LLMConfig对象创建失败: {e}")
+            logger.error(f"[X] LLMConfig对象创建失败: {e}")
             logger.error(f"📋 失败的数据: {llm_config_data}")
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -671,7 +671,7 @@ async def add_llm_config(
                 pass
             return {"message": "大模型配置更新成功", "model_name": llm_config.model_name}
         else:
-            logger.error(f"❌ 大模型配置保存失败")
+            logger.error(f"[X] 大模型配置保存失败")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="大模型配置更新失败"
@@ -679,7 +679,7 @@ async def add_llm_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 添加大模型配置异常: {e}")
+        logger.error(f"[X] 添加大模型配置异常: {e}")
         import traceback
         logger.error(f"📋 异常堆栈: {traceback.format_exc()}")
         raise HTTPException(
@@ -917,7 +917,7 @@ async def test_saved_database_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 测试数据库配置失败: {e}")
+        logger.error(f"[X] 测试数据库配置失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"测试数据库配置失败: {str(e)}"
@@ -959,7 +959,7 @@ async def get_llm_configs(
 
         return _sanitize_llm_configs(filtered_configs)
     except Exception as e:
-        logger.error(f"❌ 获取大模型配置失败: {e}")
+        logger.error(f"[X] 获取大模型配置失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"获取大模型配置失败: {str(e)}"
@@ -1010,7 +1010,7 @@ async def delete_llm_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 删除大模型配置异常 - {provider}/{model_name}: {e}")
+        logger.error(f"[X] 删除大模型配置异常 - {provider}/{model_name}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"删除大模型配置失败: {str(e)}"
@@ -1127,14 +1127,14 @@ async def update_data_source_config(
                                 _req['api_key'] = ds_config.api_key
                             else:
                                 # 不同，说明用户修改了但修改得不完整
-                                logger.error(f"❌ [API Key 验证] 截断值不匹配，用户可能修改了不完整的密钥")
+                                logger.error(f"[X] [API Key 验证] 截断值不匹配，用户可能修改了不完整的密钥")
                                 raise HTTPException(
                                     status_code=status.HTTP_400_BAD_REQUEST,
                                     detail=f"API Key 格式错误：检测到截断标记但与数据库中的值不匹配，请输入完整的 API Key"
                                 )
                         else:
                             # 数据库中没有原值，但前端发送了截断值，这是不合理的
-                            logger.error(f"❌ [API Key 验证] 数据库中没有原值，但收到了截断值")
+                            logger.error(f"[X] [API Key 验证] 数据库中没有原值，但收到了截断值")
                             raise HTTPException(
                                 status_code=status.HTTP_400_BAD_REQUEST,
                                 detail=f"API Key 格式错误：请输入完整的 API Key"
@@ -1145,7 +1145,7 @@ async def update_data_source_config(
                         _req['api_key'] = ds_config.api_key or ""
                     # 如果是新输入的密钥，必须验证有效性
                     elif not is_valid_api_key(api_key):
-                        logger.error(f"❌ [API Key 验证] 验证失败: '{api_key}' (长度: {len(api_key)})")
+                        logger.error(f"[X] [API Key 验证] 验证失败: '{api_key}' (长度: {len(api_key)})")
                         logger.error(f"   - 长度检查: {len(api_key)} > 10? {len(api_key) > 10}")
                         logger.error(f"   - 占位符前缀检查: startswith('your_')? {api_key.startswith('your_')}, startswith('your-')? {api_key.startswith('your-')}")
                         logger.error(f"   - 占位符后缀检查: endswith('_here')? {api_key.endswith('_here')}, endswith('-here')? {api_key.endswith('-here')}")
@@ -1183,14 +1183,14 @@ async def update_data_source_config(
                                 _req['api_secret'] = ds_config.api_secret
                             else:
                                 # 不同，说明用户修改了但修改得不完整
-                                logger.error(f"❌ [API Secret 验证] 截断值不匹配，用户可能修改了不完整的密钥")
+                                logger.error(f"[X] [API Secret 验证] 截断值不匹配，用户可能修改了不完整的密钥")
                                 raise HTTPException(
                                     status_code=status.HTTP_400_BAD_REQUEST,
                                     detail=f"API Secret 格式错误：检测到截断标记但与数据库中的值不匹配，请输入完整的 API Secret"
                                 )
                         else:
                             # 数据库中没有原值，但前端发送了截断值，这是不合理的
-                            logger.error(f"❌ [API Secret 验证] 数据库中没有原值，但收到了截断值")
+                            logger.error(f"[X] [API Secret 验证] 数据库中没有原值，但收到了截断值")
                             raise HTTPException(
                                 status_code=status.HTTP_400_BAD_REQUEST,
                                 detail=f"API Secret 格式错误：请输入完整的 API Secret"
@@ -1201,7 +1201,7 @@ async def update_data_source_config(
                         _req['api_secret'] = ds_config.api_secret or ""
                     # 如果是新输入的密钥，必须验证有效性
                     elif not is_valid_api_key(api_secret):
-                        logger.error(f"❌ [API Secret 验证] 验证失败: '{api_secret}' (长度: {len(api_secret)})")
+                        logger.error(f"[X] [API Secret 验证] 验证失败: '{api_secret}' (长度: {len(api_secret)})")
                         logger.error(f"   - 长度检查: {len(api_secret)} > 10? {len(api_secret) > 10}")
                         raise HTTPException(
                             status_code=status.HTTP_400_BAD_REQUEST,
@@ -2053,7 +2053,7 @@ async def save_model_catalog(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 保存模型目录失败: {str(e)}", exc_info=True)
+        logger.error(f"[X] 保存模型目录失败: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"保存模型目录失败: {str(e)}"
@@ -2129,7 +2129,7 @@ async def get_database_configs(
         logger.info(f"✅ 获取到 {len(configs)} 个数据库配置")
         return configs
     except Exception as e:
-        logger.error(f"❌ 获取数据库配置失败: {e}")
+        logger.error(f"[X] 获取数据库配置失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"获取数据库配置失败: {str(e)}"
@@ -2156,7 +2156,7 @@ async def get_database_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 获取数据库配置失败: {e}")
+        logger.error(f"[X] 获取数据库配置失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"获取数据库配置失败: {str(e)}"
@@ -2198,7 +2198,7 @@ async def add_database_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 添加数据库配置失败: {e}")
+        logger.error(f"[X] 添加数据库配置失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"添加数据库配置失败: {str(e)}"
@@ -2248,7 +2248,7 @@ async def update_database_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 更新数据库配置失败: {e}")
+        logger.error(f"[X] 更新数据库配置失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"更新数据库配置失败: {str(e)}"
@@ -2287,7 +2287,7 @@ async def delete_database_config(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ 删除数据库配置失败: {e}")
+        logger.error(f"[X] 删除数据库配置失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"删除数据库配置失败: {str(e)}"

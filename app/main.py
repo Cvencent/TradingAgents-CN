@@ -13,6 +13,24 @@ For commercial licensing, please contact: hsliup@163.com
 商业许可咨询，请联系：hsliup@163.com
 """
 
+# 🔥 在Windows上强制使用UTF-8编码，避免emoji字符导致的编码错误
+import sys
+import os
+if sys.platform == 'win32':
+    # 设置环境变量
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    # 重新配置stdout和stderr使用UTF-8
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8')
+
+# 🔧 设置Tushare数据目录到项目目录下（避免沙箱文件访问限制）
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+tushare_data_dir = os.path.join(project_root, '.tushare_data')
+os.makedirs(tushare_data_dir, exist_ok=True)
+os.environ['TUSHARE_DATA_DIR'] = tushare_data_dir
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -123,7 +141,7 @@ async def _print_config_summary(logger):
                 except Exception as e:
                     logger.warning(f"     Could not preview file: {e}")
             else:
-                logger.info(f"  ❌ Not found: {env_file}")
+                logger.info(f"  [X] Not found: {env_file}")
         
         if not env_file_found:
             logger.warning("⚠️  No .env file found in checked locations")
@@ -550,7 +568,7 @@ async def lifespan(app: FastAPI):
                     f"耗时{(datetime.utcnow() - result['start_time']).total_seconds():.2f}秒"
                 )
             except Exception as e:
-                logger.error(f"❌ 新闻同步失败: {e}", exc_info=True)
+                logger.error(f"[X] 新闻同步失败: {e}", exc_info=True)
 
         # ==================== 港股/美股数据配置 ====================
         # 港股和美股采用按需获取+缓存模式，不再配置定时同步任务
@@ -575,7 +593,7 @@ async def lifespan(app: FastAPI):
         set_scheduler_instance(scheduler)
         logger.info("✅ 调度器服务已初始化")
     except Exception as e:
-        logger.error(f"❌ 调度器启动失败: {e}", exc_info=True)
+        logger.error(f"[X] 调度器启动失败: {e}", exc_info=True)
         raise  # 抛出异常，阻止应用启动
 
     try:
@@ -649,7 +667,7 @@ async def log_requests(request: Request, call_next):
     process_time = time.time() - start_time
 
     # 记录请求完成
-    status_emoji = "✅" if response.status_code < 400 else "❌"
+    status_emoji = "✅" if response.status_code < 400 else "[X]"
     logger.info(f"{status_emoji} {request.method} {request.url.path} - 状态: {response.status_code} - 耗时: {process_time:.3f}s")
 
     return response

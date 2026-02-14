@@ -35,12 +35,12 @@ def test_300750_fundamentals():
         if "PE" in result or "市盈率" in result:
             print("✅ 发现PE估值指标")
         else:
-            print("❌ 未发现PE估值指标")
+            print("[X] 未发现PE估值指标")
             
         if "PB" in result or "市净率" in result:
             print("✅ 发现PB估值指标")
         else:
-            print("❌ 未发现PB估值指标")
+            print("[X] 未发现PB估值指标")
             
         # 打印完整的分析结果
         print(f"\n" + "="*80)
@@ -50,7 +50,7 @@ def test_300750_fundamentals():
         print("="*80)
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[X] 测试失败: {e}")
         import traceback
         traceback.print_exc()
 

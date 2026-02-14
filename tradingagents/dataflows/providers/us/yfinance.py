@@ -190,7 +190,7 @@ def get_stock_data_with_indicators(
         return header + csv_string
 
     except Exception as e:
-        logger.error(f"❌ [yfinance] 获取股票数据失败 {symbol}: {e}")
+        logger.error(f"[X] [yfinance] 获取股票数据失败 {symbol}: {e}")
         return f"Error retrieving stock data for {symbol}: {str(e)}"
 
 
@@ -294,7 +294,7 @@ def get_technical_indicator(
 
         if indicator not in indicator_descriptions:
             supported = ", ".join(indicator_descriptions.keys())
-            return f"❌ 不支持的指标 '{indicator}'。支持的指标: {supported}"
+            return f"[X] 不支持的指标 '{indicator}'。支持的指标: {supported}"
 
         # 计算日期范围
         curr_date_dt = datetime.strptime(curr_date, "%Y-%m-%d")
@@ -307,7 +307,7 @@ def get_technical_indicator(
         data = ticker.history(start=start_date, end=curr_date)
 
         if data.empty:
-            return f"❌ 未找到 {symbol} 的数据"
+            return f"[X] 未找到 {symbol} 的数据"
 
         # 重置索引，将日期作为列
         data = data.reset_index()
@@ -347,7 +347,7 @@ def get_technical_indicator(
         return result
 
     except ImportError:
-        return "❌ 需要安装 stockstats 库: pip install stockstats"
+        return "[X] 需要安装 stockstats 库: pip install stockstats"
     except Exception as e:
-        logger.error(f"❌ [yfinance] 计算技术指标失败 {symbol}/{indicator}: {e}")
+        logger.error(f"[X] [yfinance] 计算技术指标失败 {symbol}/{indicator}: {e}")
         return f"Error calculating indicator {indicator} for {symbol}: {str(e)}"

@@ -24,11 +24,11 @@ def render_user_activity_dashboard():
     
     # 检查权限
     if not auth_manager or not auth_manager.check_permission("admin"):
-        st.error("❌ 您没有权限访问用户活动记录")
+        st.error("[X] 您没有权限访问用户活动记录")
         return
     
     if not user_activity_logger:
-        st.error("❌ 用户活动记录器未初始化")
+        st.error("[X] 用户活动记录器未初始化")
         return
     
     st.title("📊 用户活动记录仪表板")
@@ -209,7 +209,7 @@ def render_activity_list(activities: List[Dict[str, Any]]):
             "角色": activity.get('user_role', 'unknown'),
             "活动类型": activity.get('action_type', 'unknown'),
             "活动名称": activity.get('action_name', 'unknown'),
-            "成功": "✅" if activity.get('success', True) else "❌",
+            "成功": "✅" if activity.get('success', True) else "[X]",
             "耗时(ms)": activity.get('duration_ms', ''),
             "详情": json.dumps(activity.get('details', {}), ensure_ascii=False)[:100] + "..." if activity.get('details') else ""
         })
@@ -267,7 +267,7 @@ def render_user_analysis(activities: List[Dict[str, Any]]):
             timeline_data.append({
                 "时间": timestamp.strftime('%m-%d %H:%M'),
                 "活动": f"{activity.get('action_type', 'unknown')} - {activity.get('action_name', 'unknown')}",
-                "状态": "✅" if activity.get('success', True) else "❌"
+                "状态": "✅" if activity.get('success', True) else "[X]"
             })
         
         if timeline_data:
@@ -349,7 +349,7 @@ def render_export_options(activities: List[Dict[str, Any]]):
             st.success(f"✅ 成功准备 {len(activities)} 条记录的导出文件")
             
         except Exception as e:
-            st.error(f"❌ 导出失败: {e}")
+            st.error(f"[X] 导出失败: {e}")
 
 def render_activity_summary_widget():
     """渲染活动摘要小部件（用于主页面）"""
@@ -393,7 +393,7 @@ def render_activity_summary_widget():
         recent_activities = activities[:5]
         for activity in recent_activities:
             timestamp = datetime.fromtimestamp(activity['timestamp'])
-            success_icon = "✅" if activity.get('success', True) else "❌"
+            success_icon = "✅" if activity.get('success', True) else "[X]"
             st.write(f"{success_icon} {timestamp.strftime('%H:%M')} - {activity.get('username', 'unknown')}: {activity.get('action_name', 'unknown')}")
     else:
         st.info("📭 最近24小时无活动记录")
