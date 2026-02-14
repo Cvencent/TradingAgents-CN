@@ -334,15 +334,18 @@ def create_market_analyst(llm, toolkit):
             )
 
             # 🔧 更新工具调用计数器
+            # 🔥 构建包含AI回复的完整prompt
+            full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复】\n" + "="*60 + "\n"
+            full_prompt_with_response += f"\n{report}\n"
             logger.info(f"📊 [技术面分析师] 准备返回结果:")
             logger.info(f"  - market_report长度: {len(report) if report else 0}")
-            logger.info(f"  - market_request_prompt长度: {len(full_request_prompt) if full_request_prompt else 0}")
+            logger.info(f"  - market_request_prompt长度: {len(full_prompt_with_response) if full_prompt_with_response else 0}")
             logger.info(f"  - tool_call_count: {tool_call_count + 1}")
             
             return {
                 "messages": [result],
                 "market_report": report,
-                "market_request_prompt": full_request_prompt,  # 🔥 保存完整的请求prompt
+                "market_request_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
                 "market_tool_call_count": tool_call_count + 1
             }
         else:
@@ -356,15 +359,18 @@ def create_market_analyst(llm, toolkit):
                 report = str(result)
             
             # 🔧 更新工具调用计数器
+            # 🔥 构建包含AI回复的完整prompt
+            full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复】\n" + "="*60 + "\n"
+            full_prompt_with_response += f"\n{report}\n"
             logger.info(f"📊 [技术面分析师] 准备返回结果:")
             logger.info(f"  - market_report长度: {len(report) if report else 0}")
-            logger.info(f"  - market_request_prompt长度: {len(full_request_prompt) if full_request_prompt else 0}")
+            logger.info(f"  - market_request_prompt长度: {len(full_prompt_with_response) if full_prompt_with_response else 0}")
             logger.info(f"  - tool_call_count: {tool_call_count + 1}")
             
             return {
                 "messages": [result],
                 "market_report": report,
-                "market_request_prompt": full_request_prompt,  # 🔥 保存完整的请求prompt
+                "market_request_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
                 "market_tool_call_count": tool_call_count + 1
             }
 

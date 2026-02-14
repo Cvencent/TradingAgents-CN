@@ -735,10 +735,14 @@ def create_fundamentals_analyst(llm, toolkit):
                     report = str(force_result.content) if hasattr(force_result, 'content') else "基本面分析完成"
                     logger.info(f"✅ [强制生成报告] 成功生成报告，长度: {len(report)}字符")
 
+                    # 🔥 构建包含AI回复的完整prompt
+                    full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 强制生成报告】\n" + "="*60 + "\n"
+                    full_prompt_with_response += f"\n{report}\n"
+
                     return {
                         "fundamentals_report": report,
                         "messages": [force_result],
-                        "fundamentals_prompt": system_prompt,  # 保存 prompt
+                        "fundamentals_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
                         "fundamentals_tool_call_count": tool_call_count
                     }
 
@@ -746,10 +750,13 @@ def create_fundamentals_analyst(llm, toolkit):
                     # 达到最大调用次数，但还没有工具结果（不应该发生）
                     logger.warning(f"🔧 [异常情况] 达到最大工具调用次数 {max_tool_calls}，但没有工具结果")
                     fallback_report = f"基本面分析（股票代码：{ticker}）\n\n由于达到最大工具调用次数限制，使用简化分析模式。建议检查数据源连接或降低分析复杂度。"
+                    # 🔥 构建包含AI回复的完整prompt
+                    full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复 - 达到最大调用次数】\n" + "="*60 + "\n"
+                    full_prompt_with_response += f"\n{result.content if hasattr(result, 'content') else str(result)}\n"
                     return {
                         "messages": [result],
                         "fundamentals_report": fallback_report,
-                        "fundamentals_prompt": system_prompt,  # 保存 prompt
+                        "fundamentals_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
                         "fundamentals_tool_call_count": tool_call_count
                     }
                 else:
@@ -825,10 +832,13 @@ def create_fundamentals_analyst(llm, toolkit):
                     logger.info(f"✅ [决策] 基本面分析完成，跳过重复调用成功")
 
                     # 🔧 保持工具调用计数器不变（已在开始时根据ToolMessage更新）
+                    # 🔥 构建包含AI回复的完整prompt
+                    full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复（跳过强制工具调用）】\n" + "="*60 + "\n"
+                    full_prompt_with_response += f"\n{report}\n"
                     return {
                         "fundamentals_report": report,
                         "messages": [result],
-                        "fundamentals_prompt": system_prompt,  # 保存 prompt
+                        "fundamentals_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
                         "fundamentals_tool_call_count": tool_call_count
                     }
 
@@ -934,20 +944,26 @@ def create_fundamentals_analyst(llm, toolkit):
                     report = f"基本面分析失败：{str(e)}"
 
                 # 🔧 保持工具调用计数器不变（已在开始时根据ToolMessage更新）
+                # 🔥 构建包含AI回复的完整prompt
+                full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 强制工具调用分析】\n" + "="*60 + "\n"
+                full_prompt_with_response += f"\n{report}\n"
                 return {
                     "fundamentals_report": report,
-                    "fundamentals_prompt": system_prompt,  # 保存 prompt
+                    "fundamentals_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
                     "fundamentals_tool_call_count": tool_call_count
                 }
 
         # 这里不应该到达，但作为备用
         logger.info(f"📊 [基本面分析师] 准备返回结果(备用路径):")
         logger.info(f"  - fundamentals_report长度: {len(report) if report else 0}")
-        logger.info(f"  - fundamentals_prompt长度: {len(system_prompt) if system_prompt else 0}")
+        logger.info(f"  - fundamentals_prompt长度: {len(full_request_prompt) if full_request_prompt else 0}")
         # 🔧 保持工具调用计数器不变（已在开始时根据ToolMessage更新）
+        # 🔥 构建包含AI回复的完整prompt（备用路径）
+        full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复（备用路径）】\n" + "="*60 + "\n"
+        full_prompt_with_response += f"\n{report if report else '无分析报告'}\n"
         return {
             "fundamentals_report": report,
-            "fundamentals_prompt": system_prompt,  # 保存 prompt
+            "fundamentals_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
             "fundamentals_tool_call_count": tool_call_count
         }
 

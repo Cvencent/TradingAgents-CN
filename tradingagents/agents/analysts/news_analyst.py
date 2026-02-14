@@ -321,10 +321,13 @@ def create_news_analyst(llm, toolkit):
                         time_taken = (end_time - start_time).total_seconds()
                         logger.info(f"[新闻分析师] 新闻分析完成（预处理模式），总耗时: {time_taken:.2f}秒")
                         # 🔧 更新工具调用计数器
+                        # 🔥 构建包含AI回复的完整prompt
+                        full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复（预处理模式）】\n" + "="*60 + "\n"
+                        full_prompt_with_response += f"\n{report}\n"
                         return {
                             "messages": [clean_message],
                             "news_report": report,
-                            "news_request_prompt": full_request_prompt,
+                            "news_request_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
                             "news_tool_call_count": tool_call_count + 1
                         }
                     else:
@@ -505,10 +508,17 @@ def create_news_analyst(llm, toolkit):
                             time_taken = (end_time - start_time).total_seconds()
                             logger.info(f"[新闻分析师] 新闻分析完成（DeepSeek工具解析模式），总耗时: {time_taken:.2f}秒")
 
+                            # 🔥 构建包含工具结果的完整prompt（用于前端展示）
+                            full_prompt_with_tools = full_request_prompt + "\n\n" + "="*60 + "\n【AI 工具调用与结果】\n" + "="*60 + "\n"
+                            full_prompt_with_tools += f"\n=== AI 请求工具调用 ===\n{result.content}\n"
+                            for i, tm in enumerate(tool_messages):
+                                full_prompt_with_tools += f"\n=== 工具结果 {i+1} ===\n{tm.content}\n"
+                            full_prompt_with_tools += f"\n=== AI 最终分析 ===\n{clean_message.content}\n"
+
                             return {
                                 "messages": [clean_message],
                                 "news_report": report,
-                                "news_request_prompt": full_request_prompt,
+                                "news_request_prompt": full_prompt_with_tools,  # 🔥 保存包含工具结果的完整prompt
                                 "news_tool_call_count": tool_call_count + 1
                             }
                         else:
@@ -590,10 +600,13 @@ def create_news_analyst(llm, toolkit):
         logger.info(f"[新闻分析师] ✅ 返回清洁消息，报告长度: {len(report)} 字符")
 
         # 🔧 更新工具调用计数器
+        # 🔥 构建包含AI回复的完整prompt
+        full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复】\n" + "="*60 + "\n"
+        full_prompt_with_response += f"\n{report}\n"
         return {
             "messages": [clean_message],
             "news_report": report,
-            "news_request_prompt": full_request_prompt,
+            "news_request_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
             "news_tool_call_count": tool_call_count + 1
         }
 

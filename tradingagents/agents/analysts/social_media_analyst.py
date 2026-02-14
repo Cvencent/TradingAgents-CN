@@ -356,11 +356,18 @@ def create_social_media_analyst(llm, toolkit):
                             
                             logger.info(f"📊 [社交媒体分析师] ✅ 基于工具结果生成完整分析报告，长度: {len(report)}")
                             
+                            # 🔥 构建包含工具结果的完整prompt（用于前端展示）
+                            full_prompt_with_tools = full_request_prompt + "\n\n" + "="*60 + "\n【AI 工具调用与结果】\n" + "="*60 + "\n"
+                            full_prompt_with_tools += f"\n=== AI 请求工具调用 ===\n{result.content}\n"
+                            for i, tm in enumerate(tool_messages):
+                                full_prompt_with_tools += f"\n=== 工具结果 {i+1} ===\n{tm.content}\n"
+                            full_prompt_with_tools += f"\n=== AI 最终分析 ===\n{final_result.content}\n"
+                            
                             # 返回包含工具调用和最终分析的完整消息序列
                             return {
                                 "messages": [result] + tool_messages + [final_result],
                                 "sentiment_report": report,
-                                "sentiment_request_prompt": full_request_prompt,
+                                "sentiment_request_prompt": full_prompt_with_tools,  # 🔥 保存包含工具结果的完整prompt
                                 "sentiment_tool_call_count": tool_call_count + 1
                             }
                         else:
@@ -491,10 +498,13 @@ def create_social_media_analyst(llm, toolkit):
                     report = result.content
 
         # 🔧 更新工具调用计数器
+        # 🔥 构建包含AI回复的完整prompt
+        full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复】\n" + "="*60 + "\n"
+        full_prompt_with_response += f"\n{report}\n"
         return {
             "messages": [result],
             "sentiment_report": report,
-            "sentiment_request_prompt": full_request_prompt,
+            "sentiment_request_prompt": full_prompt_with_response,  # 🔥 保存包含AI回复的完整prompt
             "sentiment_tool_call_count": tool_call_count + 1
         }
 

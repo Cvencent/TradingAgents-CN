@@ -313,10 +313,23 @@ def create_market_trend_analyst(llm, toolkit):
                 analyst_name="市场分析师"
             )
 
+            # 🔥 构建包含工具结果的完整prompt（用于前端展示）
+            # 从 messages 中提取工具调用和结果
+            full_prompt_with_tools = full_request_prompt + "\n\n" + "="*60 + "\n【AI 工具调用与结果】\n" + "="*60 + "\n"
+            for i, msg in enumerate(messages):
+                msg_type = type(msg).__name__
+                if hasattr(msg, 'content'):
+                    if msg_type == 'AIMessage' and i == 0:
+                        full_prompt_with_tools += f"\n=== AI 请求工具调用 ===\n{msg.content}\n"
+                    elif msg_type == 'ToolMessage':
+                        full_prompt_with_tools += f"\n=== 工具结果 ===\n{msg.content}\n"
+                    elif msg_type == 'AIMessage' and i > 0:
+                        full_prompt_with_tools += f"\n=== AI 最终分析 ===\n{msg.content}\n"
+
             return {
                 "messages": [result],
                 "market_trend_report": report,
-                "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                "market_request_prompt": full_prompt_with_tools  # 🔥 保存包含工具结果的完整prompt
             }
         else:
             # 非Google模型的处理逻辑
@@ -413,27 +426,40 @@ def create_market_trend_analyst(llm, toolkit):
 
                             logger.info(f"📊 [市场分析师] ✅ 基于工具结果生成完整分析报告，长度: {len(report)}")
 
+                            # 🔥 构建包含工具结果的完整prompt（用于前端展示）
+                            full_prompt_with_tools = full_request_prompt + "\n\n" + "="*60 + "\n【AI 工具调用与结果】\n" + "="*60 + "\n"
+                            full_prompt_with_tools += f"\n=== AI 请求工具调用 ===\n{result.content}\n"
+                            for i, tm in enumerate(tool_messages):
+                                full_prompt_with_tools += f"\n=== 工具结果 {i+1} ===\n{tm.content}\n"
+                            full_prompt_with_tools += f"\n=== AI 最终分析 ===\n{final_result.content}\n"
+                            
                             # 返回包含工具调用和最终分析的完整消息序列
                             return {
                                 "messages": [result] + tool_messages + [final_result],
                                 "market_trend_report": report,
-                                "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                                "market_request_prompt": full_prompt_with_tools  # 🔥 保存包含工具结果的完整prompt
                             }
                         else:
                             logger.warning(f"📊 [市场分析师] ⚠️ 未能成功执行任何工具，返回原始内容")
                             report = str(result.content)
+                            # 🔥 构建包含AI回复的完整prompt
+                            full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复】\n" + "="*60 + "\n"
+                            full_prompt_with_response += f"\n{result.content}\n"
                             return {
                                 "messages": [result],
                                 "market_trend_report": report,
-                                "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                                "market_request_prompt": full_prompt_with_response  # 🔥 保存包含AI回复的完整prompt
                             }
                     else:
                         logger.warning(f"📊 [市场分析师] ⚠️ 未能在内容中提取到JSON工具调用，返回原始内容")
                         report = str(result.content)
+                        # 🔥 构建包含AI回复的完整prompt
+                        full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复】\n" + "="*60 + "\n"
+                        full_prompt_with_response += f"\n{result.content}\n"
                         return {
                             "messages": [result],
                             "market_trend_report": report,
-                            "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                            "market_request_prompt": full_prompt_with_response  # 🔥 保存包含AI回复的完整prompt
                         }
                 except Exception as e:
                     logger.error(f"[X] [市场分析师] 解析工具调用时发生错误: {e}")
@@ -441,10 +467,13 @@ def create_market_trend_analyst(llm, toolkit):
                     # 降级处理：直接使用原始内容
                     report = str(result.content)
                     logger.info(f"📊 [市场分析师] ⚠️ 降级处理，返回原始内容，长度: {len(report)}")
+                    # 🔥 构建包含AI回复的完整prompt
+                    full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复】\n" + "="*60 + "\n"
+                    full_prompt_with_response += f"\n{result.content}\n"
                     return {
                         "messages": [result],
                         "market_trend_report": report,
-                        "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                        "market_request_prompt": full_prompt_with_response  # 🔥 保存包含AI回复的完整prompt
                     }
             elif has_real_tool_calls:
                 # 有工具调用，执行工具并生成完整分析报告
@@ -523,28 +552,42 @@ def create_market_trend_analyst(llm, toolkit):
 
                     logger.info(f"📊 [市场分析师] 生成完整分析报告，长度: {len(report)}")
 
+                    # 🔥 构建包含工具结果的完整prompt（用于前端展示）
+                    full_prompt_with_tools = full_request_prompt + "\n\n" + "="*60 + "\n【AI 工具调用与结果】\n" + "="*60 + "\n"
+                    full_prompt_with_tools += f"\n=== AI 请求工具调用 ===\n{result.content}\n"
+                    for i, tm in enumerate(tool_messages):
+                        full_prompt_with_tools += f"\n=== 工具结果 {i+1} ===\n{tm.content}\n"
+                    full_prompt_with_tools += f"\n=== AI 最终分析 ===\n{final_result.content}\n"
+
                     return {
                         "messages": [result] + tool_messages + [final_result],
                         "market_trend_report": report,
-                        "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                        "market_request_prompt": full_prompt_with_tools  # 🔥 保存包含工具结果的完整prompt
                     }
                 except Exception as e:
                     logger.error(f"[X] [市场分析师] 工具执行或分析生成失败: {e}")
                     logger.error(f"[X] [市场分析师] 错误堆栈: {traceback.format_exc()}")
                     report = f"市场分析师调用了工具但分析生成失败: {[call.get('name', 'unknown') for call in result.tool_calls]}"
+                    # 🔥 构建包含工具调用失败的完整prompt
+                    full_prompt_with_error = full_request_prompt + "\n\n" + "="*60 + "\n【AI 工具调用 - 执行失败】\n" + "="*60 + "\n"
+                    full_prompt_with_error += f"\n=== AI 请求工具调用 ===\n{result.content}\n"
+                    full_prompt_with_error += f"\n=== 错误信息 ===\n{report}\n"
                     return {
                         "messages": [result],
                         "market_trend_report": report,
-                        "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                        "market_request_prompt": full_prompt_with_error  # 🔥 保存包含工具调用失败的完整prompt
                     }
             else:
                 # 没有工具调用，直接使用LLM返回的内容
                 logger.info(f"📊 [市场分析师] ✅ 直接回复（无工具调用），长度: {len(result.content)}")
                 report = str(result.content)
+                # 🔥 构建包含AI回复的完整prompt
+                full_prompt_with_response = full_request_prompt + "\n\n" + "="*60 + "\n【AI 回复（无工具调用）】\n" + "="*60 + "\n"
+                full_prompt_with_response += f"\n{result.content}\n"
                 return {
                     "messages": [result],
                     "market_trend_report": report,
-                    "market_request_prompt": full_request_prompt  # 🔥 保存完整的请求prompt
+                    "market_request_prompt": full_prompt_with_response  # 🔥 保存包含AI回复的完整prompt
                 }
 
     return market_trend_analyst_node
