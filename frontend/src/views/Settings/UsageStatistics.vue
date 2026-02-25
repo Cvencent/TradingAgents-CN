@@ -387,8 +387,8 @@ const handleDeleteOldRecords = async () => {
     )
 
     const res = await deleteOldRecords(90)
-    if (res.data?.success) {
-      ElMessage.success(`已删除 ${res.data.deleted_count} 条旧记录`)
+    if (res.success) {
+      ElMessage.success(`已删除 ${res.data?.deleted_count || 0} 条旧记录`)
       loadData()
     }
   } catch (error: any) {

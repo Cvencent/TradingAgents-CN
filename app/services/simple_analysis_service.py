@@ -27,7 +27,7 @@ from app.models.analysis import (
 from app.models.user import PyObjectId
 from app.models.notification import NotificationCreate
 from bson import ObjectId
-from app.core.database import get_mongo_db
+from app.core.database import get_mongo_db, get_mongo_db_sync
 from app.services.config_service import ConfigService
 from app.services.memory_state_manager import get_memory_state_manager, TaskStatus
 from app.services.redis_progress_tracker import RedisProgressTracker, get_progress_by_id
@@ -720,6 +720,15 @@ class SimpleAnalysisService:
             TradingAgentsGraph 实例
         """
         # 🔧 [流程配置] 根据分析级别加载流程配置
+        # 先检查是否有 research_depth，转换为 analysis_level
+        if "analysis_level" not in config and "research_depth" in config:
+            research_depth = config.get("research_depth")
+            depth_to_level = {
+                "快速": 1, "基础": 2, "标准": 3, "深度": 4, "全面": 5
+            }
+            config["analysis_level"] = depth_to_level.get(research_depth, 5)
+            logger.info(f"🔄 从 research_depth '{research_depth}' 转换为 analysis_level {config['analysis_level']}")
+        
         analysis_level = config.get("analysis_level")
         user_id = config.get("user_id", "system")
         
@@ -727,7 +736,7 @@ class SimpleAnalysisService:
             logger.info(f"📋 检测到分析级别: {analysis_level}")
             
             try:
-                db = get_mongo_db()
+                db = get_mongo_db_sync()
                 workflow_service = MongoAnalysisWorkflowConfig(db)
                 workflow_config = workflow_service.get_config_by_level(user_id, analysis_level)
                 

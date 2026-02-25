@@ -39,16 +39,19 @@ class StockUtils:
 
         ticker = str(ticker).strip().upper()
 
+        # 去掉 .SH 或 .SZ 后缀后再识别
+        clean_ticker = ticker.replace('.SH', '').replace('.SZ', '')
+
         # 中国A股：6位数字
-        if re.match(r'^\d{6}$', ticker):
+        if re.match(r'^\d{6}$', clean_ticker):
             return StockMarket.CHINA_A
 
         # 港股：4-5位数字.HK 或 纯4-5位数字（支持0700.HK、09988.HK、00700、9988格式）
-        if re.match(r'^\d{4,5}\.HK$', ticker) or re.match(r'^\d{4,5}$', ticker):
+        if re.match(r'^\d{4,5}\.HK$', ticker) or re.match(r'^\d{4,5}$', clean_ticker):
             return StockMarket.HONG_KONG
 
         # 美股：1-5位字母
-        if re.match(r'^[A-Z]{1,5}$', ticker):
+        if re.match(r'^[A-Z]{1,5}$', clean_ticker):
             return StockMarket.US
 
         return StockMarket.UNKNOWN

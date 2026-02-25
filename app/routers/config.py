@@ -208,7 +208,7 @@ async def get_system_config(
 async def get_llm_providers(
     current_user: User = Depends(get_current_user)
 ):
-    """获取所有大模型厂家"""
+    """获取所有大模型厂家（包含模型列表）"""
     try:
         from app.utils.api_key_utils import (
             is_valid_api_key,
@@ -217,6 +217,20 @@ async def get_llm_providers(
         )
 
         providers = await config_service.get_llm_providers()
+        
+        # 获取模型目录
+        model_catalogs = await config_service.get_available_models()
+        
+        # 转换为 provider -> models 映射
+        model_map = {}
+        for catalog in model_catalogs:
+            provider_name = catalog.get("provider")
+            models = catalog.get("models", [])
+            model_map[provider_name] = [
+                {"name": m.get("name"), "display_name": m.get("display_name"), "description": m.get("description")}
+                for m in models
+            ]
+        
         result = []
 
         for provider in providers:
@@ -242,6 +256,9 @@ async def get_llm_providers(
                 # 注意：API Secret 通常不在环境变量中，所以这里只检查数据库
                 api_secret_display = None
 
+            # 获取该厂家的模型列表
+            provider_models = model_map.get(provider.name, [])
+            
             result.append(
                 LLMProviderResponse(
                     id=str(provider.id),
@@ -262,6 +279,7 @@ async def get_llm_providers(
                         "has_api_key": bool(api_key_display),
                         "has_api_secret": bool(api_secret_display)
                     },
+                    models=provider_models,
                     created_at=provider.created_at,
                     updated_at=provider.updated_at
                 )

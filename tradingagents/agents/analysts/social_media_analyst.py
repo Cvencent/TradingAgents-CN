@@ -290,8 +290,11 @@ def create_social_media_analyst(llm, toolkit):
                                     tool_name = getattr(tool, 'name', getattr(tool, '__name__', str(tool)))
                                     if 'get_stock_sentiment_unified' in tool_name:
                                         try:
-                                            # 🔧 修复：使用 invoke 方法调用 StructuredTool
-                                            tool_result = tool.invoke(tool_args)
+                                            # 🔧 修复：判断工具类型，普通函数直接调用，有invoke方法的用invoke
+                                            if hasattr(tool, 'invoke'):
+                                                tool_result = tool.invoke(tool_args)
+                                            else:
+                                                tool_result = tool(**tool_args)
                                             logger.info(f"📊 [社交媒体分析师] ✅ 工具执行成功，结果长度: {len(str(tool_result))}")
                                             break
                                         except Exception as tool_error:
@@ -425,8 +428,11 @@ def create_social_media_analyst(llm, toolkit):
                             
                             if current_tool_name == tool_name:
                                 try:
-                                    # 🔧 修复：使用 invoke 方法调用 StructuredTool
-                                    tool_result = tool.invoke(tool_args)
+                                    # 🔧 修复：判断工具类型，普通函数直接调用，有invoke方法的用invoke
+                                    if hasattr(tool, 'invoke'):
+                                        tool_result = tool.invoke(tool_args)
+                                    else:
+                                        tool_result = tool(**tool_args)
                                     logger.debug(f"📊 [DEBUG] 工具执行成功，结果长度: {len(str(tool_result))}")
                                     break
                                 except Exception as tool_error:

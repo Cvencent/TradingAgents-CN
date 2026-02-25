@@ -106,6 +106,105 @@ class ConditionalLogic:
     # 🔥 关键修复：添加 should_continue_sentiment 作为 should_continue_social 的别名
     should_continue_sentiment = should_continue_social
 
+    def should_continue_market_trend(self, state: AgentState):
+        """判断市场趋势分析是否应该继续"""
+        from tradingagents.utils.logging_init import get_logger
+        logger = get_logger("agents")
+
+        messages = state["messages"]
+        last_message = messages[-1]
+
+        tool_call_count = state.get("market_trend_tool_call_count", 0)
+        max_tool_calls = 3
+
+        market_trend_report = state.get("market_trend_report", "")
+
+        logger.info(f"🔀 [条件判断] should_continue_market_trend")
+        logger.info(f"🔀 [条件判断] - 消息数量: {len(messages)}")
+        logger.info(f"🔀 [条件判断] - 报告长度: {len(market_trend_report)}")
+        logger.info(f"🔧 [死循环修复] - 工具调用次数: {tool_call_count}/{max_tool_calls}")
+
+        if tool_call_count >= max_tool_calls:
+            logger.warning(f"🔧 [死循环修复] 达到最大工具调用次数，强制结束: Msg Clear Market Trend")
+            return "Msg Clear Market Trend"
+
+        if market_trend_report and len(market_trend_report) > 100:
+            logger.info(f"🔀 [条件判断] ✅ 报告已完成，返回: Msg Clear Market Trend")
+            return "Msg Clear Market Trend"
+
+        if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
+            logger.info(f"🔀 [条件判断] 🔧 检测到tool_calls，返回: tools_market_trend")
+            return "tools_market_trend"
+
+        logger.info(f"🔀 [条件判断] ✅ 无tool_calls，返回: Msg Clear Market Trend")
+        return "Msg Clear Market Trend"
+
+    def should_continue_capital_flow(self, state: AgentState):
+        """判断资金流分析是否应该继续"""
+        from tradingagents.utils.logging_init import get_logger
+        logger = get_logger("agents")
+
+        messages = state["messages"]
+        last_message = messages[-1]
+
+        tool_call_count = state.get("capital_flow_tool_call_count", 0)
+        max_tool_calls = 3
+
+        capital_flow_report = state.get("capital_flow_report", "")
+
+        logger.info(f"🔀 [条件判断] should_continue_capital_flow")
+        logger.info(f"🔀 [条件判断] - 消息数量: {len(messages)}")
+        logger.info(f"🔀 [条件判断] - 报告长度: {len(capital_flow_report)}")
+        logger.info(f"🔧 [死循环修复] - 工具调用次数: {tool_call_count}/{max_tool_calls}")
+
+        if tool_call_count >= max_tool_calls:
+            logger.warning(f"🔧 [死循环修复] 达到最大工具调用次数，强制结束: Msg Clear Capital Flow")
+            return "Msg Clear Capital Flow"
+
+        if capital_flow_report and len(capital_flow_report) > 100:
+            logger.info(f"🔀 [条件判断] ✅ 报告已完成，返回: Msg Clear Capital Flow")
+            return "Msg Clear Capital Flow"
+
+        if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
+            logger.info(f"🔀 [条件判断] 🔧 检测到tool_calls，返回: tools_capital_flow")
+            return "tools_capital_flow"
+
+        logger.info(f"🔀 [条件判断] ✅ 无tool_calls，返回: Msg Clear Capital Flow")
+        return "Msg Clear Capital Flow"
+
+    def should_continue_technology(self, state: AgentState):
+        """判断技术面分析是否应该继续（使用市场分析师实现）"""
+        from tradingagents.utils.logging_init import get_logger
+        logger = get_logger("agents")
+
+        messages = state["messages"]
+        last_message = messages[-1]
+
+        tool_call_count = state.get("technology_tool_call_count", 0)
+        max_tool_calls = 3
+
+        technology_report = state.get("technology_report", "")
+
+        logger.info(f"🔀 [条件判断] should_continue_technology")
+        logger.info(f"🔀 [条件判断] - 消息数量: {len(messages)}")
+        logger.info(f"🔀 [条件判断] - 报告长度: {len(technology_report)}")
+        logger.info(f"🔧 [死循环修复] - 工具调用次数: {tool_call_count}/{max_tool_calls}")
+
+        if tool_call_count >= max_tool_calls:
+            logger.warning(f"🔧 [死循环修复] 达到最大工具调用次数，强制结束: Msg Clear Technology")
+            return "Msg Clear Technology"
+
+        if technology_report and len(technology_report) > 100:
+            logger.info(f"🔀 [条件判断] ✅ 报告已完成，返回: Msg Clear Technology")
+            return "Msg Clear Technology"
+
+        if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
+            logger.info(f"🔀 [条件判断] 🔧 检测到tool_calls，返回: tools_technology")
+            return "tools_technology"
+
+        logger.info(f"🔀 [条件判断] ✅ 无tool_calls，返回: Msg Clear Technology")
+        return "Msg Clear Technology"
+
     def should_continue_news(self, state: AgentState):
         """Determine if news analysis should continue."""
         from tradingagents.utils.logging_init import get_logger

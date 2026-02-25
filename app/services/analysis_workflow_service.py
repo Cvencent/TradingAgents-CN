@@ -379,9 +379,15 @@ class MongoAnalysisWorkflowConfig:
                     current_time = datetime.now().isoformat()
                     preset["created_at"] = current_time
                     preset["updated_at"] = current_time
-                    preset["user_id"] = "system"  # 系统预设的 user_id 为 system
+                    preset["user_id"] = "system"
                     self.collection.insert_one(preset)
                     logger.info(f"✅ 初始化系统预设: {preset['name']}")
+                elif existing.get("analysis_level") is None:
+                    self.collection.update_one(
+                        {"_id": existing["_id"]},
+                        {"$set": {"analysis_level": preset["analysis_level"]}}
+                    )
+                    logger.info(f"🔧 修复系统预设 {preset['name']} 的 analysis_level: {preset['analysis_level']}")
                 else:
                     logger.info(f"ℹ️ 系统预设已存在: {preset['name']}")
             

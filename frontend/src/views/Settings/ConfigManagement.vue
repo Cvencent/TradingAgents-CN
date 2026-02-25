@@ -44,6 +44,10 @@
               <el-icon><Cpu /></el-icon>
               <span>大模型配置</span>
             </el-menu-item>
+            <el-menu-item index="role-models">
+              <el-icon><User /></el-icon>
+              <span>角色模型配置</span>
+            </el-menu-item>
             <el-menu-item index="datasource">
               <el-icon><DataBoard /></el-icon>
               <span>数据源配置</span>
@@ -1096,6 +1100,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Setting,
@@ -1112,7 +1117,8 @@ import {
   CircleCheck,
   Collection,
   Star,
-  Money
+  Money,
+  User
 } from '@element-plus/icons-vue'
 
 import {
@@ -1133,6 +1139,9 @@ import DataSourceConfigDialog from './components/DataSourceConfigDialog.vue'
 import MarketCategoryManagement from './components/MarketCategoryManagement.vue'
 import DataSourceGroupingDialog from './components/DataSourceGroupingDialog.vue'
 import SortableDataSourceList from './components/SortableDataSourceList.vue'
+
+// 路由
+const router = useRouter()
 
 // 响应式数据
 const activeTab = ref('validation')
@@ -1201,6 +1210,11 @@ const testingProviders = ref<Record<string, boolean>>({})
 
 // 方法
 const handleMenuSelect = (index: string) => {
+  // 角色模型配置是独立页面，需要跳转
+  if (index === 'role-models') {
+    router.push('/settings/role-models')
+    return
+  }
   activeTab.value = index
   loadTabData(index)
 }

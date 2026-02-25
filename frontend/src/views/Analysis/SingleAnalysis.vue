@@ -348,90 +348,6 @@
             </template>
 
             <div class="config-content">
-              <!-- AI模型配置 -->
-              <div class="config-section">
-                <h4 class="config-title">🤖 AI模型配置</h4>
-                <div class="model-config">
-                  <div class="model-item">
-                    <div class="model-label">
-                      <span>快速分析模型</span>
-                      <el-tooltip content="用于市场分析、新闻分析、基本面分析等" placement="top">
-                        <el-icon class="help-icon"><InfoFilled /></el-icon>
-                      </el-tooltip>
-                    </div>
-                    <el-select v-model="modelSettings.quickAnalysisModel" size="small" style="width: 100%" filterable>
-                      <el-option
-                        v-for="model in availableModels"
-                        :key="`quick-${model.provider}/${model.model_name}`"
-                        :label="model.model_display_name || model.model_name"
-                        :value="model.model_name"
-                      >
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                          <span style="flex: 1;">{{ model.model_display_name || model.model_name }}</span>
-                          <div style="display: flex; align-items: center; gap: 4px;">
-                            <!-- 能力等级徽章 -->
-                            <el-tag
-                              v-if="model.capability_level"
-                              :type="getCapabilityTagType(model.capability_level)"
-                              size="small"
-                              effect="plain"
-                            >
-                              {{ getCapabilityText(model.capability_level) }}
-                            </el-tag>
-                            <!-- 角色标签 -->
-                            <el-tag
-                              v-if="isQuickAnalysisRole(model.suitable_roles)"
-                              type="success"
-                              size="small"
-                              effect="plain"
-                            >
-                              ⚡快速
-                            </el-tag>
-                            <span style="font-size: 12px; color: #909399;">{{ model.provider }}</span>
-                          </div>
-                        </div>
-                      </el-option>
-                    </el-select>
-                  </div>
-
-                  <div class="model-item">
-                    <div class="model-label">
-                      <span>深度决策模型</span>
-                      <el-tooltip content="用于研究管理者综合决策、风险管理者最终评估" placement="top">
-                        <el-icon class="help-icon"><InfoFilled /></el-icon>
-                      </el-tooltip>
-                    </div>
-                    <DeepModelSelector v-model="modelSettings.deepAnalysisModel" :available-models="availableModels" type="deep" size="small" width="100%" />
-                  </div>
-                </div>
-
-                <!-- 🆕 模型推荐提示 -->
-                <el-alert
-                  v-if="modelRecommendation"
-                  :title="modelRecommendation.title"
-                  :type="modelRecommendation.type"
-                  :closable="false"
-                  style="margin-top: 12px;"
-                >
-                  <template #default>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-                      <div style="font-size: 13px; line-height: 1.8; flex: 1; white-space: pre-line;">
-                        {{ modelRecommendation.message }}
-                      </div>
-                      <el-button
-                        v-if="modelRecommendation.quickModel && modelRecommendation.deepModel"
-                        type="primary"
-                        size="small"
-                        @click="applyRecommendedModels"
-                        style="flex-shrink: 0;"
-                      >
-                        应用推荐
-                      </el-button>
-                    </div>
-                  </template>
-                </el-alert>
-              </div>
-
               <!-- 分析选项 -->
               <div class="config-section">
                 <h4 class="config-title">⚙️ 分析选项</h4>
@@ -936,9 +852,7 @@ const submitAnalysis = async () => {
         include_sentiment: analysisForm.includeSentiment,
         include_risk: analysisForm.includeRisk,
         language: analysisForm.language,
-        quick_analysis_model: modelSettings.value.quickAnalysisModel,
-        deep_analysis_model: modelSettings.value.deepAnalysisModel,
-        analysis_level: analysisForm.researchDepth  // 添加分析级别字段
+        analysis_level: analysisForm.researchDepth
       }
     }
 
@@ -1865,33 +1779,9 @@ const updateAnalysisSteps = (status: any) => {
   console.log('📋 步骤状态更新完成:', statusSummary)
 }
 
-// 初始化模型设置
+// 初始化模型设置（现在模型配置在角色模型配置页面统一管理）
 const initializeModelSettings = async () => {
-  try {
-    // 获取默认模型
-    const defaultModels = await configApi.getDefaultModels()
-    modelSettings.value.quickAnalysisModel = defaultModels.quick_analysis_model
-    modelSettings.value.deepAnalysisModel = defaultModels.deep_analysis_model
-
-    // 获取所有可用的模型列表
-    const llmConfigs = await configApi.getLLMConfigs()
-    availableModels.value = llmConfigs.filter((config: any) => config.enabled)
-
-    console.log('✅ 加载模型配置成功:', {
-      quick: modelSettings.value.quickAnalysisModel,
-      deep: modelSettings.value.deepAnalysisModel,
-      available: availableModels.value.length
-    })
-    console.log('🔍 可用模型详细信息:', availableModels.value.map(m => ({
-      model_name: m.model_name,
-      model_display_name: m.model_display_name,
-      provider: m.provider
-    })))
-  } catch (error) {
-    console.error('加载默认模型配置失败:', error)
-    modelSettings.value.quickAnalysisModel = 'qwen-turbo'
-    modelSettings.value.deepAnalysisModel = 'qwen-max'
-  }
+  console.log('ℹ️ 模型配置已移至角色模型配置页面统一管理')
 }
 
 // 任务状态缓存管理
@@ -2059,113 +1949,10 @@ const isDeepAnalysisRole = (roles: string[] | undefined): boolean => {
   return roles.includes('deep_analysis') || roles.includes('both')
 }
 
-/**
- * 显示分析深度的模型推荐说明
- */
-const checkModelSuitability = async () => {
-  const depthNames: Record<number, string> = {
-    1: '快速',
-    2: '基础',
-    3: '标准',
-    4: '深度',
-    5: '全面'
-  }
-  const depthName = depthNames[analysisForm.researchDepth] || '标准'
-
-  try {
-    // 获取推荐模型
-    const recommendRes = await recommendModels(depthName)
-    const responseData = recommendRes?.data?.data
-
-    if (responseData) {
-      const quickModel = responseData.quick_model || '未知'
-      const deepModel = responseData.deep_model || '未知'
-
-      // 获取模型的显示名称
-      const quickModelInfo = availableModels.value.find(m => m.model_name === quickModel)
-      const deepModelInfo = availableModels.value.find(m => m.model_name === deepModel)
-
-      const quickDisplayName = quickModelInfo?.model_display_name || quickModel
-      const deepDisplayName = deepModelInfo?.model_display_name || deepModel
-
-      // 获取推荐理由
-      const reason = responseData.reason || ''
-
-      // 构建推荐说明
-      const depthDescriptions: Record<number, string> = {
-        1: '快速浏览，获取基本信息',
-        2: '基础分析，了解主要指标',
-        3: '标准分析，全面评估股票',
-        4: '深度研究，挖掘投资机会',
-        5: '全面分析，专业投资决策'
-      }
-
-      const message = `${depthDescriptions[analysisForm.researchDepth] || '标准分析'}\n\n推荐模型配置：\n• 快速模型：${quickDisplayName}\n• 深度模型：${deepDisplayName}\n\n${reason}`
-
-      modelRecommendation.value = {
-        title: '💡 模型推荐',
-        message,
-        type: 'info',
-        quickModel,
-        deepModel
-      }
-    } else {
-      // 如果没有推荐数据，显示通用说明
-      const generalDescriptions: Record<number, string> = {
-        1: '快速分析：使用基础模型即可，注重速度和成本',
-        2: '基础分析：快速模型用基础级，深度模型用标准级',
-        3: '标准分析：快速模型用基础级，深度模型用标准级以上',
-        4: '深度分析：快速模型用标准级，深度模型用高级以上，需要推理能力',
-        5: '全面分析：快速模型用标准级，深度模型用专业级以上，强推理能力'
-      }
-
-      modelRecommendation.value = {
-        title: '💡 模型推荐',
-        message: generalDescriptions[analysisForm.researchDepth] || generalDescriptions[3],
-        type: 'info'
-      }
-    }
-  } catch (error) {
-    console.error('获取模型推荐失败:', error)
-    // 显示通用说明
-    const generalDescriptions: Record<number, string> = {
-      1: '快速分析：使用基础模型即可，注重速度和成本',
-      2: '基础分析：快速模型用基础级，深度模型用标准级',
-      3: '标准分析：快速模型用基础级，深度模型用标准级以上',
-      4: '深度分析：快速模型用标准级，深度模型用高级以上，需要推理能力',
-      5: '全面分析：快速模型用标准级，深度模型用专业级以上，强推理能力'
-    }
-
-    modelRecommendation.value = {
-      title: '💡 模型推荐',
-      message: generalDescriptions[analysisForm.researchDepth] || generalDescriptions[3],
-      type: 'info'
-    }
-  }
-}
-
-// 应用推荐的模型配置
-const applyRecommendedModels = () => {
-  if (modelRecommendation.value?.quickModel && modelRecommendation.value?.deepModel) {
-    modelSettings.value.quickAnalysisModel = modelRecommendation.value.quickModel
-    modelSettings.value.deepAnalysisModel = modelRecommendation.value.deepModel
-
-    // 清除推荐提示
-    modelRecommendation.value = null
-
-    ElMessage.success('已应用推荐的模型配置')
-  }
-}
-
 // 监听分析深度变化
 import { watch } from 'vue'
 watch(() => analysisForm.researchDepth, () => {
-  checkModelSuitability()
-})
-
-// 监听模型选择变化
-watch([() => modelSettings.value.quickAnalysisModel, () => modelSettings.value.deepAnalysisModel], () => {
-  checkModelSuitability()
+  console.log('分析深度已更改:', analysisForm.researchDepth)
 })
 
 // 页面初始化

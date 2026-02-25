@@ -118,6 +118,13 @@ class LLMProviderRequest(BaseModel):
     model_name_format: Optional[str] = Field(None, description="模型名称格式")
 
 
+class ModelInfo(BaseModel):
+    """模型信息"""
+    name: str
+    display_name: Optional[str] = None
+    description: Optional[str] = None
+
+
 class LLMProviderResponse(BaseModel):
     """大模型厂家响应"""
     id: str
@@ -138,6 +145,9 @@ class LLMProviderResponse(BaseModel):
     is_aggregator: bool = False
     aggregator_type: Optional[str] = None
     model_name_format: Optional[str] = None
+
+    # 🆕 模型列表
+    models: List[ModelInfo] = Field(default_factory=list)
 
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

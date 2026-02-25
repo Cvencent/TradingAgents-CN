@@ -16,6 +16,22 @@ from tradingagents.utils.logging_init import get_logger
 logger = get_logger("default")
 
 
+def format_analyst_name(analyst_type: str) -> str:
+    """将 analyst_type 格式化为正确的节点名称"""
+    # 处理特殊的多词分析师类型
+    name_mapping = {
+        "market_trend": "Market Trend",
+        "capital_flow": "Capital Flow",
+        "fundamentals": "Fundamentals",
+        "technology": "Technology",
+        "market": "Market",
+        "social": "Social",
+        "news": "News",
+    }
+    base_name = name_mapping.get(analyst_type, analyst_type.replace("_", " ").title())
+    return f"{base_name} Analyst"
+
+
 class GraphSetup:
     """Handles the setup and configuration of the agent graph."""
 
@@ -69,7 +85,6 @@ class GraphSetup:
         tool_nodes = {}
 
         if "technology" in selected_analysts:
-            # 技术面分析师 - 使用原有的市场分析师实现（专注于技术面分析）
             logger.debug(f"📈 [DEBUG] 使用技术面分析师")
             analyst_nodes["technology"] = create_market_analyst(
                 self.quick_thinking_llm, self.toolkit
@@ -78,24 +93,30 @@ class GraphSetup:
             tool_nodes["technology"] = self.tool_nodes["market"]
 
         if "market" in selected_analysts:
-            # 市场分析师 - 使用市场趋势分析师（综合分析市场环境）
-            logger.debug(f"📊 [DEBUG] 使用市场分析师（市场趋势分析）")
-            from tradingagents.agents.analysts.market_trend_analyst import create_market_trend_analyst
-            analyst_nodes["market"] = create_market_trend_analyst(
+            logger.debug(f"📊 [DEBUG] 使用市场分析师（技术面分析）")
+            analyst_nodes["market"] = create_market_analyst(
                 self.quick_thinking_llm, self.toolkit
             )
             delete_nodes["market"] = create_msg_delete()
             tool_nodes["market"] = self.tool_nodes["market"]
 
-        if "money" in selected_analysts:
-            # 资金面分析师 - 使用资金流向分析师
-            logger.debug(f"💵 [DEBUG] 使用资金面分析师（资金流向分析）")
-            from tradingagents.agents.analysts.capital_flow_analyst import create_capital_flow_analyst
-            analyst_nodes["money"] = create_capital_flow_analyst(
+        if "market_trend" in selected_analysts:
+            logger.debug(f"📊 [DEBUG] 使用市场趋势分析师")
+            from tradingagents.agents.analysts.market_trend_analyst import create_market_trend_analyst
+            analyst_nodes["market_trend"] = create_market_trend_analyst(
                 self.quick_thinking_llm, self.toolkit
             )
-            delete_nodes["money"] = create_msg_delete()
-            tool_nodes["money"] = self.tool_nodes["market"]
+            delete_nodes["market_trend"] = create_msg_delete()
+            tool_nodes["market_trend"] = self.tool_nodes["market"]
+
+        if "money" in selected_analysts or "capital_flow" in selected_analysts:
+            logger.debug(f"💵 [DEBUG] 使用资金面分析师（资金流向分析）")
+            from tradingagents.agents.analysts.capital_flow_analyst import create_capital_flow_analyst
+            analyst_nodes["capital_flow"] = create_capital_flow_analyst(
+                self.quick_thinking_llm, self.toolkit
+            )
+            delete_nodes["capital_flow"] = create_msg_delete()
+            tool_nodes["capital_flow"] = self.tool_nodes["market"]
 
         if "social" in selected_analysts:
             analyst_nodes["social"] = create_social_media_analyst(
@@ -163,9 +184,9 @@ class GraphSetup:
 
         # Add analyst nodes to the graph
         for analyst_type, node in analyst_nodes.items():
-            workflow.add_node(f"{analyst_type.capitalize()} Analyst", node)
+            workflow.add_node(format_analyst_name(analyst_type), node)
             workflow.add_node(
-                f"Msg Clear {analyst_type.capitalize()}", delete_nodes[analyst_type]
+                f"Msg Clear {format_analyst_name(analyst_type).replace(' Analyst', '')}", delete_nodes[analyst_type]
             )
             workflow.add_node(f"tools_{analyst_type}", tool_nodes[analyst_type])
 
@@ -182,13 +203,13 @@ class GraphSetup:
         # Define edges
         # Start with the first analyst
         first_analyst = selected_analysts[0]
-        workflow.add_edge(START, f"{first_analyst.capitalize()} Analyst")
+        workflow.add_edge(START, format_analyst_name(first_analyst))
 
         # Connect analysts in sequence
         for i, analyst_type in enumerate(selected_analysts):
-            current_analyst = f"{analyst_type.capitalize()} Analyst"
+            current_analyst = format_analyst_name(analyst_type)
             current_tools = f"tools_{analyst_type}"
-            current_clear = f"Msg Clear {analyst_type.capitalize()}"
+            current_clear = f"Msg Clear {format_analyst_name(analyst_type).replace(' Analyst', '')}"
 
             # Add conditional edges for current analyst
             workflow.add_conditional_edges(
@@ -200,7 +221,7 @@ class GraphSetup:
 
             # Connect to next analyst or to Bull Researcher if this is the last analyst
             if i < len(selected_analysts) - 1:
-                next_analyst = f"{selected_analysts[i+1].capitalize()} Analyst"
+                next_analyst = format_analyst_name(selected_analysts[i+1])
                 workflow.add_edge(current_clear, next_analyst)
             else:
                 workflow.add_edge(current_clear, "Bull Researcher")

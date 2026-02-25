@@ -272,6 +272,15 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'role-models',
+        name: 'RoleModelConfig',
+        component: () => import('@/views/Settings/RoleModelConfig.vue'),
+        meta: {
+          title: '角色模型配置',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'database',
         name: 'DatabaseManagement',
         component: () => import('@/views/System/DatabaseManagement.vue'),

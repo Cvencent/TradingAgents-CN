@@ -27,10 +27,23 @@ except ImportError:
 logger = get_logger('auth_db')
 
 # 统一响应格式
-class ApiResponse(BaseModel):
+from typing import Any, TypeVar, Generic
+from pydantic import BaseModel
+
+T = TypeVar('T')
+
+class ApiResponse(BaseModel, Generic[T]):
     success: bool = True
-    data: dict = {}
+    data: T = None  # type: ignore
     message: str = ""
+    
+    @classmethod
+    def success(cls, data: Any = None, message: str = "ok") -> "ApiResponse":
+        return cls(success=True, data=data, message=message)
+    
+    @classmethod
+    def error(cls, message: str = "error", data: Any = None) -> "ApiResponse":
+        return cls(success=False, data=data or {}, message=message)
 
 router = APIRouter()
 

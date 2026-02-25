@@ -1271,13 +1271,23 @@ class TushareSyncService:
 
 # 全局同步服务实例
 _tushare_sync_service = None
+_tushare_sync_service_init_failed = False
 
 async def get_tushare_sync_service() -> TushareSyncService:
-    """获取Tushare同步服务实例"""
-    global _tushare_sync_service
+    """获取Tushare同步服务实例（懒加载）"""
+    global _tushare_sync_service, _tushare_sync_service_init_failed
+    if _tushare_sync_service_init_failed:
+        logger.warning("⚠️ Tushare同步服务初始化失败，跳过")
+        return None
     if _tushare_sync_service is None:
-        _tushare_sync_service = TushareSyncService()
-        await _tushare_sync_service.initialize()
+        logger.info("🔄 懒加载Tushare同步服务...")
+        try:
+            _tushare_sync_service = TushareSyncService()
+            await _tushare_sync_service.initialize()
+        except Exception as e:
+            logger.error(f"❌ Tushare同步服务初始化失败: {e}")
+            _tushare_sync_service_init_failed = True
+            return None
     return _tushare_sync_service
 
 
@@ -1286,6 +1296,9 @@ async def run_tushare_basic_info_sync(force_update: bool = False):
     """APScheduler任务：同步股票基础信息"""
     try:
         service = await get_tushare_sync_service()
+        if not service:
+            logger.warning("⏸️ Tushare服务未就绪，跳过基础信息同步")
+            return {"skipped": True, "reason": "Tushare service not available"}
         result = await service.sync_stock_basic_info(force_update, job_id="tushare_basic_info_sync")
         logger.info(f"✅ Tushare基础信息同步完成: {result}")
         return result
@@ -1303,6 +1316,9 @@ async def run_tushare_quotes_sync(force: bool = False):
     """
     try:
         service = await get_tushare_sync_service()
+        if not service:
+            logger.warning("⏸️ Tushare服务未就绪，跳过行情同步")
+            return {"skipped": True, "reason": "Tushare service not available"}
         result = await service.sync_realtime_quotes(force=force)
         logger.info(f"✅ Tushare行情同步完成: {result}")
         return result
@@ -1316,6 +1332,9 @@ async def run_tushare_historical_sync(incremental: bool = True):
     logger.info(f"🚀 [APScheduler] 开始执行 Tushare 历史数据同步任务 (incremental={incremental})")
     try:
         service = await get_tushare_sync_service()
+        if not service:
+            logger.warning("⏸️ Tushare服务未就绪，跳过历史数据同步")
+            return {"skipped": True, "reason": "Tushare service not available"}
         logger.info(f"✅ [APScheduler] Tushare 同步服务已初始化")
         result = await service.sync_historical_data(incremental=incremental, job_id="tushare_historical_sync")
         logger.info(f"✅ [APScheduler] Tushare历史数据同步完成: {result}")
@@ -1331,7 +1350,10 @@ async def run_tushare_financial_sync():
     """APScheduler任务：同步财务数据（获取最近20期，约5年）"""
     try:
         service = await get_tushare_sync_service()
-        result = await service.sync_financial_data(limit=20, job_id="tushare_financial_sync")  # 获取最近20期（约5年数据）
+        if not service:
+            logger.warning("⏸️ Tushare服务未就绪，跳过财务数据同步")
+            return {"skipped": True, "reason": "Tushare service not available"}
+        result = await service.sync_financial_data(limit=20, job_id="tushare_financial_sync")
         logger.info(f"✅ Tushare财务数据同步完成: {result}")
         return result
     except Exception as e:
@@ -1343,6 +1365,9 @@ async def run_tushare_status_check():
     """APScheduler任务：检查同步状态"""
     try:
         service = await get_tushare_sync_service()
+        if not service:
+            logger.warning("⏸️ Tushare服务未就绪，跳过状态检查")
+            return {"skipped": True, "reason": "Tushare service not available"}
         result = await service.get_sync_status()
         logger.info(f"✅ Tushare状态检查完成: {result}")
         return result
@@ -1355,6 +1380,9 @@ async def run_tushare_news_sync(hours_back: int = 24, max_news_per_stock: int = 
     """APScheduler任务：同步新闻数据"""
     try:
         service = await get_tushare_sync_service()
+        if not service:
+            logger.warning("⏸️ Tushare服务未就绪，跳过新闻同步")
+            return {"skipped": True, "reason": "Tushare service not available"}
         result = await service.sync_news_data(
             hours_back=hours_back,
             max_news_per_stock=max_news_per_stock,

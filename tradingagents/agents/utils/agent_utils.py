@@ -1421,49 +1421,199 @@ class Toolkit:
 
         try:
             import akshare as ak
+            import pandas as pd
 
-            # 获取上证指数
-            sh_index_data = ak.stock_zh_index_daily(symbol="sh000001", start_date=start_date, end_date=end_date)
+            # 获取上证指数 - akshare 1.18+ 版本只接受 symbol 参数
+            sh_index_data = ak.stock_zh_index_daily(symbol="sh000001")
             sh_report = f"## 上证指数走势\n"
             if sh_index_data is not None and not sh_index_data.empty:
-                sh_report += f"最新收盘价: {sh_index_data.iloc[-1]['close']:.2f}\n"
-                sh_report += f"涨跌幅: {((sh_index_data.iloc[-1]['close'] - sh_index_data.iloc[0]['close']) / sh_index_data.iloc[0]['close'] * 100):.2f}%\n"
+                sh_index_data['date'] = pd.to_datetime(sh_index_data['date'])
+                sh_index_data = sh_index_data.sort_values('date')
+                
+                start_dt = pd.to_datetime(start_date)
+                end_dt = pd.to_datetime(end_date)
+                
+                mask = (sh_index_data['date'] >= start_dt) & (sh_index_data['date'] <= end_dt)
+                filtered_data = sh_index_data[mask]
+                
+                if not filtered_data.empty:
+                    latest_close = filtered_data.iloc[-1]['close']
+                    if len(filtered_data) > 1:
+                        change_pct = (filtered_data.iloc[-1]['close'] - filtered_data.iloc[0]['close']) / filtered_data.iloc[0]['close'] * 100
+                    else:
+                        prev_data = sh_index_data[sh_index_data['date'] < start_dt]
+                        if not prev_data.empty:
+                            prev_close = prev_data.iloc[-1]['close']
+                            change_pct = (latest_close - prev_close) / prev_close * 100
+                        else:
+                            change_pct = 0.0
+                    sh_report += f"最新收盘价: {latest_close:.2f}\n"
+                    sh_report += f"涨跌幅: {change_pct:.2f}%\n"
+                else:
+                    sh_report += f"日期范围 {start_date} 至 {end_date} 内无数据\n"
             else:
                 sh_report += "数据获取失败\n"
 
             # 获取深证指数
-            sz_index_data = ak.stock_zh_index_daily(symbol="sz399001", start_date=start_date, end_date=end_date)
+            sz_index_data = ak.stock_zh_index_daily(symbol="sz399001")
             sz_report = f"\n## 深证指数走势\n"
             if sz_index_data is not None and not sz_index_data.empty:
-                sz_report += f"最新收盘价: {sz_index_data.iloc[-1]['close']:.2f}\n"
-                sz_report += f"涨跌幅: {((sz_index_data.iloc[-1]['close'] - sz_index_data.iloc[0]['close']) / sz_index_data.iloc[0]['close'] * 100):.2f}%\n"
+                sz_index_data['date'] = pd.to_datetime(sz_index_data['date'])
+                sz_index_data = sz_index_data.sort_values('date')
+                
+                start_dt = pd.to_datetime(start_date)
+                end_dt = pd.to_datetime(end_date)
+                
+                mask = (sz_index_data['date'] >= start_dt) & (sz_index_data['date'] <= end_dt)
+                filtered_data = sz_index_data[mask]
+                
+                if not filtered_data.empty:
+                    latest_close = filtered_data.iloc[-1]['close']
+                    if len(filtered_data) > 1:
+                        change_pct = (filtered_data.iloc[-1]['close'] - filtered_data.iloc[0]['close']) / filtered_data.iloc[0]['close'] * 100
+                    else:
+                        prev_data = sz_index_data[sz_index_data['date'] < start_dt]
+                        if not prev_data.empty:
+                            prev_close = prev_data.iloc[-1]['close']
+                            change_pct = (latest_close - prev_close) / prev_close * 100
+                        else:
+                            change_pct = 0.0
+                    sz_report += f"最新收盘价: {latest_close:.2f}\n"
+                    sz_report += f"涨跌幅: {change_pct:.2f}%\n"
+                else:
+                    sz_report += f"日期范围 {start_date} 至 {end_date} 内无数据\n"
             else:
                 sz_report += "数据获取失败\n"
 
             # 获取创业板指数
-            cyb_index_data = ak.stock_zh_index_daily(symbol="sz399006", start_date=start_date, end_date=end_date)
+            cyb_index_data = ak.stock_zh_index_daily(symbol="sz399006")
             cyb_report = f"\n## 创业板指数走势\n"
             if cyb_index_data is not None and not cyb_index_data.empty:
-                cyb_report += f"最新收盘价: {cyb_index_data.iloc[-1]['close']:.2f}\n"
-                cyb_report += f"涨跌幅: {((cyb_index_data.iloc[-1]['close'] - cyb_index_data.iloc[0]['close']) / cyb_index_data.iloc[0]['close'] * 100):.2f}%\n"
+                cyb_index_data['date'] = pd.to_datetime(cyb_index_data['date'])
+                cyb_index_data = cyb_index_data.sort_values('date')
+                
+                start_dt = pd.to_datetime(start_date)
+                end_dt = pd.to_datetime(end_date)
+                
+                mask = (cyb_index_data['date'] >= start_dt) & (cyb_index_data['date'] <= end_dt)
+                filtered_data = cyb_index_data[mask]
+                
+                if not filtered_data.empty:
+                    latest_close = filtered_data.iloc[-1]['close']
+                    if len(filtered_data) > 1:
+                        change_pct = (filtered_data.iloc[-1]['close'] - filtered_data.iloc[0]['close']) / filtered_data.iloc[0]['close'] * 100
+                    else:
+                        prev_data = cyb_index_data[cyb_index_data['date'] < start_dt]
+                        if not prev_data.empty:
+                            prev_close = prev_data.iloc[-1]['close']
+                            change_pct = (latest_close - prev_close) / prev_close * 100
+                        else:
+                            change_pct = 0.0
+                    cyb_report += f"最新收盘价: {latest_close:.2f}\n"
+                    cyb_report += f"涨跌幅: {change_pct:.2f}%\n"
+                else:
+                    cyb_report += f"日期范围 {start_date} 至 {end_date} 内无数据\n"
             else:
                 cyb_report += "数据获取失败\n"
 
             # 获取股票所属行业信息
             industry_report = f"\n## 行业走势分析\n"
             try:
-                # 获取股票基本信息
-                stock_info = ak.stock_info_a_code_name(symbol=ticker)
-                if stock_info is not None and not stock_info.empty:
-                    industry_name = stock_info.iloc[0].get('industry', '未知行业')
-                    industry_report += f"所属行业: {industry_name}\n"
-
-                    # 获取行业指数（简化处理，使用申万行业指数）
-                    industry_report += "行业整体走势数据获取中...\n"
+                # 提取股票代码（去掉.SH或.SZ后缀）
+                stock_code = ticker.replace('.SH', '').replace('.SZ', '')
+                
+                # 获取股票详细信息（包含行业）
+                stock_info_detail = ak.stock_individual_info_em(symbol=stock_code)
+                
+                if stock_info_detail is not None and not stock_info_detail.empty:
+                    # 提取股票名称
+                    name_row = stock_info_detail[stock_info_detail['item'] == '股票简称']
+                    stock_name = name_row['value'].iloc[0] if not name_row.empty else '未知'
+                    
+                    # 提取行业信息
+                    industry_row = stock_info_detail[stock_info_detail['item'] == '行业']
+                    industry_name = industry_row['value'].iloc[0] if not industry_row.empty else None
+                    
+                    industry_report += f"股票名称: {stock_name}\n"
+                    
+                    if industry_name:
+                        industry_report += f"所属行业: {industry_name}\n"
+                        
+                        # 获取行业指数走势（带重试机制）
+                        max_retries = 3
+                        industry_data_success = False
+                        last_error = ""
+                        
+                        for retry in range(max_retries):
+                            try:
+                                # 获取同花顺行业代码
+                                industry_board = ak.stock_board_industry_name_em()
+                                if industry_board is not None and not industry_board.empty:
+                                    industry_row_data = industry_board[industry_board['名称'] == industry_name]
+                                    if not industry_row_data.empty:
+                                        industry_code = industry_row_data.iloc[0]['板块代码']
+                                        
+                                        # 获取行业日K线数据
+                                        industry_daily = ak.stock_zh_a_hist(
+                                            symbol=industry_code,
+                                            period="daily",
+                                            start_date=start_date,
+                                            end_date=end_date,
+                                            adjust=""
+                                        )
+                                        
+                                        if industry_daily is not None and not industry_daily.empty:
+                                            industry_daily['日期'] = pd.to_datetime(industry_daily['日期'])
+                                            industry_daily = industry_daily.sort_values('日期')
+                                            
+                                            latest_close = industry_daily.iloc[-1]['收盘']
+                                            if len(industry_daily) > 1:
+                                                change_pct = (industry_daily.iloc[-1]['收盘'] - industry_daily.iloc[0]['收盘']) / industry_daily.iloc[0]['收盘'] * 100
+                                            else:
+                                                # 获取前一天数据
+                                                prev_industry = ak.stock_zh_a_hist(
+                                                    symbol=industry_code,
+                                                    period="daily",
+                                                    start_date=(pd.to_datetime(start_date) - pd.Timedelta(days=5)).strftime('%Y%m%d'),
+                                                    end_date=(pd.to_datetime(start_date) - pd.Timedelta(days=1)).strftime('%Y%m%d'),
+                                                    adjust=""
+                                                )
+                                                if prev_industry is not None and not prev_industry.empty:
+                                                    prev_close = prev_industry.iloc[-1]['收盘']
+                                                    change_pct = (latest_close - prev_close) / prev_close * 100
+                                                else:
+                                                    change_pct = 0.0
+                                            
+                                            industry_report += f"行业最新收盘价: {latest_close:.2f}\n"
+                                            industry_report += f"行业涨跌幅: {change_pct:.2f}%\n"
+                                            industry_data_success = True
+                                            break
+                                        else:
+                                            if retry < max_retries - 1:
+                                                import time
+                                                time.sleep(1)
+                                                continue
+                                else:
+                                    break
+                            except Exception as e:
+                                last_error = str(e)
+                                if retry < max_retries - 1:
+                                    import time
+                                    time.sleep(1)
+                                    continue
+                        
+                        if not industry_data_success:
+                            # 如果获取失败，提供友好提示而不是技术错误
+                            if 'Connection' in last_error or 'RemoteDisconnected' in last_error or 'timeout' in last_error.lower():
+                                industry_report += "行业走势: 数据服务暂时不可用\n"
+                            else:
+                                industry_report += f"行业走势暂时无法获取\n"
+                    else:
+                        industry_report += "所属行业信息获取失败\n"
                 else:
-                    industry_report += "行业信息获取失败\n"
+                    industry_report += f"未找到股票 {ticker} 的信息\n"
             except Exception as e:
-                industry_report += f"行业信息获取失败: {str(e)}\n"
+                industry_report += f"行业信息获取失败\n"
 
             # 组合所有报告
             combined_result = f"""# {ticker} 大盘走势和行业分析
@@ -1491,8 +1641,8 @@ class Toolkit:
         end_date: Annotated[str, "结束日期，格式：YYYY-MM-DD"]
     ) -> str:
         """
-        获取股票资金面数据（主力资金、北向资金、机构资金等）
-        使用 tushare 数据源
+        获取股票资金面数据（主力资金、北向资金等）
+        使用 akshare 数据源
 
         Args:
             ticker: 股票代码
@@ -1505,80 +1655,70 @@ class Toolkit:
         logger.info(f"💰 [资金面工具] 获取资金面数据: {ticker}")
 
         try:
-            import tushare as ts
+            import akshare as ak
 
-            # 获取API Token
-            from app.core.config import get_settings
-            settings = get_settings()
-            token = settings.TUSHARE_TOKEN or os.getenv('TUSHARE_TOKEN')
+            market = "sz" if ticker.startswith("3") or ticker.startswith("0") else "sh"
+            if ticker.startswith("6"):
+                market = "sh"
+            elif ticker.startswith("0") or ticker.startswith("3"):
+                market = "sz"
+            elif ticker.startswith("8") or ticker.startswith("4"):
+                market = "bj"
 
-            if not token:
-                error_msg = "Tushare Token未配置，请在设置中配置TUSHARE_TOKEN"
-                logger.error(f"[X] [资金面工具] {error_msg}")
-                return error_msg
-
-            # 初始化tushare
-            try:
-                ts.set_token(token)
-            except Exception as e:
-                if "Permission" in str(e) or "restricted" in str(e) or "tk.csv" in str(e):
-                    logger.warning(f"⚠️ [资金面工具] Tushare 文件访问受限: {e}")
-                    return "Tushare 文件访问受限，无法获取资金面数据"
-                raise
-
-            # 获取资金流向数据
             money_flow_report = f"## 资金流向数据\n"
-
             try:
-                # 获取个股资金流向数据
-                money_flow_df = ts.moneyflow(tscode=ticker, start_date=start_date, end_date=end_date)
-                if money_flow_df is not None and not money_flow_df.empty:
-                    latest_flow = money_flow_df.iloc[-1]
-                    money_flow_report += f"净流入: {latest_flow.get('net_mfd_amt', 0):.2f} 万元\n"
-                    money_flow_report += f"主力净流入: {latest_flow.get('n_mfd_amt', 0):.2f} 万元\n"
-                    money_flow_report += f"小单净流入: {latest_flow.get('n_elp_amt', 0):.2f} 万元\n"
-                    money_flow_report += f"中单净流入: {latest_flow.get('n_elg_amt', 0):.2f} 万元\n"
-                    money_flow_report += f"大单净流入: {latest_flow.get('n_ecl_amt', 0):.2f} 万元\n"
+                fund_df = ak.stock_individual_fund_flow(stock=ticker, market=market)
+                if fund_df is not None and not fund_df.empty:
+                    latest = fund_df.iloc[-1]
+                    main_net = latest.get('主力净流入-净额', 0)
+                    large_net = latest.get('大单净流入-净额', 0)
+                    medium_net = latest.get('中单净流入-净额', 0)
+                    small_net = latest.get('小单净流入-净额', 0)
+                    
+                    money_flow_report += f"主力净流入: {main_net:,.0f} 元\n"
+                    money_flow_report += f"大单净流入: {large_net:,.0f} 元\n"
+                    money_flow_report += f"中单净流入: {medium_net:,.0f} 元\n"
+                    money_flow_report += f"小单净流入: {small_net:,.0f} 元\n"
+                    
+                    close = latest.get('收盘价', 0)
+                    change = latest.get('涨跌幅', 0)
+                    money_flow_report += f"收盘价: {close:.2f} 元\n"
+                    money_flow_report += f"涨跌幅: {change:.2f}%\n"
                 else:
                     money_flow_report += "资金流向数据获取失败\n"
             except Exception as e:
                 money_flow_report += f"资金流向数据获取失败: {str(e)}\n"
 
-            # 获取北向资金数据
             northbound_report = f"\n## 北向资金流向\n"
             try:
-                # 获取沪深股通资金流向
-                moneyflow_hsgt_df = ts.moneyflow_hsgt(start_date=start_date, end_date=end_date)
-                if moneyflow_hsgt_df is not None and not moneyflow_hsgt_df.empty:
-                    latest_hsgt = moneyflow_hsgt_df.iloc[-1]
-                    northbound_report += f"北向资金净流入: {latest_hsgt.get('north_money', 0):.2f} 亿元\n"
-                    northbound_report += f"南向资金净流入: {latest_hsgt.get('south_money', 0):.2f} 亿元\n"
+                hsgt_df = ak.stock_hsgt_fund_min_em()
+                if hsgt_df is not None and not hsgt_df.empty:
+                    latest = hsgt_df.iloc[-1]
+                    northbound_report += f"北向资金: {latest.get('北向资金', 0):,.0f} 万元\n"
+                    northbound_report += f"沪股通: {latest.get('沪股通', 0):,.0f} 万元\n"
+                    northbound_report += f"深股通: {latest.get('深股通', 0):,.0f} 万元\n"
                 else:
                     northbound_report += "北向资金数据获取失败\n"
             except Exception as e:
                 northbound_report += f"北向资金数据获取失败: {str(e)}\n"
 
-            # 获取机构资金数据
-            institution_report = f"\n## 机构资金动向\n"
+            market_flow_report = f"\n## 大盘资金流向\n"
             try:
-                # 获取机构交易数据
-                institution_df = ts.institutional_trader(tscode=ticker, start_date=start_date, end_date=end_date)
-                if institution_df is not None and not institution_df.empty:
-                    latest_inst = institution_df.iloc[-1]
-                    institution_report += f"机构买入: {latest_inst.get('buy_vol', 0):.2f} 万股\n"
-                    institution_report += f"机构卖出: {latest_inst.get('sell_vol', 0):.2f} 万股\n"
-                    institution_report += f"机构净买入: {latest_inst.get('buy_vol', 0) - latest_inst.get('sell_vol', 0):.2f} 万股\n"
+                market_df = ak.stock_market_fund_flow()
+                if market_df is not None and not market_df.empty:
+                    latest = market_df.iloc[-1]
+                    main_flow = latest.get('主力净流入-净额', 0)
+                    market_flow_report += f"主力净流入: {main_flow:,.0f} 元\n"
                 else:
-                    institution_report += "机构资金数据获取失败\n"
+                    market_flow_report += "大盘资金流向数据获取失败\n"
             except Exception as e:
-                institution_report += f"机构资金数据获取失败: {str(e)}\n"
+                market_flow_report += f"大盘资金流向数据获取失败: {str(e)}\n"
 
-            # 组合所有报告
             combined_result = f"""# {ticker} 资金面分析
 
-{money_flow_report}{northbound_report}{institution_report}
+{money_flow_report}{northbound_report}{market_flow_report}
 
-数据来源: tushare
+数据来源: akshare
 数据日期范围: {start_date} 至 {end_date}
 """
 

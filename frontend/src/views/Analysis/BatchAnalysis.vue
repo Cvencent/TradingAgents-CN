@@ -200,14 +200,6 @@
             </template>
 
             <div class="config-content">
-              <!-- AI模型配置组件 -->
-              <ModelConfig
-                v-model:quick-analysis-model="modelSettings.quickAnalysisModel"
-                v-model:deep-analysis-model="modelSettings.deepAnalysisModel"
-                :available-models="availableModels"
-                :analysis-depth="batchForm.depth"
-              />
-
               <!-- 分析选项 -->
               <div class="config-section">
                 <h4 class="config-title">⚙️ 分析选项</h4>
@@ -294,10 +286,8 @@ import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Files, TrendCharts, Check, Close } from '@element-plus/icons-vue'
 import { ANALYSTS, DEFAULT_ANALYSTS, convertAnalystNamesToIds } from '@/constants/analysts'
-import { configApi } from '@/api/config'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import ModelConfig from '@/components/ModelConfig.vue'
 import { getMarketByStockCode } from '@/utils/market'
 import { validateStockCode } from '@/utils/stockValidator'
 
@@ -369,29 +359,9 @@ const clearStocks = () => {
   invalidCodes.value = []
 }
 
-// 初始化模型设置
+// 初始化模型设置（现在模型配置在角色模型配置页面统一管理）
 const initializeModelSettings = async () => {
-  try {
-    // 获取默认模型
-    const defaultModels = await configApi.getDefaultModels()
-    modelSettings.value.quickAnalysisModel = defaultModels.quick_analysis_model
-    modelSettings.value.deepAnalysisModel = defaultModels.deep_analysis_model
-
-    // 获取所有可用的模型列表
-    const llmConfigs = await configApi.getLLMConfigs()
-    availableModels.value = llmConfigs.filter((config: any) => config.enabled)
-
-    console.log('✅ 加载模型配置成功:', {
-      quick: modelSettings.value.quickAnalysisModel,
-      deep: modelSettings.value.deepAnalysisModel,
-      available: availableModels.value.length
-    })
-  } catch (error) {
-    console.error('加载默认模型配置失败:', error)
-    // 使用硬编码的默认值
-    modelSettings.value.quickAnalysisModel = 'qwen-turbo'
-    modelSettings.value.deepAnalysisModel = 'qwen-max'
-  }
+  console.log('ℹ️ 模型配置已移至角色模型配置页面统一管理')
 }
 
 // 页面初始化
@@ -510,9 +480,7 @@ const submitBatchAnalysis = async () => {
         include_sentiment: batchForm.includeSentiment,
         include_risk: batchForm.includeRisk,
         language: batchForm.language,
-        quick_analysis_model: modelSettings.value.quickAnalysisModel,
-        deep_analysis_model: modelSettings.value.deepAnalysisModel,
-        analysis_level: parseInt(batchForm.depth)  // 添加分析级别字段，转换为数字
+        analysis_level: parseInt(batchForm.depth)
       }
     }
 

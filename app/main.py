@@ -46,7 +46,7 @@ from pathlib import Path
 from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.core.logging_config import setup_logging
-from app.routers import auth_db as auth, analysis, screening, queue, sse, health, favorites, config, reports, database, operation_logs, tags, tushare_init, akshare_init, baostock_init, historical_data, multi_period_sync, financial_data, news_data, social_media, internal_messages, usage_statistics, model_capabilities, cache, logs, agent_config, analysis_workflow, tool_config
+from app.routers import auth_db as auth, analysis, screening, queue, sse, health, favorites, config, reports, database, operation_logs, tags, tushare_init, akshare_init, baostock_init, historical_data, multi_period_sync, financial_data, news_data, social_media, internal_messages, usage_statistics, model_capabilities, cache, logs, agent_config, analysis_workflow, tool_config, role_model_config
 from app.routers import sync as sync_router, multi_source_sync
 from app.routers import stocks as stocks_router
 from app.routers import stock_data as stock_data_router
@@ -274,6 +274,17 @@ async def lifespan(app: FastAPI):
     # 显示配置摘要
     await _print_config_summary(logger)
 
+    # 初始化分析流程系统预设
+    try:
+        from app.services.analysis_workflow_service import MongoAnalysisWorkflowConfig
+        from app.core.database import get_mongo_db_sync
+        db = get_mongo_db_sync()
+        workflow_service = MongoAnalysisWorkflowConfig(db)
+        workflow_service.initialize_system_presets()
+        logger.info("✅ 分析流程系统预设初始化完成")
+    except Exception as e:
+        logger.warning(f"⚠️ 分析流程系统预设初始化失败: {e}")
+
     logger.info("TradingAgents FastAPI backend started")
 
     # 启动期：若需要在休市时补充上一交易日收盘快照
@@ -352,72 +363,75 @@ async def lifespan(app: FastAPI):
         # Tushare统一数据同步任务配置
         logger.info("🔄 配置Tushare统一数据同步任务...")
 
-        # 基础信息同步任务
-        scheduler.add_job(
-            run_tushare_basic_info_sync,
-            CronTrigger.from_crontab(settings.TUSHARE_BASIC_INFO_SYNC_CRON, timezone=settings.TIMEZONE),
-            id="tushare_basic_info_sync",
-            name="股票基础信息同步（Tushare）",
-            kwargs={"force_update": False}
-        )
-        if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_BASIC_INFO_SYNC_ENABLED):
-            scheduler.pause_job("tushare_basic_info_sync")
-            logger.info(f"⏸️ Tushare基础信息同步已添加但暂停: {settings.TUSHARE_BASIC_INFO_SYNC_CRON}")
-        else:
-            logger.info(f"📅 Tushare基础信息同步已配置: {settings.TUSHARE_BASIC_INFO_SYNC_CRON}")
+        try:
+            # 基础信息同步任务
+            scheduler.add_job(
+                run_tushare_basic_info_sync,
+                CronTrigger.from_crontab(settings.TUSHARE_BASIC_INFO_SYNC_CRON, timezone=settings.TIMEZONE),
+                id="tushare_basic_info_sync",
+                name="股票基础信息同步（Tushare）",
+                kwargs={"force_update": False}
+            )
+            if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_BASIC_INFO_SYNC_ENABLED):
+                scheduler.pause_job("tushare_basic_info_sync")
+                logger.info(f"⏸️ Tushare基础信息同步已添加但暂停: {settings.TUSHARE_BASIC_INFO_SYNC_CRON}")
+            else:
+                logger.info(f"📅 Tushare基础信息同步已配置: {settings.TUSHARE_BASIC_INFO_SYNC_CRON}")
 
-        # 实时行情同步任务
-        scheduler.add_job(
-            run_tushare_quotes_sync,
-            CronTrigger.from_crontab(settings.TUSHARE_QUOTES_SYNC_CRON, timezone=settings.TIMEZONE),
-            id="tushare_quotes_sync",
-            name="实时行情同步（Tushare）"
-        )
-        if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_QUOTES_SYNC_ENABLED):
-            scheduler.pause_job("tushare_quotes_sync")
-            logger.info(f"⏸️ Tushare行情同步已添加但暂停: {settings.TUSHARE_QUOTES_SYNC_CRON}")
-        else:
-            logger.info(f"📈 Tushare行情同步已配置: {settings.TUSHARE_QUOTES_SYNC_CRON}")
+            # 实时行情同步任务
+            scheduler.add_job(
+                run_tushare_quotes_sync,
+                CronTrigger.from_crontab(settings.TUSHARE_QUOTES_SYNC_CRON, timezone=settings.TIMEZONE),
+                id="tushare_quotes_sync",
+                name="实时行情同步（Tushare）"
+            )
+            if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_QUOTES_SYNC_ENABLED):
+                scheduler.pause_job("tushare_quotes_sync")
+                logger.info(f"⏸️ Tushare行情同步已添加但暂停: {settings.TUSHARE_QUOTES_SYNC_CRON}")
+            else:
+                logger.info(f"📈 Tushare行情同步已配置: {settings.TUSHARE_QUOTES_SYNC_CRON}")
 
-        # 历史数据同步任务
-        scheduler.add_job(
-            run_tushare_historical_sync,
-            CronTrigger.from_crontab(settings.TUSHARE_HISTORICAL_SYNC_CRON, timezone=settings.TIMEZONE),
-            id="tushare_historical_sync",
-            name="历史数据同步（Tushare）",
-            kwargs={"incremental": True}
-        )
-        if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_HISTORICAL_SYNC_ENABLED):
-            scheduler.pause_job("tushare_historical_sync")
-            logger.info(f"⏸️ Tushare历史数据同步已添加但暂停: {settings.TUSHARE_HISTORICAL_SYNC_CRON}")
-        else:
-            logger.info(f"📊 Tushare历史数据同步已配置: {settings.TUSHARE_HISTORICAL_SYNC_CRON}")
+            # 历史数据同步任务
+            scheduler.add_job(
+                run_tushare_historical_sync,
+                CronTrigger.from_crontab(settings.TUSHARE_HISTORICAL_SYNC_CRON, timezone=settings.TIMEZONE),
+                id="tushare_historical_sync",
+                name="历史数据同步（Tushare）",
+                kwargs={"incremental": True}
+            )
+            if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_HISTORICAL_SYNC_ENABLED):
+                scheduler.pause_job("tushare_historical_sync")
+                logger.info(f"⏸️ Tushare历史数据同步已添加但暂停: {settings.TUSHARE_HISTORICAL_SYNC_CRON}")
+            else:
+                logger.info(f"📊 Tushare历史数据同步已配置: {settings.TUSHARE_HISTORICAL_SYNC_CRON}")
 
-        # 财务数据同步任务
-        scheduler.add_job(
-            run_tushare_financial_sync,
-            CronTrigger.from_crontab(settings.TUSHARE_FINANCIAL_SYNC_CRON, timezone=settings.TIMEZONE),
-            id="tushare_financial_sync",
-            name="财务数据同步（Tushare）"
-        )
-        if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_FINANCIAL_SYNC_ENABLED):
-            scheduler.pause_job("tushare_financial_sync")
-            logger.info(f"⏸️ Tushare财务数据同步已添加但暂停: {settings.TUSHARE_FINANCIAL_SYNC_CRON}")
-        else:
-            logger.info(f"💰 Tushare财务数据同步已配置: {settings.TUSHARE_FINANCIAL_SYNC_CRON}")
+            # 财务数据同步任务
+            scheduler.add_job(
+                run_tushare_financial_sync,
+                CronTrigger.from_crontab(settings.TUSHARE_FINANCIAL_SYNC_CRON, timezone=settings.TIMEZONE),
+                id="tushare_financial_sync",
+                name="财务数据同步（Tushare）"
+            )
+            if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_FINANCIAL_SYNC_ENABLED):
+                scheduler.pause_job("tushare_financial_sync")
+                logger.info(f"⏸️ Tushare财务数据同步已添加但暂停: {settings.TUSHARE_FINANCIAL_SYNC_CRON}")
+            else:
+                logger.info(f"💰 Tushare财务数据同步已配置: {settings.TUSHARE_FINANCIAL_SYNC_CRON}")
 
-        # 状态检查任务
-        scheduler.add_job(
-            run_tushare_status_check,
-            CronTrigger.from_crontab(settings.TUSHARE_STATUS_CHECK_CRON, timezone=settings.TIMEZONE),
-            id="tushare_status_check",
-            name="数据源状态检查（Tushare）"
-        )
-        if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_STATUS_CHECK_ENABLED):
-            scheduler.pause_job("tushare_status_check")
-            logger.info(f"⏸️ Tushare状态检查已添加但暂停: {settings.TUSHARE_STATUS_CHECK_CRON}")
-        else:
-            logger.info(f"🔍 Tushare状态检查已配置: {settings.TUSHARE_STATUS_CHECK_CRON}")
+            # 状态检查任务
+            scheduler.add_job(
+                run_tushare_status_check,
+                CronTrigger.from_crontab(settings.TUSHARE_STATUS_CHECK_CRON, timezone=settings.TIMEZONE),
+                id="tushare_status_check",
+                name="数据源状态检查（Tushare）"
+            )
+            if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_STATUS_CHECK_ENABLED):
+                scheduler.pause_job("tushare_status_check")
+                logger.info(f"⏸️ Tushare状态检查已添加但暂停: {settings.TUSHARE_STATUS_CHECK_CRON}")
+            else:
+                logger.info(f"🔍 Tushare状态检查已配置: {settings.TUSHARE_STATUS_CHECK_CRON}")
+        except Exception as e:
+            logger.warning(f"⚠️ Tushare定时任务配置失败: {e}")
 
         # AKShare统一数据同步任务配置
         logger.info("🔄 配置AKShare统一数据同步任务...")
@@ -680,13 +694,16 @@ app.add_middleware(RequestIDMiddleware)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logging.error(f"Unhandled exception: {exc}", exc_info=True)
+    import traceback
+    error_detail = traceback.format_exc()
+    logging.error(f"Unhandled exception: {exc}\n{error_detail}")
     return JSONResponse(
         status_code=500,
         content={
             "error": {
                 "code": "INTERNAL_SERVER_ERROR",
-                "message": "Internal server error occurred",
+                "message": str(exc),
+                "detail": error_detail,
                 "request_id": getattr(request.state, "request_id", None)
             }
         }
@@ -699,6 +716,20 @@ async def test_log():
     """测试日志中间件是否工作"""
     print("🧪 测试端点被调用 - 这条消息应该出现在控制台")
     return {"message": "测试成功", "timestamp": time.time()}
+
+# 测试角色配置端点
+@app.get("/api/test-role-config")
+async def test_role_config():
+    """测试角色配置服务"""
+    print("🧪 测试角色配置端点被调用")
+    try:
+        from app.services.role_model_config_service import RoleModelConfigService
+        service = RoleModelConfigService()
+        config = await service.get_active_config()
+        return {"success": True, "data": config}
+    except Exception as e:
+        import traceback
+        return {"success": False, "error": str(e), "traceback": traceback.format_exc()}
 
 # 注册路由
 app.include_router(health.router, prefix="/api", tags=["health"])
@@ -753,6 +784,9 @@ app.include_router(analysis_workflow.router, prefix="/api", tags=["analysis-work
 
 # 工具配置管理
 app.include_router(tool_config.router, prefix="/api", tags=["tool-config"])
+
+# 角色模型配置
+app.include_router(role_model_config.router, tags=["role-model-config"])
 
 
 @app.get("/")
